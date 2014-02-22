@@ -3,7 +3,12 @@
 
 Twigs is a library of useful Services and Directives for AngularJS applications. It evolved out of [https://bitbucket.org/hatchteam/hatch](Hatch).
 
+# Quickstart
 
+1. Add twigs as a dependency to your **bower.json**.
+2. run **bower install**
+3. Reference the twigs modules you want to use in your angular module's declaration.
+4. Reference the needed files in your index.html
 
 ## Module: GlobalHotkeys
 
