@@ -17,9 +17,9 @@
 
 'use strict';
 
+
 describe('Service: GlobalHotKeysService', function () {
 
-    // load the services's module
     beforeEach(module('twigs.globalHotKeys'));
 
     // instantiate service
@@ -86,6 +86,145 @@ describe('Service: GlobalHotKeysService', function () {
         expect(GlobalHotKeysService.getPageHotKeyAction(dummyPath2, 'shift+z')).toBe(noop2);
         expect(GlobalHotKeysService.getPageHotKeyAction(dummyPath2, 'shift+z')()).toBe('noop2');
 
+    });
+
+
+});
+
+
+describe('Directive: twgHotKeys', function () {
+    var $compile, $scope, GlobalHotKeysService;
+
+    beforeEach(module('twigs.globalHotKeys'));
+
+    beforeEach(inject(function (_$compile_, _$rootScope_, _GlobalHotKeysService_) {
+        $compile = _$compile_;
+        $scope = _$rootScope_.$new();
+        GlobalHotKeysService = _GlobalHotKeysService_;
+    }));
+
+    function whenCompiling(element) {
+        var element = $compile(element)($scope);
+        $scope.$digest();
+        return element;
+    }
+
+    function triggerKeyDown(element, keyCode) {
+        var e = jQuery.Event("keydown");
+        e.which = keyCode.charCodeAt(0);
+        element.trigger(e);
+        $scope.$digest();
+    };
+
+    function triggerKeyPress(element, keyCode) {
+        var e = jQuery.Event("keypress");
+        e.which = keyCode.charCodeAt(0);
+        element.trigger(e);
+        $scope.$digest();
+    };
+
+    it('should do nothing if no hotkey registered', function () {
+        var htmlElement = angular.element('<html twg-global-hotkeys><body></body></html>');
+        var element = whenCompiling(htmlElement);
+        triggerKeyPress(element, 'a');
+    });
+
+    it('should trigger on simple hotkey', function () {
+        var htmlElement = angular.element('<div twg-global-hotkeys></div>');
+        var element = whenCompiling(htmlElement);
+        var callBackExecuted = false;
+
+        GlobalHotKeysService.registerGlobalHotKey('a', function () {
+            callBackExecuted = true;
+        });
+
+        triggerKeyPress(element, 'a');
+
+        waitsFor(function () {
+            return callBackExecuted;
+        }, 'callbackToBeExecuted', 1000);
+
+        runs(function () {
+            expect(callBackExecuted).toEqual(true);
+        });
+    });
+
+    it('should trigger on child elements', function () {
+        var htmlElement = angular.element('<div twg-global-hotkeys><div class="some"></div></div>');
+        var element = whenCompiling(htmlElement);
+        var someElement = element.find('.some');
+        var callBackExecuted = false;
+
+        GlobalHotKeysService.registerGlobalHotKey('G', function () {
+            callBackExecuted = true;
+        });
+
+        triggerKeyPress(someElement, 'G');
+
+        waitsFor(function () {
+            return callBackExecuted;
+        }, 'callbackToBeExecuted', 1000);
+
+        runs(function () {
+            expect(callBackExecuted).toEqual(true);
+        });
+    });
+
+    it('should not trigger with wrong key', function () {
+        var htmlElement = angular.element('<div twg-global-hotkeys><div class="some"></div></div>');
+        var element = whenCompiling(htmlElement);
+        var someElement = element.find('.some');
+        var callBackNotExecuted = true;
+
+        GlobalHotKeysService.registerGlobalHotKey('G', function () {
+            callBackNotExecuted = false;
+        });
+
+        triggerKeyPress(someElement, 'a');
+
+        waits(200);
+
+        runs(function () {
+            expect(callBackNotExecuted).toEqual(true);
+        });
+    });
+
+    it('should not trigger on input element', function () {
+        var htmlElement = angular.element('<div twg-global-hotkeys><input type="text" class="myinput" /></div>');
+        var element = whenCompiling(htmlElement);
+        var inputElement = element.find('.myinput');
+        var callBackNotExecuted = true;
+
+        GlobalHotKeysService.registerGlobalHotKey('G', function () {
+            callBackNotExecuted = false;
+        });
+
+        triggerKeyPress(inputElement, 'G');
+
+        waits(200);
+
+        runs(function () {
+            expect(callBackNotExecuted).toEqual(true);
+        });
+    });
+
+    it('should not trigger on textarea element', function () {
+        var htmlElement = angular.element('<div twg-global-hotkeys><textarea class="mytextarea">Some text</textarea></div>');
+        var element = whenCompiling(htmlElement);
+        var inputElement = element.find('.mytextarea');
+        var callBackNotExecuted = true;
+
+        GlobalHotKeysService.registerGlobalHotKey('G', function () {
+            callBackNotExecuted = false;
+        });
+
+        triggerKeyPress(inputElement, 'G');
+
+        waits(200);
+
+        runs(function () {
+            expect(callBackNotExecuted).toEqual(true);
+        });
     });
 
 

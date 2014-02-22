@@ -13,6 +13,7 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
 ## Module: GlobalHotkeys
 
 GlobalHotkeys allows you to assign actions to specific keyboard key combinations.
+In order for it to work, add the 'twg-global-hotkeys' directive to the top-element of your angular application (e.g. the html-element in a single page application)
 
 ### Globally defined hotkeys
 Globally defined hotkeys are available on all pages (except if explicitly overridden by path-specific hotkeys). You can define them in the **run** function of your Application's main module.

@@ -18,81 +18,92 @@
 'use strict';
 
 /**
- *  application wide hotkeys that can be overridden by
- *  controllers (with route/path-specific hotkey assignments)
+ *  application-wide and page-specific hotkeys
  *
  *  See readme.md for more information
  */
 angular.module('twigs.globalHotKeys', [])
 
     .factory('GlobalHotKeysService', function ($location) {
+        var pageHotKeys = {}, globalHotKeys = {};
+
+        function getPageHotKeyAction(page, hotKey) {
+            var hotKeys = pageHotKeys[page];
+            if (angular.isUndefined(hotKeys)) {
+                return undefined;
+            }
+
+            return hotKeys[hotKey.toLowerCase()];
+        }
+
+        function getGlobalHotKeyAction(hotKey) {
+            return globalHotKeys[hotKey.toLowerCase()];
+        }
+
+        function registerPageHotKey(hotKey, actionFunction) {
+            var page = $location.path();
+            var hotKeys = pageHotKeys[page];
+            if (angular.isUndefined(hotKeys)) {
+                hotKeys = {};
+                pageHotKeys[page] = hotKeys;
+            }
+
+            hotKeys[hotKey.toLowerCase()] = actionFunction;
+        }
+
+        function registerPageHotKeys(hotKeys, actionFunction) {
+            angular.forEach(hotKeys, function (key) {
+                registerPageHotKey(key, actionFunction);
+            });
+        }
+
+        function registerGlobalHotKey(hotKey, actionFunction) {
+            globalHotKeys[hotKey.toLowerCase()] = actionFunction;
+        }
+
+        function registerGlobalHotKeys(hotKeys, actionFunction) {
+            angular.forEach(hotKeys, function (key) {
+                registerGlobalHotKey(key, actionFunction);
+            });
+        }
+
         var serviceInstance = {
-            pageHotKeys: {},
-            globalHotKeys: {},
 
-            getPageHotKeyAction: function (page, hotKey) {
-                var hotKeys = this.pageHotKeys[page];
-                if (angular.isUndefined(hotKeys)) {
-                    return undefined;
-                }
+            getPageHotKeyAction: getPageHotKeyAction,
 
-                return hotKeys[hotKey.toLowerCase()];
-            },
+            getGlobalHotKeyAction: getGlobalHotKeyAction,
 
             /**
-             * controllers can call this method to register route-/path-specifiv hotkeys.
+             * controllers can call this function to register route-/path-specific hotkeys.
              * @param hotKey
              *      the hotkey as string (e.g.  'n'  or 'alt+n' )
              * @param actionFunction
              *      the callback function that is invoked when a hotkey (-combination) is pressed
              */
-            registerPageHotKey: function (hotKey, actionFunction) {
-                var page = $location.path();
-                var hotKeys = this.pageHotKeys[page];
-                if (angular.isUndefined(hotKeys)) {
-                    hotKeys = {};
-                    this.pageHotKeys[page] = hotKeys;
-                }
-
-                hotKeys[hotKey.toLowerCase()] = actionFunction;
-            },
+            registerPageHotKey: registerPageHotKey,
 
             /**
-             * @param hotKeys an array of hotkeys
+             * controllers can call this function to register route-/path-specific hotkeys.
+             * @param hotKeys
+             *      an array of hotkeys where each key is a string (e.g.  'n'  or 'alt+n' )
+             * @param actionFunction
+             *      the callback function that is invoked when one of the given hotkeys is pressed
              */
-            registerPageHotKeys: function (hotKeys, actionFunction) {
-                var that = this;
-                angular.forEach(hotKeys, function (key) {
-                    that.registerPageHotKey.call(that, key, actionFunction);
-                });
-            },
-
-
-            getGlobalHotKeyAction: function (hotKey) {
-                return this.globalHotKeys[hotKey.toLowerCase()];
-            },
-
+            registerPageHotKeys: registerPageHotKeys,
 
             /**
-             * controllers can call this method to register global (application-wide) hotkeys.
+             * call this function to register global (application-wide) hotkeys.
              * @param hotKey
              *      the hotkey as string (e.g.  "n"  or "alt+n" )
              * @param actionFunction
              *      the callback function that is invoked when a hotkey (-combination) is pressed
              */
-            registerGlobalHotKey: function (hotKey, actionFunction) {
-                this.globalHotKeys[hotKey.toLowerCase()] = actionFunction;
-            },
+            registerGlobalHotKey: registerGlobalHotKey,
 
             /**
              * @param hotKeys an array of hotkeys
              */
-            registerGlobalHotKeys: function (hotKeys, actionFunction) {
-                var that = this;
-                angular.forEach(hotKeys, function (key) {
-                    that.registerGlobalHotKey.call(that, key, actionFunction);
-                });
-            }
+            registerGlobalHotKeys: registerGlobalHotKeys
         };
 
         return serviceInstance;
@@ -106,7 +117,7 @@ angular.module('twigs.globalHotKeys', [])
  *
  * ignores keystrokes in form elements , buttons and links.
  */
-    .directive('htHotKeys', function ($location, $rootScope, GlobalHotKeysService) {
+    .directive('twgGlobalHotkeys', function ($location, $rootScope, GlobalHotKeysService) {
         return {
             restrict: 'A',
             link: function (scope, element) {
