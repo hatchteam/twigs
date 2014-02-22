@@ -116,6 +116,8 @@ angular.module('twigs.globalHotKeys', [])
  * we used this directive on the <html> element, in order to catch all key events.
  *
  * ignores keystrokes in form elements , buttons and links.
+ *
+ *  See readme.md for more information
  */
     .directive('twgGlobalHotkeys', function ($location, $rootScope, GlobalHotKeysService) {
         return {

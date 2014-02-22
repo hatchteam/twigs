@@ -13,28 +13,29 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
 ## Module: GlobalHotkeys
 
 GlobalHotkeys allows you to assign actions to specific keyboard key combinations.
-In order for it to work, add the 'twg-global-hotkeys' directive to the top-element of your angular application (e.g. the html-element in a single page application)
+In order for it to work, add the 'twg-global-hotkeys' directive to the top-element of your angular application (e.g. the html-element in a single page application).
+
+**Note:** All keypress/keydown events within input fields (input/textarea/select), links and buttons do not trigger the hotkey callback.
 
 ### Globally defined hotkeys
 Globally defined hotkeys are available on all pages (except if explicitly overridden by path-specific hotkeys). You can define them in the **run** function of your Application's main module.
 
  ```javascript
-  var App = angular.module('Main',['twigs.globalHotKeys']);
+var App = angular.module('Main',['twigs.globalHotKeys']);
 
-  App.run(function ($location, GlobalHotKeysService) {
+App.run(function ($location, GlobalHotKeysService) {
 
-      GlobalHotKeysService.registerGlobalHotKeys(["alt+h", "shift+h"], function () {
+    GlobalHotKeysService.registerGlobalHotKeys(["alt+h", "shift+h"], function () {
         // go to home view
         $location.path('/#');
-      });
+    });
 
 
-     GlobalHotKeysService.registerGlobalHotKeys(["alt+a", "shift+a"], function () {
+    GlobalHotKeysService.registerGlobalHotKeys(["alt+a", "shift+a"], function () {
         // do something here
-     });
+    });
 
-
-  });
+});
   ```
 
 
@@ -43,16 +44,27 @@ You can define path-specific hotkeys which can override globally defined hotkeys
 
  ```javascript
 
-    App.controller('SomeController', function (GlobalHotKeysService) {
+App.controller('SomeController', function (GlobalHotKeysService) {
 
-        GlobalHotKeysService.registerPageHotKey("alt+i", function () {
-            // do something here
-        });
-
+    GlobalHotKeysService.registerPageHotKey("alt+i", function () {
+        // do something here
     });
+
+});
 
  ```
 
+
+## Module: TableRowClick
+
+For a better user experience, we want to be able to react to mouseclicks anywhere on a table row, not just one link in a cell.
+This directive adds a mouse listener to the row and switches to the specified url when the user clicks anywhere on the row.
+Additionally it can handle events that bubble up from other elements with ng-click handlers within the row (and thus correctly ignoring these).
+
+
+ ```html
+<tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}" >
+ ```
 
 
 ## Development Info

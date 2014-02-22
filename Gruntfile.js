@@ -195,12 +195,14 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test:unit', [
         'clean:server',
+        'jshint',
         'connect:test',
         'karma:unit'
     ]);
 
     grunt.registerTask('test:unitwatch', [
         'clean:server',
+        'jshint',
         'connect:test',
         'karma:unitwatch'
     ]);
