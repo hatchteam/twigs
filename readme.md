@@ -54,8 +54,8 @@ You can define path-specific hotkeys which can override globally defined hotkeys
 
 
 
- ## Development Info
+## Development Info
 
  1. check out the code
- 2. npm install
- 3. grunt test
+ 2. run **npm install**
+ 3. run **grunt test**
