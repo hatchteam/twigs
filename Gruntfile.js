@@ -15,7 +15,7 @@ module.exports = function (grunt) {
     };
 
     try {
-        yeomanConfig.app = require('./component.json').appPath || yeomanConfig.app;
+        yeomanConfig.app = require('./bower.json').appPath || yeomanConfig.app;
     } catch (e) {
     }
 
@@ -93,49 +93,19 @@ module.exports = function (grunt) {
             unit: {
                 configFile: 'karma.conf.js',
                 singleRun: true
+            },
+            unitwatch: {
+                configFile: 'karma.conf.js',
+                singleRun: false,
+                autoWatch: true
             }
         },
         concat: {
             dist: {
                 files: {
-                    '<%= yeoman.dist %>/scripts/scripts.js': [
+                    '<%= yeoman.dist %>/twigs.js': [
                         '.tmp/scripts/{,*/}*.js',
                         '<%= yeoman.app %>/scripts/{,*/}*.js'
-                    ]
-                }
-            }
-        },
-        useminPrepare: {
-            html: '<%= yeoman.app %>/index.html',
-            options: {
-                dest: '<%= yeoman.dist %>'
-            }
-        },
-        usemin: {
-            html: ['<%= yeoman.dist %>/{,*/}*.html'],
-            css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
-            options: {
-                dirs: ['<%= yeoman.dist %>']
-            }
-        },
-        imagemin: {
-            dist: {
-                files: [
-                    {
-                        expand: true,
-                        cwd: '<%= yeoman.app %>/images',
-                        src: '{,*/}*.{png,jpg,jpeg}',
-                        dest: '<%= yeoman.dist %>/images'
-                    }
-                ]
-            }
-        },
-        cssmin: {
-            dist: {
-                files: {
-                    '<%= yeoman.dist %>/styles/main.css': [
-                        '.tmp/styles/{,*/}*.css',
-                        '<%= yeoman.app %>/styles/{,*/}*.css'
                     ]
                 }
             }
@@ -212,7 +182,6 @@ module.exports = function (grunt) {
                         src: [
                             '*.{ico,txt}',
                             '.htaccess',
-                            'components/**/*',
                             'images/{,*/}*.{gif,webp}',
                             'styles/fonts/*'
                         ]
@@ -224,35 +193,27 @@ module.exports = function (grunt) {
 
     grunt.renameTask('regarde', 'watch');
 
-    grunt.registerTask('server', [
-        'clean:server',
-        'livereload-start',
-        'connect:livereload',
-        'open',
-        'watch'
-    ]);
-
-    grunt.registerTask('test', [
+    grunt.registerTask('test:unit', [
         'clean:server',
         'connect:test',
-        'karma'
+        'karma:unit'
+    ]);
+
+    grunt.registerTask('test:unitwatch', [
+        'clean:server',
+        'connect:test',
+        'karma:unitwatch'
     ]);
 
     grunt.registerTask('build', [
         'clean:dist',
         'jshint',
         'test',
-        'useminPrepare',
-        'imagemin',
-        'cssmin',
         'htmlmin',
         'concat',
         'copy',
-        'cdnify',
         'ngmin',
-        'uglify',
-        'rev',
-        'usemin'
+        'rev'
     ]);
 
     grunt.registerTask('default', ['build']);

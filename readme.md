@@ -58,4 +58,4 @@ You can define path-specific hotkeys which can override globally defined hotkeys
 
  1. check out the code
  2. run **npm install**
- 3. run **grunt test**
+ 3. run **grunt test:unit**
