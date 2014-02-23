@@ -159,6 +159,148 @@ In Addition, marker css classes are added the column headers, which enables spec
 </table>
 ```
 
+## Module: Flow
+
+In more complex applications we'd like to chain different views into business processes, i.e. flows.
+
+These can be wizard-like processes with many steps or simple ones that guide the user through only a few views.
+**Flow** provides you with a simple mechanism to define which angular route definitions you want to chain to a process.
+It allows you to define allowed transitions between steps and gives you easy access to the shared model across all steps.
+
+### Flow creation
+
+In the **config** function of your application's main module, you can define the flows:
+
+```javascript
+var App = angular.module('Main',['twigs.flow']);
+
+App.config(function ($routeProvider,FlowProvider) {
+
+// define your routes as usual
+$routeProvider
+    .when('/firstStep', {
+        templateUrl: 'views/wizard_first.html',
+        controller: 'WizardCtrl'
+    })
+    .when('/secondStep', {
+        templateUrl: 'views/wizard_second.html',
+        controller: 'WizardCtrl'
+    })
+    .when('/thirdStep', {
+        templateUrl: '/views/wizard_third.html',
+        controller: 'WizardCtrl'
+    });
+
+// define a flow
+$flowProvider.flow('myWizard')
+    .step({
+        'id': 'first',  // a unique step id within this flow.
+        'route': '/firstStep',  // this matches the first route definition from above
+        'transitions': {
+            'next': 'second',
+            'skip': 'third',    // allows to skip step two and jump directly to the last step
+        }
+    })
+    .step({
+        'id': 'second',
+        'route': '/secondStep',
+        'transitions': {
+            'previous': 'first',    // allows to switch to the previous step
+            'next': 'third' // allows to proceed to the next step
+        }
+    }).step({
+        'id': 'third',
+        'route': '/thirdStep',
+        'transitions': {
+            'previous': 'second'
+        }
+    }).createFlow();
+
+});
+```
+
+In this example, the steps share the same controller. For more complex flows, you'd want to use
+separate controllers for each step.
+
+
+### Flow navigation
+
+Within your controller, you have access to the shard model and can navigate between the steps.
+
+```javascript
+angular.module('Main')
+    .controller('WizardCtrl', function ($scope, Flow) {
+
+    // the Flow service holds the shared model
+    $scope.flowmodel = Flow.getModel();
+
+    $scope.onButtonPrevious = function () {
+        Flow.previous($scope.flowmodel);
+    };
+
+    $scope.onButtonNext = function () {
+        Flow.next($scope.flowmodel);
+    };
+
+});
+```
+
+### FlowProvider methods
+
+- **flow(flowId)**
+
+   Adds a new flow.
+
+| Param        | Type           | Details  |
+| ------------ | ------------- | ----- |
+| flowId    | `String` | A unique id for this new flow |
+
+- **step(stepConfig)**
+
+  Adds a step to the current flow.
+
+| Param        | Type           | Details  |
+| ------------ | ------------- | ----- |
+| stepConfig    | `Object` | Step configuration with properties: **id**, **route**, and **transitions**   |
+
+- **createFlow()**
+
+   Completes the flow creation. You must invoke this function before starting a new flow with **flow()**.
+
+### Flow methods
+
+- **getModel()**
+
+  Returns the flow model.
+
+- **next()**
+
+  Proceeds to the next step (i.e. performs the transition with the id **'next'**).
+
+
+- **previous()**
+
+  Proceeds to the previous step (i.e. performs the transition with the id **'previous'**).
+
+
+- **toStep(targetStepId)**
+
+  Jumps directly to the specified step (if this transition is allowed by config).
+
+| Param        | Type           | Details  |
+| ------------ | ------------- | ----- |
+| targetStepId    | `String` | The id of the step to jump to |
+
+- **isCurrentStep(stepId)**
+
+  Returns true if the current step matches the given stepId. Can be of use if you share a controller between
+  all steps.
+
+| Param        | Type           | Details  |
+| ------------ | ------------- | ----- |
+| stepId    | `String` | The step id to check for |
+
+
 ## Development Info
 
  1. check out the code
