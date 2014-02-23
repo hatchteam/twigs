@@ -3,6 +3,13 @@
 
 Twigs is a library of useful Services and Directives for AngularJS applications. It evolved out of the [Hatch](https://bitbucket.org/hatchteam/hatch) project.
 
+
+### Status
+| Branch        | Status         |
+| ------------- |:-------------:|
+| master        | [![Build Status](https://travis-ci.org/hatchteam/twigs.png?branch=master)](https://travis-ci.org/angular-translate/angular-translate) |
+
+
 # Quickstart
 
 1. Add twigs as a dependency to your **bower.json**.
