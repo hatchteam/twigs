@@ -126,6 +126,39 @@ regex.
 </ul>
 ```
 
+
+## Module: Sortable
+
+In a modern user interface, we expect tables to be sortable.
+The twgSortable directive provides an easy way to define sortable tables. Just specify the attribute's name
+you want to sort by (in the example: 'name' and 'number').
+
+
+The directive will set the scope variables **orderPropertyName** and **orderProp** which you can use
+in the usual way in ngRepeat.
+
+On the first click, the rows are sorted ascending, on a second click to the same column header, the rows are
+sorted descending.
+
+In Addition, marker css classes are added the column headers, which enables specific styling (e.g. arrows).
+
+```html
+<table>
+    <thead>
+        <tr>
+            <th twg-sortable="name">Name</th>
+            <th twg-sortable="number">Number</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="data in dummyData | orderBy:orderPropertyName:orderProp">
+            <td>{{data.number}}</td>
+            <td>{{data.name}}</td>
+        </tr>
+    </tbody>
+</table>
+```
+
 ## Development Info
 
  1. check out the code
