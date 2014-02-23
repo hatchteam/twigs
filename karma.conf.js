@@ -12,8 +12,7 @@ files = [
     'app/components/angular-mocks/angular-mocks.js',
     'app/scripts/*.js',
     'app/scripts/**/*.js',
-    'test/spec/**/*.js' ,
-    'test/*.js'
+    'test/spec/**/*.js'
 ];
 
 // list of files to exclude
@@ -47,7 +46,7 @@ autoWatch = false;
 // - Safari (only Mac)
 // - PhantomJS
 // - IE (only Windows)
-browsers = ['Chrome'];
+browsers = ['PhantomJS'];
 
 // If browser does not capture in given timeout [ms], kill it
 captureTimeout = 7000;

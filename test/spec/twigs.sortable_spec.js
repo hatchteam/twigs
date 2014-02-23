@@ -62,12 +62,12 @@ describe("Directive: twgSortable", function () {
         var element = whenCompiling(angular.element(tableMarkup));
 
         var headers = element.find('thead th');
-        headers[0].click();
+        headers.eq(0).click();
         expectCellValue(element, 0, 1, 'one');
         expectCellValue(element, 1, 1, 'two');
         expectCellValue(element, 2, 1, 'three');
         /* click on column header 'Name' */
-        headers[1].click();
+        headers.eq(1).click();
         expectCellValue(element, 0, 1, 'one');
         expectCellValue(element, 1, 1, 'three');
         expectCellValue(element, 2, 1, 'two');
@@ -87,7 +87,7 @@ describe("Directive: twgSortable", function () {
         expect(headers.eq(1).hasClass('column-sort-none')).toBe(true);
 
         /* click on column header 'Name' */
-        headers[1].click();
+        headers.eq(1).click();
 
         expect(headers.eq(0).hasClass('column-sort-none')).toBe(true);
         expect(headers.eq(1).hasClass('column-sort-asc')).toBe(true);
@@ -97,7 +97,7 @@ describe("Directive: twgSortable", function () {
         expectCellValue(element, 2, 1, 'two');
 
         /* click again on column header 'Name' */
-        headers[1].click();
+        headers.eq(1).click();
 
         expect(headers.eq(0).hasClass('column-sort-none')).toBe(true);
         expect(headers.eq(1).hasClass('column-sort-desc')).toBe(true);
@@ -118,14 +118,14 @@ describe("Directive: twgSortable", function () {
         expectCellValue(element, 2, 1, 'three');
 
         /* click on column header 'Name' */
-        headers[1].click();
+        headers.eq(1).click();
 
         expectCellValue(element, 0, 1, 'one');
         expectCellValue(element, 1, 1, 'three');
         expectCellValue(element, 2, 1, 'two');
 
         /* click on column header 'Number' */
-        headers[0].click();
+        headers.eq(0).click();
 
         expect(headers.eq(0).hasClass('column-sort-asc')).toBe(true);
         expect(headers.eq(1).hasClass('column-sort-none')).toBe(true);
