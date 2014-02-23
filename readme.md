@@ -80,6 +80,46 @@ Example: a Click on the button in the first row will not trigger a location chan
  ```
 
 
+## Module: ActiveRoute
+
+In almost every webpage you'd like to mark elements as active, if the current view matches their link. E.g., in a navigation Menu,
+the currently active item should be highlighted.
+
+
+Add the active-route directive to the navigation elements and specify a regex that should match the currently active route.
+The directive will listen to url changes and add the css class **'active'** to the element.
+
+```html
+<ul>
+    <li><a twg-active-route="/home" href="/home">Home</a></li>
+    <li><a twg-active-route="/aboutMe" href="/aboutMe">About me</li>
+</ul>
+```
+
+A more complex example:
+
+```html
+<ul>
+    <li twg-active-route="/home"><a href="/home">Home</a></li>
+    <li twg-active-route="/settings/.*">Settings
+        <ul>
+            <li twg-active-route="/settings/audio"><a href="/settings/audio">Audio Settings</li>
+            <li twg-active-route="/settings/video"s><a href="/settings/video">Video Settings</li>
+        </ul>
+    </li>
+</ul>
+```
+
+You can also set your own css class: The directive will set a flag (**'twgActive'**) on the scope to true, if the url matches the specified
+regex.
+
+```html
+<ul>
+    <li><a twg-active-route="/home" href="/home" ng-class="{current: twgActive}" >Home</a></li>
+    <li><a twg-active-route="/about" href="/aboutMe" ng-class="{current: twgActive}" >About me</li>
+</ul>
+```
+
 ## Development Info
 
  1. check out the code
