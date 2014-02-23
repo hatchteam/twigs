@@ -104,7 +104,7 @@ A more complex example:
     <li twg-active-route="/settings/.*">Settings
         <ul>
             <li twg-active-route="/settings/audio"><a href="/settings/audio">Audio Settings</li>
-            <li twg-active-route="/settings/video"s><a href="/settings/video">Video Settings</li>
+            <li twg-active-route="/settings/video"><a href="/settings/video">Video Settings</li>
         </ul>
     </li>
 </ul>
