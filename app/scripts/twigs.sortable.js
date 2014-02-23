@@ -17,11 +17,6 @@
 
 'use strict';
 
-
-var CLASS_SORT_ASC = "column-sort-asc";
-var CLASS_SORT_DESC = "column-sort-desc";
-var CLASS_SORT_NONE = "column-sort-none";
-
 /**
  *  Provides a directive to add sorting functionality to a table or list column.
  *  Contributed by Tobias Forster. Many thanks!
@@ -32,6 +27,11 @@ var CLASS_SORT_NONE = "column-sort-none";
 angular.module('twigs.sortable', [])
 
     .directive('twgSortable', function () {
+
+        var CLASS_SORT_ASC = "column-sort-asc";
+        var CLASS_SORT_DESC = "column-sort-desc";
+        var CLASS_SORT_NONE = "column-sort-none";
+
         return {
             restrict: 'A',
             link: function (scope, element, attrs) {
