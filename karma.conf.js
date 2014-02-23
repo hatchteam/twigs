@@ -12,7 +12,8 @@ files = [
     'app/components/angular-mocks/angular-mocks.js',
     'app/scripts/*.js',
     'app/scripts/**/*.js',
-    'test/spec/**/*.js'
+    'test/spec/**/*.js' ,
+    'test/*.js'
 ];
 
 // list of files to exclude
@@ -49,7 +50,7 @@ autoWatch = false;
 browsers = ['Chrome'];
 
 // If browser does not capture in given timeout [ms], kill it
-captureTimeout = 5000;
+captureTimeout = 7000;
 
 // Continuous Integration mode
 // if true, it capture browsers, run tests and exit

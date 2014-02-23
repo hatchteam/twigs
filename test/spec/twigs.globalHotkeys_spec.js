@@ -17,10 +17,9 @@
 
 'use strict';
 
-
 describe('Service: GlobalHotKeysService', function () {
 
-    beforeEach(module('twigs.globalHotKeys'));
+    beforeEach(angular.mock.module('twigs.globalHotKeys'));
 
     // instantiate service
     var GlobalHotKeysService, $rootScope, scope, $location;
