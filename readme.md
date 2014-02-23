@@ -10,6 +10,12 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
 3. Reference the twigs modules you want to use in your angular module's declaration.
 4. Reference the needed files in your index.html
 
+
+## Module: Twigs
+
+Twigs just combines all modules in one.
+So for convenience, use 'twigs' as a dependency in your module to include all Twigs modules at once.
+
 ## Module: GlobalHotkeys
 
 GlobalHotkeys allows you to assign actions to specific keyboard key combinations.
@@ -115,8 +121,8 @@ regex.
 
 ```html
 <ul>
-    <li><a twg-active-route="/home" href="/home" ng-class="{current: twgActive}" >Home</a></li>
-    <li><a twg-active-route="/about" href="/aboutMe" ng-class="{current: twgActive}" >About me</li>
+    <li><a twg-active-route="/home" href="/home" ng-class="{current: twgActive}">Home</a></li>
+    <li><a twg-active-route="/about" href="/aboutMe" ng-class="{current: twgActive}">About me</li>
 </ul>
 ```
 
