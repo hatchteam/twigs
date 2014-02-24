@@ -1,6 +1,6 @@
 {
     "name": "twigs",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "main": "./twigs.js",
     "ignore": [
         "test",
