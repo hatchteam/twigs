@@ -1,3 +1,5 @@
+'use strict';
+
 /* twigs
  * Copyright (C) 2014, Hatch Development Team
  *
@@ -15,12 +17,53 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 /**
- *  application-wide and page-specific hotkeys
+ * @ngdoc service
+ * @name twigs.globalHotKeys.service:GlobalHotKeysService
  *
- *  See readme.md for more information
+ * @description
+ * GlobalHotkeys allows you to assign actions to specific keyboard key combinations.
+ * In order for it to work, add the 'twg-global-hotkeys' directive to the top-element of your angular application (e.g. the html-element in a single page application).
+ *
+ * **Note:** All keypress/keydown events within input fields (input/textarea/select), links and buttons do not trigger the hotkey callback.
+ *
+ * ### Globally defined hotkeys
+ * Globally defined hotkeys are available on all pages (except if explicitly overridden by path-specific hotkeys). You can define them in the **run** function of your Application's main module.
+ *
+ * ```javascript
+ * var App = angular.module('Main',['twigs.globalHotKeys']);
+ *
+ * App.run(function ($location, GlobalHotKeysService) {
+ *
+ *    GlobalHotKeysService.registerGlobalHotKeys(["alt+h", "shift+h"], function () {
+ *        // go to home view
+ *        $location.path('/#');
+ *    });
+ *
+ *
+ *    GlobalHotKeysService.registerGlobalHotKeys(["alt+a", "shift+a"], function () {
+ *        // do something here
+ *    });
+ *
+ * });
+ * ```
+ *
+ *
+ * ### Path-specific hotkeys
+ * You can define path-specific hotkeys which can override globally defined hotkeys. These will only be active for the current page.
+ *
+ * ```javascript
+ *
+ * App.controller('SomeController', function (GlobalHotKeysService) {
+ *
+ *    GlobalHotKeysService.registerPageHotKey("alt+i", function () {
+ *        // do something here
+ *    });
+ *
+ * });
+ *
+ * ```
+ *
  */
 angular.module('twigs.globalHotKeys', [])
 
@@ -74,34 +117,54 @@ angular.module('twigs.globalHotKeys', [])
             getGlobalHotKeyAction: getGlobalHotKeyAction,
 
             /**
-             * controllers can call this function to register route-/path-specific hotkeys.
-             * @param hotKey
-             *      the hotkey as string (e.g.  'n'  or 'alt+n' )
-             * @param actionFunction
-             *      the callback function that is invoked when a hotkey (-combination) is pressed
+             * @ngdoc function
+             * @name twigs.globalHotKeys.service:GlobalHotKeysService#registerPageHotKey
+             * @methodOf twigs.globalHotKeys.service:GlobalHotKeysService
+             *
+             * @description
+             * Controllers can call this function to register a route-/path-specific hotkey.
+             *
+             * @param {string} hotKey The hotkey as string (e.g.  'n'  or 'alt+n' )
+             * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
              */
             registerPageHotKey: registerPageHotKey,
 
             /**
-             * controllers can call this function to register route-/path-specific hotkeys.
-             * @param hotKeys
-             *      an array of hotkeys where each key is a string (e.g.  'n'  or 'alt+n' )
-             * @param actionFunction
-             *      the callback function that is invoked when one of the given hotkeys is pressed
+             * @ngdoc function
+             * @name twigs.globalHotKeys.service:GlobalHotKeysService#registerPageHotKeys
+             * @methodOf twigs.globalHotKeys.service:GlobalHotKeysService
+             *
+             * @description
+             * Controllers can call this function to register route-/path-specific hotkeys.
+             *
+             * @param {string[]} hotKey An array of hotkeys where each key is a string (e.g.  'n'  or 'alt+n' )
+             * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
              */
             registerPageHotKeys: registerPageHotKeys,
 
             /**
-             * call this function to register global (application-wide) hotkeys.
-             * @param hotKey
-             *      the hotkey as string (e.g.  "n"  or "alt+n" )
-             * @param actionFunction
-             *      the callback function that is invoked when a hotkey (-combination) is pressed
+             * @ngdoc function
+             * @name twigs.globalHotKeys.service:GlobalHotKeysService#registerGlobalHotKey
+             * @methodOf twigs.globalHotKeys.service:GlobalHotKeysService
+             *
+             * @description
+             * call this function to register a global (application-wide) hotkey.
+             *
+             * @param {string} The hotkey as string (e.g.  'n'  or 'alt+n' )
+             * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
              */
             registerGlobalHotKey: registerGlobalHotKey,
 
             /**
-             * @param hotKeys an array of hotkeys
+             * @ngdoc function
+             * @name twigs.globalHotKeys.service:GlobalHotKeysService#registerGlobalHotKeys
+             * @methodOf twigs.globalHotKeys.service:GlobalHotKeysService
+             *
+             * @description
+             * call this function to register global (application-wide) hotkeys.
+             *
+             * @param {string[]} hotKey An array of hotkeys where each key is a string (e.g.  'n'  or 'alt+n' )
+             * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
              */
             registerGlobalHotKeys: registerGlobalHotKeys
         };
@@ -109,15 +172,21 @@ angular.module('twigs.globalHotKeys', [])
         return serviceInstance;
     })
 
+
 /**
- * this directive registers for the jquery 'keypress' event and forwards them to
+ * @ngdoc directive
+ * @name twigs.globalHotKeys.directive:twgGlobalHotkeys
+ * @element ANY
+ *
+ * @description
+ * This directive registers for the jquery 'keypress' event and forwards them to
  * either custom hotkeys for the current page or global hotkey function, if defined.
  *
- * we used this directive on the <html> element, in order to catch all key events.
+ * You can use this directive on the _html_ element, in order to catch all key events.
  *
- * ignores keystrokes in form elements , buttons and links.
+ * Ignores keystrokes in form elements , buttons and links.
  *
- *  See readme.md for more information
+ * See [GlobalHotKeysService](#/api/twigs.globalHotKeys.service:GlobalHotKeysService) for more information.
  */
     .directive('twgGlobalHotkeys', function ($location, $rootScope, GlobalHotKeysService) {
         return {

@@ -19,6 +19,12 @@ module.exports = function (grunt) {
     } catch (e) {
     }
 
+    /*
+     * for automatic docu generation
+     */
+    grunt.loadNpmTasks('grunt-ngdocs');
+
+
     grunt.initConfig({
         yeoman: yeomanConfig,
         watch: {
@@ -188,10 +194,34 @@ module.exports = function (grunt) {
                     }
                 ]
             }
+        },
+        ngdocs: {
+            options: {
+                dest: 'docs',
+                html5Mode: false,
+                startPage: '/api',
+                title: 'Twigs Documentation',
+                animation: true,
+                styles: ['docs/css/styles.css']
+            },
+            api: {
+                src: [
+                    'src/**/*.js',
+                    'src/*.js'
+                ],
+                title: 'API Reference'
+            }
+
         }
     });
 
     grunt.renameTask('regarde', 'watch');
+
+
+    grunt.registerTask('docu', [
+        'ngdocs'
+    ]);
+
 
     grunt.registerTask('test:unit', [
         'clean:server',

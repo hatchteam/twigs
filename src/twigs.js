@@ -1,3 +1,5 @@
+'use strict';
+
 /* twigs
  * Copyright (C) 2014, Hatch Development Team
  *
@@ -15,10 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 /**
- *  This module collects all Twigs modules.
+ * @ngdoc overview
+ * @name twigs
+ *
+ * @description
+ * The main module which collects all other Twigs modules.
+ * So for convenience, use 'twigs' as a dependency in your module to include all Twigs modules at once.
+ *
+ * ```javascript
+ * var App = angular.module('Main',['twigs']);
+ * ```
  */
 angular.module('twigs', [
     'twigs.globalHotkeys',

@@ -1,3 +1,5 @@
+'use strict';
+
 /* twigs
  * Copyright (C) 2014, Hatch Development Team
  *
@@ -15,12 +17,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 /**
- * Can be added to a table to enable clicking of a single record by clicking anywhere on the table row, not only by pressing a link within one cell (e.g. to edit an item in the table)
+ * @ngdoc directive
+ * @name twigs.tableRowClick.directive:twgTableRowClick
+ * @element tr
  *
- *  See readme.md for more information
+ * @description
+ * For a better user experience, we want to be able to react to mouseclicks anywhere on a table row, not just one link in a cell.
+ * This directive adds a mouse listener to the row and switches to the specified url when the user clicks anywhere on the row.
+ *
+ * ```javascript
+ * var App = angular.module('Main',['twigs.tableRowClick']);
+ * ```
+ *
+ * ```html
+ * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}" >  ....</tr>
+ * ```
+ *
+ * Additionally it can handle events that bubble up from other elements with ng-click handlers within the row (and thus correctly ignoring these).
+ *
+ * Example: a Click on the button in the first row will not trigger a location change, but only invoke the 'doSomething()' method. A click on the second cell (the text) will trigger the url to change.
+ *
+ * ```html
+ * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}" >
+ *  <td><button ng-click="doSomething()">do it</button></td>
+ *  <td>Some text</td>
+ * </tr>
+ * ```
  */
 angular.module('twigs.tableRowClick', [])
     .directive('twgTableRowClick', function ($location) {

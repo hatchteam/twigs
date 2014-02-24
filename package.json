@@ -25,7 +25,8 @@
         "matchdep": "~0.1.1",
         "grunt-google-cdn": "~0.1.1",
         "grunt-ngmin": "~0.0.2",
-        "phantomjs": "~1.9.7"
+        "phantomjs": "~1.9.7",
+        "grunt-ngdocs": "~0.1.11"
     },
     "engines": {
         "node": ">=0.8.0"
