@@ -22,8 +22,7 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
 
 # Docu
 
-
-
+* API reference http://hatchteam.github.io/twigs/docs/#/api/
 
 
 ## Development Info
