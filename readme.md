@@ -15,9 +15,28 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
 # Quickstart
 
 1. Add twigs as a dependency to your **bower.json**.
+  ```javascript
+  "dependencies": {
+    "angular": "~1.2.12",
+    "twigs": "0.1.0"
+   }
+  ```
 2. run **bower install**
 3. Reference the twigs modules you want to use in your angular module's declaration.
+  ```javascript
+   var App = angular.module('MyApp',['twigs']);
+  ```
 4. Reference the needed files in your index.html
+  ```html
+    <body>
+    <!-- here goes your app/markup -->
+
+    <!-- include angular -->
+    <script src="components/angular/angular.js"></script>
+    <!-- include twigs -->
+    <script src="components/twigs/dist/twigs.js"></script>
+    </body>
+  ```
 
 
 # Docu
