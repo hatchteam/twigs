@@ -10,6 +10,7 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
 | Branch        | Status         |
 | ------------- |:-------------:|
 | master        | [![Build Status](https://travis-ci.org/hatchteam/twigs.png?branch=master)](https://travis-ci.org/hatchteam/twigs) |
+| develop        | [![Build Status](https://travis-ci.org/hatchteam/twigs.png?branch=develop)](https://travis-ci.org/hatchteam/twigs) |
 
 
 # Quickstart
