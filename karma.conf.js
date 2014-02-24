@@ -9,6 +9,7 @@ files = [
     JASMINE_ADAPTER,
     'components/jquery/jquery.min.js'  ,
     'components/angular/angular.js',
+    'components/angular-cookies/angular-cookies.js',
     'components/angular-mocks/angular-mocks.js',
     'src/*.js',
     'src/**/*.js',

@@ -17,11 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-angular.module('twigs.devel', [ ])
+angular.module('twigs.devel', ['ngCookies'])
 
     .constant('ERROR_REPORTED_EVENT', 'twigs.devel.errorReported')
     .constant('SERVER_REQUEST_REPORTED_EVENT', 'twigs.devel.serverRequestReported')
-
 
 /**
  * @ngdoc object
@@ -70,7 +69,15 @@ angular.module('twigs.devel', [ ])
          * ```
          */
         this.$get = function ($rootScope, ERROR_REPORTED_EVENT, SERVER_REQUEST_REPORTED_EVENT) {
-            var errors = [] , serverRequests = [];
+            var errors = [] , serverRequests = [], customData = {};
+
+            function getCustomData() {
+                return customData;
+            }
+
+            function watchCustomData(id, data) {
+                customData[id] = data;
+            }
 
             function reportError(name, data) {
                 errors.push({
@@ -117,12 +124,32 @@ angular.module('twigs.devel', [ ])
                  */
                 reportServerRequest: reportServerRequest,
 
-                getUrlFilterPattern: getUrlFilterPattern
+                getUrlFilterPattern: getUrlFilterPattern,
+
+                /**
+                 * only used by our controller
+                 */
+                getCustomData: getCustomData,
+
+
+                /**
+                 * @ngdoc function
+                 * @name  twigs.devel.service:DevelopmentInfoService#watchCustomData
+                 * @methodOf twigs.devel.service:DevelopmentInfoService
+                 *
+                 * @description
+                 * Register addition custom data that will be displayed in the devel footer
+                 *
+                 * @param {string} id The id/name of the data
+                 * @param {object} data Data object to watch and display
+                 */
+                watchCustomData: watchCustomData
             };
 
             return developmentInfoService;
         };
-    })
+    }
+)
 
 /**
  * @ngdoc object
@@ -167,9 +194,30 @@ angular.module('twigs.devel', [ ])
  * </footer>
  * ```
  */
-    .controller('DevelopmentInfoCtrl', function ($rootScope, $scope, $permission, $location, ERROR_REPORTED_EVENT, SERVER_REQUEST_REPORTED_EVENT) {
+    .
+    controller('DevelopmentInfoCtrl', function ($rootScope, $scope, $cookieStore, $location, DevelopmentInfoService, ERROR_REPORTED_EVENT, SERVER_REQUEST_REPORTED_EVENT) {
 
-        $scope.develFooterEnabled = ($location.search().develFooter === 'true');
+        var COOKIE_KEY = 'twg.develFooterEnabled';
+
+        if ($location.search().develFooter === 'true') {
+            $scope.develFooterEnabled = true;
+            $cookieStore.put(COOKIE_KEY, true);
+        } else if ($location.search().develFooter === 'false') {
+            $scope.develFooterEnabled = false;
+            $cookieStore.put(COOKIE_KEY, false);
+        } else {
+            $scope.develFooterEnabled = $cookieStore.get(COOKIE_KEY);
+        }
+
+        /**
+         * watch for changes in custom Data
+         */
+        $scope.customData = {};
+        $rootScope.$watch(function () {
+            return DevelopmentInfoService.getCustomData();
+        }, function (changed) {
+            $scope.customData = changed;
+        }, true);
 
         $scope.$on(ERROR_REPORTED_EVENT, function (event, allErrors) {
             $scope.errors = allErrors;
