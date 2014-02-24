@@ -1,0 +1,23 @@
+<h1><code ng:non-bindable="">twgTableRowClick</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">twigs.tableRowClick</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="twigs-tablerowclick-directive-page twigs-tablerowclick-directive-twgtablerowclick-page"><p>For a better user experience, we want to be able to react to mouseclicks anywhere on a table row, not just one link in a cell.
+This directive adds a mouse listener to the row and switches to the specified url when the user clicks anywhere on the row.</p>
+<pre><code class="lang-javascript">var App = angular.module(&#39;Main&#39;,[&#39;twigs.tableRowClick&#39;]);</code></pre>
+<pre><code class="lang-html">&lt;tr x-ng-repeat=&quot;user in users.rows&quot; twg-table-row-click=&quot;/users/{{user.id}}&quot; &gt;  ....&lt;/tr&gt;</code></pre>
+<p>Additionally it can handle events that bubble up from other elements with ng-click handlers within the row (and thus correctly ignoring these).</p>
+<p>Example: a Click on the button in the first row will not trigger a location change, but only invoke the &#39;doSomething()&#39; method. A click on the second cell (the text) will trigger the url to change.</p>
+<pre><code class="lang-html">&lt;tr x-ng-repeat=&quot;user in users.rows&quot; twg-table-row-click=&quot;/users/{{user.id}}&quot; &gt;
+ &lt;td&gt;&lt;button ng-click=&quot;doSomething()&quot;&gt;do it&lt;/button&gt;&lt;/td&gt;
+ &lt;td&gt;Some text&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+</div></div>
+<h2 id="usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;tr twg-table-row-click&gt;
+   ...
+&lt;/tr&gt;</pre>
+</div>
+</div>
