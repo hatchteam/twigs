@@ -6,3 +6,4 @@ components
 .idea/
 *.orig
 test-results.xml
+docs
