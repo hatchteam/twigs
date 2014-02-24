@@ -241,6 +241,7 @@ module.exports = function (grunt) {
         'clean:dist',
         'jshint',
         'test:unit',
+        'docu',
         'htmlmin',
         'concat',
         'copy',
