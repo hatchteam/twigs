@@ -5,7 +5,7 @@
     "ignore": [
         "test",
         "node_modules",
-        "app/components",
+        "components",
         "Gruntfile.js",
         "karma.conf.js",
         "package.js",
