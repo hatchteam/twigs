@@ -17,20 +17,51 @@
 
 'use strict';
 
+
 describe('Service & Provider: Permissions ', function () {
 
     var
         PermissionsProvider,
         Permissions,
         $rootScope,
+        $compile,
         dummyUserPermissions = {
-           'stocks':['read','delete','update']
+            'stocks': ['read', 'delete', 'update']
         },
         dummyUserObject = {
             username: 'admin',
             roles: ['ADMIN', 'USER'],
             permissions: dummyUserPermissions
         };
+
+
+    var userLoderInvocationCount;
+
+    function hasRegisteredUserLoader() {
+        userLoderInvocationCount = 0;
+        PermissionsProvider.registerUserLoader(function ($q) {
+            return function () {
+                userLoderInvocationCount++;
+                var newDeferred = $q.defer();
+                newDeferred.resolve(dummyUserObject);
+                return newDeferred.promise;
+            };
+        });
+    }
+
+    function hasLoadedUser() {
+        Permissions.getUser();
+        $rootScope.$apply();
+    }
+
+    function hasAlwaysTruePermissionEvaluator() {
+        PermissionsProvider.registerPermissionEvaluationFunction(function () {
+            return function (permissions, args) {
+                return true;
+            };
+        });
+    }
+
 
     beforeEach(function () {
         // Initialize the service provider by injecting it to a fake module's config block
@@ -47,9 +78,10 @@ describe('Service & Provider: Permissions ', function () {
         });
     });
 
-    beforeEach(inject(function (_Permissions_, _$rootScope_) {
+    beforeEach(inject(function (_Permissions_, _$rootScope_, _$compile_) {
         Permissions = _Permissions_;
         $rootScope = _$rootScope_;
+        $compile = _$compile_;
     }));
 
     describe('PermissionsProvider', function () {
@@ -99,26 +131,6 @@ describe('Service & Provider: Permissions ', function () {
 
             expect(gettingUser).toThrow();
         });
-
-        var userLoderInvocationCount;
-
-        function hasRegisteredUserLoader() {
-            userLoderInvocationCount = 0;
-            PermissionsProvider.registerUserLoader(function ($q) {
-                return function () {
-                    userLoderInvocationCount++;
-                    var newDeferred = $q.defer();
-                    newDeferred.resolve(dummyUserObject);
-                    return newDeferred.promise;
-                };
-            });
-        }
-
-
-        function hasLoadedUser() {
-            Permissions.getUser();
-            $rootScope.$apply();
-        }
 
         it('allows to get the user when a loader is registered (will load user on first invocation)', function () {
             hasRegisteredUserLoader();
@@ -317,12 +329,7 @@ describe('Service & Provider: Permissions ', function () {
         it('calls evaluator function, returns true', function () {
             hasRegisteredUserLoader();
             hasLoadedUser();
-
-            PermissionsProvider.registerPermissionEvaluationFunction(function () {
-                return function (permissions, args) {
-                    return true;
-                };
-            });
+            hasAlwaysTruePermissionEvaluator();
 
             expect(Permissions.hasPermission()).toBe(true);
         });
@@ -330,5 +337,164 @@ describe('Service & Provider: Permissions ', function () {
 
     });
 
+
+    describe('twgSecureShow', function () {
+
+        var $scope;
+
+        beforeEach(function () {
+            $scope = $rootScope.$new();
+        });
+
+        function whenCompiling(element) {
+            var compiledElement = $compile(element)($scope);
+            $scope.$digest();
+            return compiledElement;
+        }
+
+        it('hides element if hasPermission returns false', function () {
+
+            spyOn(Permissions, 'hasPermission').andReturn(false);
+
+            var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="hasPermission(\'super\')"></div> </div>');
+            var compiledElement = whenCompiling(element);
+
+            expect(Permissions.hasPermission).toHaveBeenCalledWith('super');
+            expect(Permissions.hasPermission.callCount).toBe(1);
+
+            var testElement = compiledElement.find('#testElement');
+            expect(testElement.eq(0).hasClass('ng-hide')).toBe(true);
+        });
+
+        it('shows element if hasPermission returns true', function () {
+
+            spyOn(Permissions, 'hasPermission').andReturn(true);
+
+            var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="hasPermission(\'super\')"></div> </div>');
+            var compiledElement = whenCompiling(element);
+
+            expect(Permissions.hasPermission).toHaveBeenCalledWith('super');
+            expect(Permissions.hasPermission.callCount).toBe(1);
+
+            var testElement = compiledElement.find('#testElement');
+            expect(testElement.eq(0).hasClass('ng-hide')).toBe(false);
+        });
+
+        it('shows element if isAuthenticated returns true', function () {
+
+            spyOn(Permissions, 'isAuthenticated').andReturn(true);
+
+            var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="isAuthenticated()"></div> </div>');
+            var compiledElement = whenCompiling(element);
+
+            expect(Permissions.isAuthenticated).toHaveBeenCalled();
+            expect(Permissions.isAuthenticated.callCount).toBe(1);
+
+            var testElement = compiledElement.find('#testElement');
+            expect(testElement.eq(0).hasClass('ng-hide')).toBe(false);
+        });
+
+        it('hides element if isAuthenticated returns false', function () {
+
+            spyOn(Permissions, 'isAuthenticated').andReturn(false);
+
+            var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="isAuthenticated()"></div> </div>');
+            var compiledElement = whenCompiling(element);
+
+            expect(Permissions.isAuthenticated).toHaveBeenCalled();
+            expect(Permissions.isAuthenticated.callCount).toBe(1);
+
+            var testElement = compiledElement.find('#testElement');
+            expect(testElement.eq(0).hasClass('ng-hide')).toBe(true);
+        });
+
+        it('shows element if hasRole returns true', function () {
+
+            spyOn(Permissions, 'hasRole').andReturn(true);
+
+            var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="hasRole(\'USER\')"></div> </div>');
+            var compiledElement = whenCompiling(element);
+
+            expect(Permissions.hasRole).toHaveBeenCalledWith('USER');
+            expect(Permissions.hasRole.callCount).toBe(1);
+
+            var testElement = compiledElement.find('#testElement');
+            expect(testElement.eq(0).hasClass('ng-hide')).toBe(false);
+        });
+
+        it('hides element if hasRole returns false', function () {
+
+            spyOn(Permissions, 'hasRole').andReturn(false);
+
+            var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="hasRole(\'USER\')"></div> </div>');
+            var compiledElement = whenCompiling(element);
+
+            expect(Permissions.hasRole).toHaveBeenCalledWith('USER');
+            expect(Permissions.hasRole.callCount).toBe(1);
+
+            var testElement = compiledElement.find('#testElement');
+            expect(testElement.eq(0).hasClass('ng-hide')).toBe(true);
+        });
+
+        it('throws if expression is invalid: empty', function () {
+            var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show=""></div> </div>');
+            expect(function () {
+                whenCompiling(element);
+            }).toThrow('Invalid permission expression');
+        });
+
+        it('throws if expression is invalid: unknown expression', function () {
+            var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="someThingElse"></div> </div>');
+            expect(function () {
+                whenCompiling(element);
+            }).toThrow('Invalid permission expression');
+        });
+
+    });
+
+
+    describe('twgSecureEnabled', function () {
+
+        var $scope;
+
+        beforeEach(function () {
+            $scope = $rootScope.$new();
+        });
+
+        function whenCompiling(element) {
+            var compiledElement = $compile(element)($scope);
+            $scope.$digest();
+            return compiledElement;
+        }
+
+        it('disables element if hasPermission returns false', function () {
+
+            spyOn(Permissions, 'hasPermission').andReturn(false);
+
+            var element = angular.element('<div class="content"> <div id="testElement" twg-secure-enabled="hasPermission(\'super\')"></div> </div>');
+            var compiledElement = whenCompiling(element);
+
+            expect(Permissions.hasPermission).toHaveBeenCalledWith('super');
+            expect(Permissions.hasPermission.callCount).toBe(1);
+
+            var testElement = compiledElement.find('#testElement');
+            expect(testElement.eq(0).attr('disabled')).toBe('disabled');
+        });
+
+        it('enables element if hasPermission returns true', function () {
+
+            spyOn(Permissions, 'hasPermission').andReturn(true);
+
+            var element = angular.element('<div class="content"> <div id="testElement" twg-secure-enabled="hasPermission(\'super\')"></div> </div>');
+            var compiledElement = whenCompiling(element);
+
+            expect(Permissions.hasPermission).toHaveBeenCalledWith('super');
+            expect(Permissions.hasPermission.callCount).toBe(1);
+
+            var testElement = compiledElement.find('#testElement');
+            expect(testElement.eq(0).attr('disabled')).toBeUndefined();
+        });
+
+    });
 
 });
