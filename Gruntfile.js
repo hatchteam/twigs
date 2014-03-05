@@ -179,6 +179,18 @@ module.exports = function (grunt) {
                 title: 'API Reference'
             }
 
+        },
+        less: {
+            dist: {
+                files: [
+                    {
+                        expand: true,
+                        dest: 'dist/',
+                        src: 'styles/*.less',
+                        ext: '.css'
+                    }
+                ]
+            }
         }
     });
 
@@ -208,6 +220,7 @@ module.exports = function (grunt) {
         'test:unit',
         'docu',
         'concat',
+        'less:dist',
         'copy',
         'ngmin'
     ]);

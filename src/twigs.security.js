@@ -158,7 +158,7 @@ angular.module('twigs.security', [])
          *   });
          * ```
          *
-         * @param {function} the evaluator function
+         * @param {function} fn The evaluator function
          */
         this.registerPermissionEvaluationFunction = function (fn) {
             permissionEvaluatorFunction = fn;
@@ -282,7 +282,7 @@ angular.module('twigs.security', [])
                  *  Will call registered evaluator function. Is mostly used in twigs.security directives.
                  *
                  * @param {object[]} arguments Any number of parameters. Will be passed on to evaluator function
-                 * @return {boolean} True if current user has needed permission(s)
+                 * @returns {boolean} True if current user has needed permission(s)
                  */
                 hasPermission: _hasPermission,
 

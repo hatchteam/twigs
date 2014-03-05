@@ -20,6 +20,7 @@
         "angular": "~1.2.13",
         "angular-cookies": "~1.2.13",
         "angular-mocks": "~1.2.13",
-        "angular-scenario": "~1.2.13"
+        "angular-scenario": "~1.2.13",
+        "angular-bootstrap": "~0.10.0"
     }
 }

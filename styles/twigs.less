@@ -1,0 +1,50 @@
+.twigs-toast {
+  position: absolute;
+  top: 24px;
+  overflow: auto;
+  z-index: 1040;
+  width: 640px;
+  left: 50%;
+  margin-left: -320px;
+  left: 50%;
+
+  .alert{
+    width: 600px;
+    margin: 6px auto 30px auto;
+    -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.fade-in {
+  -webkit-animation: fadein 0.2s; /* Safari and Chrome */
+  -moz-animation: fadein 0.2s; /* Firefox */
+  -ms-animation: fadein 0.2s; /* Internet Explorer */
+  -o-animation: fadein 0.2s; /* Opera */
+  animation: fadein 0.2s;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* Firefox */
+@-moz-keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* Safari and Chrome */
+@-webkit-keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* Internet Explorer */
+@-ms-keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* Opera */
+@-o-keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
