@@ -18,17 +18,17 @@
 'use strict';
 
 describe("Directive: twgTableRowClick", function () {
-    var $compile, $rootScope, $scope, $location;
+    var $compile, $rootScope, $scope, $location, Permissions;
 
     beforeEach(angular.mock.module('twigs.tableRowClick'));
 
 
-    beforeEach(inject(function (_$compile_, _$rootScope_, _$location_) {
+    beforeEach(inject(function (_$compile_, _$rootScope_, _$location_, _Permissions_) {
         $compile = _$compile_;
         $rootScope = _$rootScope_;
         $scope = _$rootScope_.$new();
         $location = _$location_;
-
+        Permissions = _Permissions_;
         $location.path('/home');
         $rootScope.$apply();
     }));
@@ -62,6 +62,26 @@ describe("Directive: twgTableRowClick", function () {
         expect($location.path()).toBe('/some/path/123');
     });
 
+    it("should not change $location.path on click if permissions are missing", function () {
+
+        spyOn(Permissions,'isAuthenticated').andReturn(false);
+
+        var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123" twg-table-row-click-secure="isAuthenticated()" ><td>some content</td></tr></table>');
+        whenCompiling(tableElement);
+        whenClickingRow(tableElement);
+        expect($location.path()).toBe('/home');
+    });
+
+    it("should change $location.path on click if permissions are valid", function () {
+
+        spyOn(Permissions,'hasRole').andReturn(true);
+
+        var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123" twg-table-row-click-secure="hasRole(\'myrole\')" ><td>some content</td></tr></table>');
+        whenCompiling(tableElement);
+        whenClickingRow(tableElement);
+        expect($location.path()).toBe('/some/path/123');
+    });
+
     it("should not change $location.path on click. when clicking element with separate ng-click", function () {
         var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123"><td><span id="someSpan" ng-click="someFunction()">some content</span></td></tr></table>');
         $scope.modelValue = false;
@@ -77,6 +97,7 @@ describe("Directive: twgTableRowClick", function () {
         whenClickingChildElement(tableElement, '#someSpan');
         expect($location.path()).toBe('/home');
     });
+
 
 });
 

@@ -45,11 +45,24 @@
  * </tr>
  * ```
  */
-angular.module('twigs.tableRowClick', [])
-    .directive('twgTableRowClick', function ($location) {
+angular.module('twigs.tableRowClick', ['twigs.security'])
+    .directive('twgTableRowClick', function ($location, ExpressionEvaluator) {
         return {
             restrict: 'A',
             link: function (scope, element, attrs) {
+
+
+                /**
+                 * check permission if attribute is present
+                 */
+                function isAllowed() {
+                    var permissionExpression = attrs.twgTableRowClickSecure;
+                    if (angular.isUndefined(permissionExpression) || permissionExpression === '') {
+                        return true;
+                    }
+
+                    return ExpressionEvaluator.evaluate(permissionExpression);
+                }
 
                 /**
                  * if an element is clicked that has a 'ng-click' attribute on it's own, do not reacte to this click.
@@ -73,7 +86,7 @@ angular.module('twigs.tableRowClick', [])
                 var targetUrl = attrs.twgTableRowClick;
 
                 element.on('click', function (event) {
-                    if (!isNgClickWrappedElement(event.target)) {
+                    if (isAllowed() && !isNgClickWrappedElement(event.target)) {
                         scope.$apply(function () {
                             $location.path(targetUrl);
                         });
