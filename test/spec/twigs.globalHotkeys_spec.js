@@ -17,14 +17,14 @@
 
 'use strict';
 
-describe('Service: GlobalHotKeysService', function () {
+describe('Service: GlobalHotkeysService', function () {
 
-    beforeEach(angular.mock.module('twigs.globalHotKeys'));
+    beforeEach(angular.mock.module('twigs.globalHotkeys'));
 
     // instantiate service
-    var GlobalHotKeysService, $rootScope, scope, $location;
-    beforeEach(inject(function (_GlobalHotKeysService_, _$rootScope_, _$location_) {
-        GlobalHotKeysService = _GlobalHotKeysService_;
+    var GlobalHotkeysService, $rootScope, scope, $location;
+    beforeEach(inject(function (_GlobalHotkeysService_, _$rootScope_, _$location_) {
+        GlobalHotkeysService = _GlobalHotkeysService_;
         $location = _$location_;
         $rootScope = _$rootScope_;
         scope = $rootScope.$new();
@@ -48,42 +48,42 @@ describe('Service: GlobalHotKeysService', function () {
 
     it('should keep registered global hotkeys', function () {
 
-        GlobalHotKeysService.registerGlobalHotKey('shift+z', noop);
+        GlobalHotkeysService.registerGlobalHotkey('shift+z', noop);
 
-        expect(GlobalHotKeysService.getGlobalHotKeyAction('shift+z')).toBe(noop);
-        expect(GlobalHotKeysService.getGlobalHotKeyAction('shift+z')()).toBe('noop');
+        expect(GlobalHotkeysService.getGlobalHotkeyAction('shift+z')).toBe(noop);
+        expect(GlobalHotkeysService.getGlobalHotkeyAction('shift+z')()).toBe('noop');
     });
 
     it('should keep registered global hotkeys (multiple)', function () {
 
-        GlobalHotKeysService.registerGlobalHotKeys(['shift+z', 'alt+z'], noop);
+        GlobalHotkeysService.registerGlobalHotkeys(['shift+z', 'alt+z'], noop);
 
-        expect(GlobalHotKeysService.getGlobalHotKeyAction('shift+z')).toBe(noop);
-        expect(GlobalHotKeysService.getGlobalHotKeyAction('shift+z')()).toBe('noop');
-        expect(GlobalHotKeysService.getGlobalHotKeyAction('alt+z')).toBe(noop);
-        expect(GlobalHotKeysService.getGlobalHotKeyAction('alt+z')()).toBe('noop');
+        expect(GlobalHotkeysService.getGlobalHotkeyAction('shift+z')).toBe(noop);
+        expect(GlobalHotkeysService.getGlobalHotkeyAction('shift+z')()).toBe('noop');
+        expect(GlobalHotkeysService.getGlobalHotkeyAction('alt+z')).toBe(noop);
+        expect(GlobalHotkeysService.getGlobalHotkeyAction('alt+z')()).toBe('noop');
     });
 
     it('can retrieve hotkeys with uppercase', function () {
 
-        GlobalHotKeysService.registerGlobalHotKey('shift+z', noop);
+        GlobalHotkeysService.registerGlobalHotkey('shift+z', noop);
 
-        expect(GlobalHotKeysService.getGlobalHotKeyAction('shiFt+z')).toBe(noop);
-        expect(GlobalHotKeysService.getGlobalHotKeyAction('sHift+Z')()).toBe('noop');
+        expect(GlobalHotkeysService.getGlobalHotkeyAction('shiFt+z')).toBe(noop);
+        expect(GlobalHotkeysService.getGlobalHotkeyAction('sHift+Z')()).toBe('noop');
     });
 
     it('should keep registered page hotkeys', function () {
 
         andBrowserWouldBeOnPage(dummyPath);
-        GlobalHotKeysService.registerPageHotKey('shift+z', noop);
+        GlobalHotkeysService.registerPageHotKey('shift+z', noop);
 
         andBrowserWouldBeOnPage(dummyPath2);
-        GlobalHotKeysService.registerPageHotKey('shift+z', noop2);
+        GlobalHotkeysService.registerPageHotKey('shift+z', noop2);
 
-        expect(GlobalHotKeysService.getPageHotKeyAction(dummyPath, 'shift+z')).toBe(noop);
-        expect(GlobalHotKeysService.getPageHotKeyAction(dummyPath, 'shift+z')()).toBe('noop');
-        expect(GlobalHotKeysService.getPageHotKeyAction(dummyPath2, 'shift+z')).toBe(noop2);
-        expect(GlobalHotKeysService.getPageHotKeyAction(dummyPath2, 'shift+z')()).toBe('noop2');
+        expect(GlobalHotkeysService.getPageHotKeyAction(dummyPath, 'shift+z')).toBe(noop);
+        expect(GlobalHotkeysService.getPageHotKeyAction(dummyPath, 'shift+z')()).toBe('noop');
+        expect(GlobalHotkeysService.getPageHotKeyAction(dummyPath2, 'shift+z')).toBe(noop2);
+        expect(GlobalHotkeysService.getPageHotKeyAction(dummyPath2, 'shift+z')()).toBe('noop2');
 
     });
 
@@ -91,15 +91,15 @@ describe('Service: GlobalHotKeysService', function () {
 });
 
 
-describe('Directive: twgHotKeys', function () {
-    var $compile, $scope, GlobalHotKeysService;
+describe('Directive: twgHotkeys', function () {
+    var $compile, $scope, GlobalHotkeysService;
 
-    beforeEach(module('twigs.globalHotKeys'));
+    beforeEach(module('twigs.globalHotkeys'));
 
-    beforeEach(inject(function (_$compile_, _$rootScope_, _GlobalHotKeysService_) {
+    beforeEach(inject(function (_$compile_, _$rootScope_, _GlobalHotkeysService_) {
         $compile = _$compile_;
         $scope = _$rootScope_.$new();
-        GlobalHotKeysService = _GlobalHotKeysService_;
+        GlobalHotkeysService = _GlobalHotkeysService_;
     }));
 
     function whenCompiling(element) {
@@ -133,7 +133,7 @@ describe('Directive: twgHotKeys', function () {
         var element = whenCompiling(htmlElement);
         var callBackExecuted = false;
 
-        GlobalHotKeysService.registerGlobalHotKey('a', function () {
+        GlobalHotkeysService.registerGlobalHotkey('a', function () {
             callBackExecuted = true;
         });
 
@@ -154,7 +154,7 @@ describe('Directive: twgHotKeys', function () {
         var someElement = element.find('.some');
         var callBackExecuted = false;
 
-        GlobalHotKeysService.registerGlobalHotKey('G', function () {
+        GlobalHotkeysService.registerGlobalHotkey('G', function () {
             callBackExecuted = true;
         });
 
@@ -175,7 +175,7 @@ describe('Directive: twgHotKeys', function () {
         var someElement = element.find('.some');
         var callBackNotExecuted = true;
 
-        GlobalHotKeysService.registerGlobalHotKey('G', function () {
+        GlobalHotkeysService.registerGlobalHotkey('G', function () {
             callBackNotExecuted = false;
         });
 
@@ -194,7 +194,7 @@ describe('Directive: twgHotKeys', function () {
         var inputElement = element.find('.myinput');
         var callBackNotExecuted = true;
 
-        GlobalHotKeysService.registerGlobalHotKey('G', function () {
+        GlobalHotkeysService.registerGlobalHotkey('G', function () {
             callBackNotExecuted = false;
         });
 
@@ -213,7 +213,7 @@ describe('Directive: twgHotKeys', function () {
         var inputElement = element.find('.mytextarea');
         var callBackNotExecuted = true;
 
-        GlobalHotKeysService.registerGlobalHotKey('G', function () {
+        GlobalHotkeysService.registerGlobalHotkey('G', function () {
             callBackNotExecuted = false;
         });
 
