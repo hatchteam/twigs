@@ -20,7 +20,6 @@
 
 angular.module('twigs.security', [])
 
-
     .service('UserObjectSanityChecker', function () {
 
         var EXPECTED_PROPERTIES = ['username', 'roles', 'permissions'];
@@ -244,6 +243,7 @@ angular.module('twigs.security', [])
             function _clearSecurityContext() {
                 user = {};
                 userLoadingPromise = undefined;
+                $rootScope.$broadcast('userCleared');
             }
 
             return {
@@ -281,15 +281,17 @@ angular.module('twigs.security', [])
                  * @description
                  *  Will call registered evaluator function. Is mostly used in twigs.security directives.
                  *
+                 * @param {object[]} arguments Any number of parameters. Will be passed on to evaluator function
+                 * @return {boolean} True if current user has needed permission(s)
                  */
                 hasPermission: _hasPermission,
-
 
                 /**
                  * @ngdoc function
                  * @name twigs.security.service:Permissions#hasRole
                  * @methodOf twigs.security.service:Permissions
                  *
+                 * @param {string} role The rolename
                  * @returns {boolean} True if a user has the given role
                  */
                 hasRole: _hasRole,
@@ -304,4 +306,165 @@ angular.module('twigs.security', [])
                 isAuthenticated: _isAuthenticated
             };
         };
-    });
+    })
+
+
+/**
+ * @ngdoc object
+ * @name twigs.security.service:ExpressionEvaluator
+ *
+ * @description
+ *  ExpressionEvaluator is used by twigs.security directives.
+ *  It validates and evaluates given expressions against the currently loaded user and its permissions.
+ **/
+    .service('ExpressionEvaluator', function (Permissions) {
+
+        if (angular.isUndefined(Permissions)) {
+            throw 'We need Permissions Service for evaluating!';
+        }
+
+        var VALID_EXPRESSION_PATTERNS = [
+            /hasPermission\(.*\)/,
+            /hasRole\(.*\)/,
+            /isAuthenticated\(\)/
+        ];
+
+        function _throwIfInvalidExpression(expression) {
+            var errorString = 'Invalid permission expression';
+            if (angular.isUndefined(expression) || expression.length < 1) {
+                throw errorString;
+            }
+
+            var isValidPattern = false;
+            VALID_EXPRESSION_PATTERNS.forEach(function (pattern) {
+                if (isValidPattern) {
+                    // break the loop;
+                    return;
+                }
+                if (pattern.test(expression)) {
+                    isValidPattern = true;
+                }
+            });
+
+            if (isValidPattern !== true) {
+                throw errorString;
+            }
+        }
+
+        function _evaluate(expression) {
+            _throwIfInvalidExpression(expression);
+            return eval('Permissions.' + expression);
+        }
+
+        return {
+
+            /**
+             * @ngdoc function
+             * @name twigs.security.service:ExpressionEvaluator#evaluate
+             * @methodOf twigs.security.service:ExpressionEvaluator
+             *
+             * @param {string} expression The expression to evaluate
+             *   This must match one of the following regular expressions:
+             *
+             *   * /hasPermission\(.*\)/
+             *   * /hasRole\(.*\)/
+             *   * /isAuthenticated\(\)/
+             *
+             * @returns {boolean} The return value of the evaluated expression.
+             */
+            evaluate: _evaluate
+        };
+    })
+
+/**
+ * @ngdoc directive
+ * @name twigs.security.directive:twgSecureShow
+ * @element ANY
+ *
+ * @description
+ *   Shows an element only if given expression evaluates to true.
+ *   Allowed expressions are:
+ *
+ *   * hasRole()
+ *   * isAuthenticated()
+ *   * hasPermission('some','arguments')
+ *
+ *  @example
+ *
+ *  ```html
+ *  <div twg-secure-show="hasPermission('entity','CREATE')"></div>
+ *  ```
+ *
+ **/
+    .directive('twgSecureShow', function (ExpressionEvaluator, $animate) {
+        return {
+            restrict: 'A',
+            scope: true,
+            link: function (scope, element, attrs) {
+
+                scope.$on('userInitialized', function () {
+                    evaluate();
+                });
+
+                scope.$on('userCleared', function () {
+                    evaluate();
+                });
+
+                var evaluate = function () {
+                    var result = ExpressionEvaluator.evaluate(attrs.twgSecureShow);
+                    $animate[result ? 'removeClass' : 'addClass'](element, 'ng-hide');
+                };
+
+                evaluate();
+            }
+        };
+    })
+
+/**
+ * @ngdoc directive
+ * @name twigs.security.directive:twgSecureEnabled
+ * @element input
+ *
+ * @description
+ *   Enables a input field only if the given expression evaluates to true.
+ *   Allowed expressions are:
+ *
+ *   * hasRole()
+ *   * isAuthenticated()
+ *   * hasPermission('some','arguments')
+ *
+ *  @example
+ *
+ *  ```html
+ *  <input type="text" twg-secure-enabled="hasPermission('entity','DELETE')"></input>
+ *  ```
+ *  ```html
+ *  <input type="text" twg-secure-enabled="isAuthenticated()"></input>
+ *  ```
+ *
+ **/
+    .directive('twgSecureEnabled', function (ExpressionEvaluator) {
+        return {
+            restrict: 'A',
+            scope: true,
+            link: function (scope, element, attrs) {
+
+                scope.$on('userInitialized', function () {
+                    evaluate();
+                });
+
+                scope.$on('userCleared', function () {
+                    evaluate();
+                });
+
+                var evaluate = function () {
+                    var result = ExpressionEvaluator.evaluate(attrs.twgSecureEnabled);
+                    element.attr('disabled', !result);
+                };
+
+                evaluate();
+            }
+        };
+    })
+
+;
