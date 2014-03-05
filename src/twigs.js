@@ -30,6 +30,10 @@
  * ```
  */
 angular.module('twigs', [
-    'twigs.globalHotkeys',
     'twigs.activeRoute',
+    'twigs.devel',
+    'twigs.flow',
+    'twigs.globalHotkeys',
+    'twigs.security',
+    'twigs.sortable',
     'twigs.tableRowClick']);
