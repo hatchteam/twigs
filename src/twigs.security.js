@@ -77,13 +77,13 @@ angular.module('twigs.security', [])
 
             /**
              * @ngdoc property
-             * @name twigs.security.provider:PermissionsProvider#permissionEvaluaterFunction
+             * @name twigs.security.provider:PermissionsProvider#permissionEvaluatorFunction
              * @propertyOf twigs.security.provider:PermissionsProvider
              *
              * @description
-             *
+             *   The evaluator function (register via .registerPermissionEvaluationFunction()
              */
-                permissionEvaluaterFunction,
+                permissionEvaluatorFunction,
 
             /**
              * @ngdoc property
@@ -140,8 +140,29 @@ angular.module('twigs.security', [])
             userLoader = loader;
         };
 
+        /**
+         * @ngdoc function
+         * @name twigs.security.provider:PermissionsProvider#registerPermissionEvaluationFunction
+         * @methodOf twigs.security.provider:PermissionsProvider
+         *
+         * @description
+         * Registers the evaluation function for evaluating permissions.
+         * Permissions service will pass in the users permission, and the needed permissions (arguments)
+         *
+         * ```javascript
+         * PermissionsProvider.registerPermissionEvaluationFunction(function () {
+         *       return function (permissions, args) {
+         *          // decide upon users permissions and args.
+         *          // return true or false
+         *          return true:
+         *      };
+         *   });
+         * ```
+         *
+         * @param {function} the evaluator function
+         */
         this.registerPermissionEvaluationFunction = function (fn) {
-            permissionEvaluaterFunction = fn;
+            permissionEvaluatorFunction = fn;
         };
 
         /**
@@ -156,7 +177,7 @@ angular.module('twigs.security', [])
                     return false;
                 }
 
-                var evalFn = $injector.invoke(permissionEvaluaterFunction);
+                var evalFn = $injector.invoke(permissionEvaluatorFunction);
                 return evalFn(user.permissions, arguments);
             }
 
@@ -251,6 +272,16 @@ angular.module('twigs.security', [])
                  */
                 clearSecurityContext: _clearSecurityContext,
 
+
+                /**
+                 * @ngdoc function
+                 * @name twigs.security.service:Permissions#hasPermission
+                 * @methodOf twigs.security.service:Permissions
+                 *
+                 * @description
+                 *  Will call registered evaluator function. Is mostly used in twigs.security directives.
+                 *
+                 */
                 hasPermission: _hasPermission,
 
 
