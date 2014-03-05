@@ -42,7 +42,7 @@ angular.module('twigs.security', [])
 
         return {
             isSane: _isSaneUserObject
-        }
+        };
     })
 
 /**
@@ -170,7 +170,7 @@ angular.module('twigs.security', [])
          * @name twigs.security.service:Permissions
          *
          **/
-        this.$get = function ($rootScope, $q, $injector, UserObjectSanityChecker, $log) {
+        this.$get = function ($rootScope, $q, $injector, UserObjectSanityChecker) {
 
             function _hasPermission() {
                 if (!_isAuthenticated()) {
@@ -228,7 +228,7 @@ angular.module('twigs.security', [])
                             .then(function () {
                                 $rootScope.$broadcast('userInitialized');
                                 deferred.resolve(user);
-                            }).catch(function (error) {
+                            }, function (error) {
                                 deferred.reject(error);
                             });
                         userLoadingPromise = deferred.promise;
