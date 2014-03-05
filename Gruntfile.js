@@ -23,7 +23,7 @@ module.exports = function (grunt) {
      * for automatic docu generation
      */
     grunt.loadNpmTasks('grunt-ngdocs');
-
+    grunt.loadNpmTasks('grunt-karma');
 
     grunt.initConfig({
         yeoman: yeomanConfig,
@@ -192,14 +192,12 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test:unit', [
         'clean:server',
-        'jshint',
         'connect:test',
         'karma:unit'
     ]);
 
     grunt.registerTask('test:unitwatch', [
         'clean:server',
-        'jshint',
         'connect:test',
         'karma:unitwatch'
     ]);
