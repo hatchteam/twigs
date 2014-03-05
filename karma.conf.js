@@ -39,7 +39,7 @@ module.exports = function (config) {
 
         autoWatch: false,
 
-        browsers: ['Chrome'],
+        browsers: ['PhantomJS'],
 
         captureTimeout: 60000,
 
