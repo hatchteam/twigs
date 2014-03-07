@@ -145,7 +145,7 @@ angular.module('twigs.flow', [])
                     });
                 });
                 if (angular.isUndefined(retVal)) {
-                    $log.warn('no flow-step found for route ', route);
+                    throw 'no flow-step found for route ' + route
                 }
                 return retVal;
             }
@@ -186,7 +186,7 @@ angular.module('twigs.flow', [])
                         return true;
                     }
                 }
-
+                return false;
             }
 
             /**
