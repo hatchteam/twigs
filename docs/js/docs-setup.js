@@ -104,6 +104,24 @@ NG_DOCS={
     },
     {
       "section": "api",
+      "id": "twigs.globalPopups.provider:GlobalPopups",
+      "shortName": "GlobalPopups",
+      "type": "object",
+      "moduleName": "twigs.globalPopups",
+      "shortDescription": "GlobalPopups globally defines popups dialogs which can be called in every controller of your Angular JS application. They consist of two different types of dialogs:",
+      "keywords": "actions admin angular api application awesome backbuttontext boolean bootstrap button callback called cancel clicked clicks consider consist content controller creation define defines description detailed dialogs dispaly displayed error errordialog example false filedialog find footer frequently function github global globally globalpopups gui html http infodialog inform interpreted io javascript js left lightweight message methods modal modals module nobuttontext object okbuttontext pdf popups popuptitle preconfigured predefined promise provider realy resolved returns string successmessage successtoast templates text title toast toasts top true twigs types url user userctrl warningdialog warningmessage warnings warningtoast wrapper yesbuttontext yesnodialog"
+    },
+    {
+      "section": "api",
+      "id": "twigs.globalPopups.provider:GlobalPopupsProvider",
+      "shortName": "GlobalPopupsProvider",
+      "type": "object",
+      "moduleName": "twigs.globalPopups",
+      "shortDescription": "GlobalPopupsProvider can be used to define custom GlobalPopups or override twitch default GlobalPopups.",
+      "keywords": "$close additionally admin angular api automatically awesome backdrop block bootstrap browser browsers btn btn-default button class conatining config content controller create createfilemodal createmodal createtoast custom default define defines directly disappear display displayduration empty example false file filedialog files function github globalpopup globalpopups globalpopupsprovider hidden html http infodialog io javascript keyboard left location message messagename miliseconds modal modal-body modal-file modal-footer modal-header modal-info modal-myownpopup modaloptions modals module myapp myownpopup ng-click object options override pdf popup properties property provider required saved splayduration static template templates templateurl timeout title toast true twigs twitch type usage user userctrl views warningtoast windowclass"
+    },
+    {
+      "section": "api",
       "id": "twigs.protectedRoutes.provider:ProtectedRouteProvider",
       "shortName": "ProtectedRouteProvider",
       "type": "object",
@@ -136,7 +154,7 @@ NG_DOCS={
       "type": "object",
       "moduleName": "twigs.security",
       "shortDescription": "",
-      "keywords": "$q $resource additional api args call decide defer deferred evaluating evaluation evaluator expected false form function ist javascript john load loader loading needed object pass permission permissionevaluatorfunction permissions permissionsprovider promise properties property provider receive registerpermissionevaluationfunction registers registeruserloader reject remember resolve resolves return role_1 role_2 roles second security server-response service true twigs user userloader userloadingpromise username users valid var waiting"
+      "keywords": "$q $resource additional api args call decide defer deferred evaluating evaluation evaluator expected false fn form function ist javascript john load loader loading needed object pass permission permissionevaluatorfunction permissions permissionsprovider promise properties property provider receive registerpermissionevaluationfunction registers registeruserloader reject remember resolve resolves return role_1 role_2 roles second security server-response service true twigs user userloader userloadingpromise username users valid var waiting"
     },
     {
       "section": "api",

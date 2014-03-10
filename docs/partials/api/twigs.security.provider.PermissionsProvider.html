@@ -6,7 +6,7 @@
 <div><h2 id="description">Description</h2>
 <div class="description"></div>
 <div class="member method"><h2 id="methods">Methods</h2>
-<ul class="methods"><li><h3 id="methods_registerpermissionevaluationfunction">registerPermissionEvaluationFunction(the)</h3>
+<ul class="methods"><li><h3 id="methods_registerpermissionevaluationfunction">registerPermissionEvaluationFunction(fn)</h3>
 <div class="registerpermissionevaluationfunction"><div class="twigs-security-provider-page twigs-security-provider-permissionsprovider-registerpermissionevaluationfunction-page"><p>Registers the evaluation function for evaluating permissions.
 Permissions service will pass in the users permission, and the needed permissions (arguments)</p>
 <pre><code class="lang-javascript">PermissionsProvider.registerPermissionEvaluationFunction(function () {
@@ -16,7 +16,7 @@ Permissions service will pass in the users permission, and the needed permission
          return true:
      };
   });</code></pre>
-</div><h5 id="methods_registerpermissionevaluationfunction_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>the</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-security-provider-page twigs-security-provider-permissionsprovider-registerpermissionevaluationfunction-page"><p>evaluator function</p>
+</div><h5 id="methods_registerpermissionevaluationfunction_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>fn</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-security-provider-page twigs-security-provider-permissionsprovider-registerpermissionevaluationfunction-page"><p>The evaluator function</p>
 </div></td></tr></tbody></table></div>
 </li>
 <li><h3 id="methods_registeruserloader">registerUserLoader(loader)</h3>
