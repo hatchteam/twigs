@@ -136,19 +136,57 @@ angular.module('twigs.flow')
 
                 angular.forEach(flows, function (propertyValue, propertyName) {
                     angular.forEach(flows[propertyName].steps, function (step) {
-                        if (step.route === route) {
+                        if (checkIfStepRouteMatchesGivenUrl(step.route, route)) {
                             retVal = {
                                 flow: flows[propertyName],
                                 step: step
                             };
-                            return false;
                         }
                     });
                 });
                 if (angular.isUndefined(retVal)) {
-                    $log.warn('no flow-step found for route ', route);
+                    throw 'no flow-step found for route ' + route;
                 }
                 return retVal;
+            }
+
+            /**
+             * RegEx Explanation:
+             * To enable placeholders for $flow routes we need to check for the placeholder charachter ":" in the given "route":
+             * E.g.
+             * .step({
+             *      'id': 'start',
+             *      'route': '/someWizard/:id',
+             *      'transitions': {
+             *          'next': 'mandateAdditional'
+             *      }
+             *  })
+             *
+             * where ":id" in the "route" attribute specifies a placeholder.
+             * As the actual browser url (e.g. "/someWizard/12345") will differ from the set "route"
+             * a simple equal check won't suffice.
+             * So, if we come across an url which contains a placeholder (regexPlaceholder), we then only look at
+             * the complete urls without the dynamic part ('/someWizard/')
+             *
+             * NOTICE:
+             * This certainly only works if there is only one placeholder defined.
+             * Also the placeholder needs to be at the end of the url.
+             * "/someWizard/something/:placeholder" will work while "someWizard/:placeholder/something"
+             * or "someWizard/:placeholderOne/:placeholderTwo" will not.
+             *
+             */
+            function checkIfStepRouteMatchesGivenUrl(route, givenUrl) {
+                var regexPlaceholder = new RegExp('(.*):');
+                var regexUrl = new RegExp('(.*\/)');
+
+                if (route === givenUrl) {
+                    return true;
+                } else if (regexPlaceholder.exec(route) !== null) {
+                    if (regexPlaceholder.exec(route)[1] === regexUrl.exec(givenUrl)[1]) {
+                        return true;
+                    }
+                }
+                return false;
             }
 
             /**
@@ -286,7 +324,7 @@ angular.module('twigs.flow')
                     }
                     targetStep = findStepForId(stepId, flowAndStep.flow.id);
 
-                    return $location.path() === targetStep.route;
+                    return checkIfStepRouteMatchesGivenUrl(targetStep.route, currentPath);
                 },
 
                 finish: function () {
