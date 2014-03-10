@@ -18,9 +18,6 @@
  */
 
 
-/**
- *
- */
 angular.module('twigs.dynamicSize', [])
 
     .service('DynamicSizeHelper', function () {
@@ -52,6 +49,21 @@ angular.module('twigs.dynamicSize', [])
         };
     })
 
+/**
+ * @ngdoc directive
+ * @name twigs.dynamicSize.directive:twgDynamicHeight
+ * @element ANY
+ *
+ * @description
+ * Allows to dynamically adjust the height of an element on every window resize event.
+ *
+ * In this example, the given div will always have the height: windowHeight - 100px.
+ *
+ * ```html
+ * <div twg-dynamic-height="-100" >
+ * </div>
+ * ```
+ */
     .directive('twgDynamicHeight', function ($window, DynamicSizeHelper) {
         return {
             restrict: 'A',
@@ -74,6 +86,22 @@ angular.module('twigs.dynamicSize', [])
         };
     })
 
+
+/**
+ * @ngdoc directive
+ * @name twigs.dynamicSize.directive:twgDynamicWidth
+ * @element ANY
+ *
+ * @description
+ * Allows to dynamically adjust the width of an element on every window resize event.
+ *
+ * In this example, the given div will always have the width: windowWidth + 20px.
+ *
+ * ```html
+ * <div twg-dynamic-width="20" >
+ * </div>
+ * ```
+ */
     .directive('twgDynamicWidth', function ($window, DynamicSizeHelper) {
         return {
             restrict: 'A',
