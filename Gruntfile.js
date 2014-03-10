@@ -24,6 +24,7 @@ module.exports = function (grunt) {
      */
     grunt.loadNpmTasks('grunt-ngdocs');
     grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-angular-templates');
 
     grunt.initConfig({
         yeoman: yeomanConfig,
@@ -197,6 +198,12 @@ module.exports = function (grunt) {
                     }
                 ]
             }
+        },
+        ngtemplates: {
+            'twigs.templates':{
+               src: 'templates/*.html',
+               dest: '.tmp/templates.js'
+            }
         }
     });
 
@@ -225,6 +232,7 @@ module.exports = function (grunt) {
         'jshint',
         'test:unit',
         'docu',
+        'ngtemplates',
         'concat',
         'less:dist',
         'copy',
