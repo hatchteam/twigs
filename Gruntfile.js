@@ -23,7 +23,9 @@ module.exports = function (grunt) {
      * for automatic docu generation
      */
     grunt.loadNpmTasks('grunt-ngdocs');
-
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-angular-templates');
 
     grunt.initConfig({
         yeoman: yeomanConfig,
@@ -110,15 +112,10 @@ module.exports = function (grunt) {
             dist: {
                 files: {
                     '<%= yeoman.dist %>/twigs.js': [
-                        '.tmp/{,*/}*.js',
-                        '<%= yeoman.app %>/{,*/}*.js'
+                        '<%= yeoman.app %>/{,*/}*.js',
+                        '.tmp/{,*/}*.js'
                     ]
                 }
-            }
-        },
-        cdnify: {
-            dist: {
-                html: ['<%= yeoman.dist %>/*.html']
             }
         },
         ngmin: {
@@ -163,13 +160,29 @@ module.exports = function (grunt) {
                 ]
             }
         },
+
+        uglify: {
+            dist: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: '<%= yeoman.dist %>',
+                        src: '*.js',
+                        dest: '<%= yeoman.dist %>',
+                        ext: '.min.js'
+                    }
+                ]
+            }
+        },
+
         ngdocs: {
             options: {
                 dest: 'docs',
                 html5Mode: false,
                 startPage: '/api',
                 title: 'Twigs Documentation',
-                animation: true
+                animation: true,
+                styles: ['docs/css/twigsDocuStyles.css']
             },
             api: {
                 src: [
@@ -179,6 +192,24 @@ module.exports = function (grunt) {
                 title: 'API Reference'
             }
 
+        },
+        less: {
+            dist: {
+                files: [
+                    {
+                        expand: true,
+                        dest: 'dist/',
+                        src: 'styles/*.less',
+                        ext: '.css'
+                    }
+                ]
+            }
+        },
+        ngtemplates: {
+            'twigs.templates':{
+               src: 'templates/*.html',
+               dest: '.tmp/templates.js'
+            }
         }
     });
 
@@ -192,14 +223,12 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test:unit', [
         'clean:server',
-        'jshint',
         'connect:test',
         'karma:unit'
     ]);
 
     grunt.registerTask('test:unitwatch', [
         'clean:server',
-        'jshint',
         'connect:test',
         'karma:unitwatch'
     ]);
@@ -209,9 +238,12 @@ module.exports = function (grunt) {
         'jshint',
         'test:unit',
         'docu',
+        'ngtemplates',
         'concat',
+        'less:dist',
         'copy',
-        'ngmin'
+        'ngmin',
+        'uglify'
     ]);
 
     grunt.registerTask('default', ['build']);

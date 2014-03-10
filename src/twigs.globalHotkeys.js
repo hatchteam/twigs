@@ -19,29 +19,29 @@
 
 /**
  * @ngdoc service
- * @name twigs.globalHotKeys.service:GlobalHotKeysService
+ * @name twigs.globalHotKeys.service:GlobalHotkeysService
  *
  * @description
  * GlobalHotkeys allows you to assign actions to specific keyboard key combinations.
  * In order for it to work, add the 'twg-global-hotkeys' directive to the top-element of your angular application (e.g. the html-element in a single page application).
  *
- * **Note:** All keypress/keydown events within input fields (input/textarea/select), links and buttons do not trigger the hotkey callback.
+ * **Note:** All keydown events within input fields (input/textarea/select), links and buttons do not trigger the hotkey callback.
  *
  * ### Globally defined hotkeys
  * Globally defined hotkeys are available on all pages (except if explicitly overridden by path-specific hotkeys). You can define them in the **run** function of your Application's main module.
  *
  * ```javascript
- * var App = angular.module('Main',['twigs.globalHotKeys']);
+ * var App = angular.module('Main',['twigs.globalHotkeys']);
  *
- * App.run(function ($location, GlobalHotKeysService) {
+ * App.run(function ($location, GlobalHotkeysService) {
  *
- *    GlobalHotKeysService.registerGlobalHotKeys(["alt+h", "shift+h"], function () {
+ *    GlobalHotkeysService.registerGlobalHotkeys(["alt+h", "shift+h"], function () {
  *        // go to home view
  *        $location.path('/#');
  *    });
  *
  *
- *    GlobalHotKeysService.registerGlobalHotKeys(["alt+a", "shift+a"], function () {
+ *    GlobalHotkeysService.registerGlobalHotkeys(["alt+a", "shift+a"], function () {
  *        // do something here
  *    });
  *
@@ -54,9 +54,9 @@
  *
  * ```javascript
  *
- * App.controller('SomeController', function (GlobalHotKeysService) {
+ * App.controller('SomeController', function (GlobalHotkeysService) {
  *
- *    GlobalHotKeysService.registerPageHotKey("alt+i", function () {
+ *    GlobalHotkeysService.registerPageHotkey("alt+i", function () {
  *        // do something here
  *    });
  *
@@ -65,22 +65,37 @@
  * ```
  *
  */
-angular.module('twigs.globalHotKeys', [])
+angular.module('twigs.globalHotkeys')
 
-    .factory('GlobalHotKeysService', function ($location) {
-        var pageHotKeys = {}, globalHotKeys = {};
+    .factory('GlobalHotkeysService', function ($location) {
+        var
+            HOTKEY_CODE_PREFIX = 'c_',
+            pageHotKeys = {},
+            globalHotKeys = {};
+
 
         function getPageHotKeyAction(page, hotKey) {
             var hotKeys = pageHotKeys[page];
             if (angular.isUndefined(hotKeys)) {
                 return undefined;
             }
-
             return hotKeys[hotKey.toLowerCase()];
         }
 
-        function getGlobalHotKeyAction(hotKey) {
+        function getPageHotKeyActionCode(page, hotKey) {
+            var hotKeys = pageHotKeys[page];
+            if (angular.isUndefined(hotKeys)) {
+                return undefined;
+            }
+            return hotKeys[HOTKEY_CODE_PREFIX + hotKey];
+        }
+
+        function getGlobalHotkeyAction(hotKey) {
             return globalHotKeys[hotKey.toLowerCase()];
+        }
+
+        function getGlobalHotkeyActionCode(hotKey) {
+            return globalHotKeys[HOTKEY_CODE_PREFIX + hotKey];
         }
 
         function registerPageHotKey(hotKey, actionFunction) {
@@ -94,32 +109,64 @@ angular.module('twigs.globalHotKeys', [])
             hotKeys[hotKey.toLowerCase()] = actionFunction;
         }
 
+        function registerPageHotKeyCode(hotKeyCode, actionFunction) {
+            var page = $location.path();
+            var hotKeys = pageHotKeys[page];
+            if (angular.isUndefined(hotKeys)) {
+                hotKeys = {};
+                pageHotKeys[page] = hotKeys;
+            }
+
+            hotKeys[HOTKEY_CODE_PREFIX + hotKeyCode] = actionFunction;
+        }
+
         function registerPageHotKeys(hotKeys, actionFunction) {
             angular.forEach(hotKeys, function (key) {
                 registerPageHotKey(key, actionFunction);
             });
         }
 
-        function registerGlobalHotKey(hotKey, actionFunction) {
+        function registerPageHotKeyCodes(hotKeyCodes, actionFunction) {
+            angular.forEach(hotKeyCodes, function (key) {
+                registerPageHotKeyCode(key, actionFunction);
+            });
+        }
+
+        function registerGlobalHotkey(hotKey, actionFunction) {
             globalHotKeys[hotKey.toLowerCase()] = actionFunction;
         }
 
-        function registerGlobalHotKeys(hotKeys, actionFunction) {
+        function registerGlobalHotkeys(hotKeys, actionFunction) {
             angular.forEach(hotKeys, function (key) {
-                registerGlobalHotKey(key, actionFunction);
+                registerGlobalHotkey(key, actionFunction);
             });
         }
+
+        function registerGlobalHotkeyCode(hotKeyCode, actionFunction) {
+            globalHotKeys[HOTKEY_CODE_PREFIX + hotKeyCode ] = actionFunction;
+        }
+
+        function registerGlobalHotkeyCodes(hotKeyCodes, actionFunction) {
+            angular.forEach(hotKeyCodes, function (key) {
+                registerGlobalHotkeyCode(key, actionFunction);
+            });
+        }
+
 
         var serviceInstance = {
 
             getPageHotKeyAction: getPageHotKeyAction,
 
-            getGlobalHotKeyAction: getGlobalHotKeyAction,
+            getPageHotKeyActionCode: getPageHotKeyActionCode,
+
+            getGlobalHotkeyAction: getGlobalHotkeyAction,
+
+            getGlobalHotkeyActionCode: getGlobalHotkeyActionCode,
 
             /**
              * @ngdoc function
-             * @name twigs.globalHotKeys.service:GlobalHotKeysService#registerPageHotKey
-             * @methodOf twigs.globalHotKeys.service:GlobalHotKeysService
+             * @name twigs.globalHotKeys.service:GlobalHotkeysService#registerPageHotKey
+             * @methodOf twigs.globalHotKeys.service:GlobalHotkeysService
              *
              * @description
              * Controllers can call this function to register a route-/path-specific hotkey.
@@ -131,8 +178,21 @@ angular.module('twigs.globalHotKeys', [])
 
             /**
              * @ngdoc function
-             * @name twigs.globalHotKeys.service:GlobalHotKeysService#registerPageHotKeys
-             * @methodOf twigs.globalHotKeys.service:GlobalHotKeysService
+             * @name twigs.globalHotKeys.service:GlobalHotkeysService#registerPageHotKeyCode
+             * @methodOf twigs.globalHotKeys.service:GlobalHotkeysService
+             *
+             * @description
+             * Controllers can call this function to register a route-/path-specific hotkey. Use this when using special keys, e.g. arrows.
+             *
+             * @param {string} hotKey The hotkey as string (e.g.  '37'  or 'alt+37' )
+             * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
+             */
+            registerPageHotKeyCode: registerPageHotKeyCode,
+
+            /**
+             * @ngdoc function
+             * @name twigs.globalHotKeys.service:GlobalHotkeysService#registerPageHotKeys
+             * @methodOf twigs.globalHotKeys.service:GlobalHotkeysService
              *
              * @description
              * Controllers can call this function to register route-/path-specific hotkeys.
@@ -144,8 +204,21 @@ angular.module('twigs.globalHotKeys', [])
 
             /**
              * @ngdoc function
-             * @name twigs.globalHotKeys.service:GlobalHotKeysService#registerGlobalHotKey
-             * @methodOf twigs.globalHotKeys.service:GlobalHotKeysService
+             * @name twigs.globalHotKeys.service:GlobalHotkeysService#registerPageHotKeyCodes
+             * @methodOf twigs.globalHotKeys.service:GlobalHotkeysService
+             *
+             * @description
+             * Controllers can call this function to register route-/path-specific hotkeys  with keycode (for special keys like arrows)
+             *
+             * @param {string[]} hotKey An array of hotkeys where each key is a string (e.g.  '39'  or 'shift+39' )
+             * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
+             */
+            registerPageHotKeyCodes: registerPageHotKeyCodes,
+
+            /**
+             * @ngdoc function
+             * @name twigs.globalHotKeys.service:GlobalHotkeysService#registerGlobalHotkey
+             * @methodOf twigs.globalHotKeys.service:GlobalHotkeysService
              *
              * @description
              * call this function to register a global (application-wide) hotkey.
@@ -153,12 +226,12 @@ angular.module('twigs.globalHotKeys', [])
              * @param {string} The hotkey as string (e.g.  'n'  or 'alt+n' )
              * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
              */
-            registerGlobalHotKey: registerGlobalHotKey,
+            registerGlobalHotkey: registerGlobalHotkey,
 
             /**
              * @ngdoc function
-             * @name twigs.globalHotKeys.service:GlobalHotKeysService#registerGlobalHotKeys
-             * @methodOf twigs.globalHotKeys.service:GlobalHotKeysService
+             * @name twigs.globalHotKeys.service:GlobalHotkeysService#registerGlobalHotkeys
+             * @methodOf twigs.globalHotKeys.service:GlobalHotkeysService
              *
              * @description
              * call this function to register global (application-wide) hotkeys.
@@ -166,7 +239,33 @@ angular.module('twigs.globalHotKeys', [])
              * @param {string[]} hotKey An array of hotkeys where each key is a string (e.g.  'n'  or 'alt+n' )
              * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
              */
-            registerGlobalHotKeys: registerGlobalHotKeys
+            registerGlobalHotkeys: registerGlobalHotkeys,
+
+            /**
+             * @ngdoc function
+             * @name twigs.globalHotKeys.service:GlobalHotkeysService#registerGlobalHotkeyCode
+             * @methodOf twigs.globalHotKeys.service:GlobalHotkeysService
+             *
+             * @description
+             * call this function to register a global (application-wide) hotkey with keycode (for special keys like arrows).
+             *
+             * @param {string} The hotkey as string (e.g.  '40'  or 'alt+40' )
+             * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
+             */
+            registerGlobalHotkeyCode: registerGlobalHotkeyCode,
+
+            /**
+             * @ngdoc function
+             * @name twigs.globalHotKeys.service:GlobalHotkeysService#registerGlobalHotkeyCodes
+             * @methodOf twigs.globalHotKeys.service:GlobalHotkeysService
+             *
+             * @description
+             * call this function to register global (application-wide) hotkeys with keycodes (for special keys like arrows).
+             *
+             * @param {string[]} hotKey An array of hotkeys where each key is a string (e.g.  '33'  or 'alt+33' )
+             * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
+             */
+            registerGlobalHotkeyCodes: registerGlobalHotkeyCodes
         };
 
         return serviceInstance;
@@ -179,16 +278,16 @@ angular.module('twigs.globalHotKeys', [])
  * @element ANY
  *
  * @description
- * This directive registers for the jquery 'keypress' event and forwards them to
+ * This directive registers for the 'keydown' event and forwards them to
  * either custom hotkeys for the current page or global hotkey function, if defined.
  *
  * You can use this directive on the _html_ element, in order to catch all key events.
  *
  * Ignores keystrokes in form elements , buttons and links.
  *
- * See [GlobalHotKeysService](#/api/twigs.globalHotKeys.service:GlobalHotKeysService) for more information.
+ * See [GlobalHotkeysService](#/api/twigs.globalHotKeys.service:GlobalHotkeysService) for more information.
  */
-    .directive('twgGlobalHotkeys', function ($location, $rootScope, GlobalHotKeysService) {
+    .directive('twgGlobalHotkeys', function ($location, $rootScope, GlobalHotkeysService) {
         return {
             restrict: 'A',
             link: function (scope, element) {
@@ -206,28 +305,51 @@ angular.module('twigs.globalHotKeys', [])
                     }
                 }
 
-                /*
-                 * register to the keypress event (works for most keys, i.e. this is the 'normal' way)
+                /**
+                 * register to keydown
                  */
-                element.bind('keypress', function (event) {
+                element.bind('keydown', function (event) {
                     if (isForbiddenElement(event)) {
                         return;
                     }
                     handleHotKey(event);
                 });
 
-                /**
-                 * register to keydown to handle 'alt+' in chrome
-                 */
-                element.bind('keydown', function (event) {
-                    if (isForbiddenElement(event)) {
-                        return;
+                function handleHotKeyNormal(hotKey, evWhich) {
+                    var completeHotkey = appendKey(hotKey, String.fromCharCode(evWhich));
+                    var pageAction = GlobalHotkeysService.getPageHotKeyAction($location.path(), completeHotkey);
+                    if (angular.isDefined(pageAction)) {
+                        pageAction();
+                        scope.$apply();
+                        return true;
                     }
-                    if (event.altKey !== true) {
-                        return;
+
+                    var globalAction = GlobalHotkeysService.getGlobalHotkeyAction(completeHotkey);
+                    if (angular.isDefined(globalAction)) {
+                        globalAction();
+                        scope.$apply();
+                        return true;
                     }
-                    handleHotKey(event);
-                });
+                    return false;
+                }
+
+                function handleHotKeyCode(hotKey, evWhich) {
+                    var completeHotkey = appendKey(hotKey, evWhich);
+                    var pageAction = GlobalHotkeysService.getPageHotKeyActionCode($location.path(), completeHotkey);
+                    if (angular.isDefined(pageAction)) {
+                        pageAction();
+                        scope.$apply();
+                        return true;
+                    }
+
+                    var globalAction = GlobalHotkeysService.getGlobalHotkeyActionCode(completeHotkey);
+                    if (angular.isDefined(globalAction)) {
+                        globalAction();
+                        scope.$apply();
+                        return true;
+                    }
+                    return false;
+                }
 
                 function handleHotKey(event) {
                     var hotKey = '';
@@ -243,20 +365,17 @@ angular.module('twigs.globalHotKeys', [])
                         hotKey = appendKey(hotKey, 'shift');
                     }
 
-                    hotKey = appendKey(hotKey, String.fromCharCode(event.which));
+                    /**
+                     * no way to determine if pressed key is a special key and registered with *Code
+                     * We search for a normal key first, if none found, search for a special one
+                     */
 
-                    var pageAction = GlobalHotKeysService.getPageHotKeyAction($location.path(), hotKey);
+                    var normalHandled = handleHotKeyNormal(hotKey, event.which);
 
-                    if (angular.isDefined(pageAction)) {
-                        pageAction();
-                    } else {
-                        var globalAction = GlobalHotKeysService.getGlobalHotKeyAction(hotKey);
-                        if (angular.isDefined(globalAction)) {
-                            globalAction();
-                        }
+                    if (!normalHandled) {
+                        handleHotKeyCode(hotKey, event.which);
                     }
 
-                    scope.$apply();
                 }
 
                 var appendKey = function (oldHotKey, nextKey) {

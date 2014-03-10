@@ -26,6 +26,7 @@
         "beforeEach": false,
         "expect": false,
         "sleep": false,
+        "dump": false,
         "inject": false
     }
 }

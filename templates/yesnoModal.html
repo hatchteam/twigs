@@ -1,0 +1,10 @@
+<div class="modal-header">
+    <h3>{{title}}</h3>
+</div>
+<div class="modal-body">
+    <p>{{message}}</p>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-danger" x-ng-click="$close(false)">{{primaryButtonText}}</button>
+    <button class="btn btn-yes {{message.yesButtonCls}} btn-success" x-ng-click="$close(true)">{{secondaryButtonText}}</button>
+</div>

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-angular.module('twigs.devel', ['ngCookies'])
+angular.module('twigs.devel')
 
     .constant('ERROR_REPORTED_EVENT', 'twigs.devel.errorReported')
     .constant('SERVER_REQUEST_REPORTED_EVENT', 'twigs.devel.serverRequestReported')

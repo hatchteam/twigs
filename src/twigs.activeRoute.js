@@ -55,13 +55,16 @@
  *
  * ```html
  * <ul>
- *  <li><a twg-active-route="/home" href="/home" ng-class="{current: twgActive}">Home</a></li>
- *  <li><a twg-active-route="/about" href="/aboutMe" ng-class="{current: twgActive}">About me</li>
+ *  <li><a twg-active-route="/home" href="/home"
+ *           ng-class="{current: twgActive}">Home</a></li>
+ *  <li>
+ *      <a twg-active-route="/about" href="/aboutMe"
+ *           ng-class="{current: twgActive}">About me</a></li>
  * </ul>
  * ```
  *
  */
-angular.module('twigs.activeRoute', [])
+angular.module('twigs.activeRoute')
 
     .directive('twgActiveRoute', function ($location, $parse) {
         return {

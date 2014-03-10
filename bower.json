@@ -1,25 +1,26 @@
 {
-    "name": "twigs",
-    "version": "0.1.1",
-    "main": "./twigs.js",
-    "ignore": [
-        "test",
-        "node_modules",
-        "components",
-        "Gruntfile.js",
-        "karma.conf.js",
-        "package.js",
-        "**/.*",
-        "**/*.json",
-        "**/*.html"
-    ],
-    "dependencies": {
-    },
-    "devDependencies": {
-        "jquery": "~1.10.0",
-        "angular": "~1.2.13",
-        "angular-cookies": "~1.2.13",
-        "angular-mocks": "~1.2.13",
-        "angular-scenario": "~1.2.13"
-    }
+  "name": "twigs",
+  "version": "0.1.2",
+  "main": "./twigs.js",
+  "ignore": [
+    "test",
+    "node_modules",
+    "components",
+    "Gruntfile.js",
+    "karma.conf.js",
+    "package.js",
+    "**/.*",
+    "**/*.json",
+    "**/*.html"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "jquery": "~1.10.0",
+    "angular": "1.2.13",
+    "angular-cookies": "1.2.13",
+    "angular-mocks": "1.2.13",
+    "angular-scenario": "1.2.13",
+    "angular-route": "1.2.13",
+    "angular-bootstrap": "~0.10.0"
+  }
 }

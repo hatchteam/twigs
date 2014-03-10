@@ -1,0 +1,24 @@
+<h1><code ng:non-bindable="">twgSecureShow</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">twigs.security</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="twigs-security-directive-page twigs-security-directive-twgsecureshow-page"><p>Shows an element only if given expression evaluates to true.
+Allowed expressions are:</p>
+<ul>
+<li>hasRole()</li>
+<li>isAuthenticated()</li>
+<li>hasPermission(&#39;some&#39;,&#39;arguments&#39;)</li>
+</ul>
+</div></div>
+<h2 id="usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;ANY twg-secure-show&gt;
+   ...
+&lt;/ANY&gt;</pre>
+</div>
+<h2 id="example">Example</h2>
+<div class="example"><div class="twigs-security-directive-page twigs-security-directive-twgsecureshow-page"><pre><code class="lang-html">&lt;div twg-secure-show=&quot;hasPermission(&#39;entity&#39;,&#39;CREATE&#39;)&quot;&gt;
+&lt;/div&gt;</code></pre>
+</div></div>
+</div>
