@@ -208,7 +208,7 @@ angular.module('twigs.globalHotkeys', [])
              * @methodOf twigs.globalHotKeys.service:GlobalHotkeysService
              *
              * @description
-             * Controllers can call this function to register route-/path-specific hotkeys.
+             * Controllers can call this function to register route-/path-specific hotkeys  with keycode (for special keys like arrows)
              *
              * @param {string[]} hotKey An array of hotkeys where each key is a string (e.g.  '39'  or 'shift+39' )
              * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
@@ -247,7 +247,7 @@ angular.module('twigs.globalHotkeys', [])
              * @methodOf twigs.globalHotKeys.service:GlobalHotkeysService
              *
              * @description
-             * call this function to register a global (application-wide) hotkey.
+             * call this function to register a global (application-wide) hotkey with keycode (for special keys like arrows).
              *
              * @param {string} The hotkey as string (e.g.  '40'  or 'alt+40' )
              * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
@@ -260,7 +260,7 @@ angular.module('twigs.globalHotkeys', [])
              * @methodOf twigs.globalHotKeys.service:GlobalHotkeysService
              *
              * @description
-             * call this function to register global (application-wide) hotkeys.
+             * call this function to register global (application-wide) hotkeys with keycodes (for special keys like arrows).
              *
              * @param {string[]} hotKey An array of hotkeys where each key is a string (e.g.  '33'  or 'alt+33' )
              * @param {function} actionFunction The callback function that is invoked when a hotkey (-combination) is pressed
@@ -316,40 +316,39 @@ angular.module('twigs.globalHotkeys', [])
                 });
 
                 function handleHotKeyNormal(hotKey, evWhich) {
-                    var hotKey = appendKey(hotKey, String.fromCharCode(evWhich));
-
-                    var pageAction = GlobalHotkeysService.getPageHotKeyAction($location.path(), hotKey);
-
+                    var completeHotkey = appendKey(hotKey, String.fromCharCode(evWhich));
+                    var pageAction = GlobalHotkeysService.getPageHotKeyAction($location.path(), completeHotkey);
                     if (angular.isDefined(pageAction)) {
                         pageAction();
                         scope.$apply();
-                        return;
+                        return true;
                     }
 
-                    var globalAction = GlobalHotkeysService.getGlobalHotkeyAction(hotKey);
+                    var globalAction = GlobalHotkeysService.getGlobalHotkeyAction(completeHotkey);
                     if (angular.isDefined(globalAction)) {
                         globalAction();
                         scope.$apply();
-                        return;
+                        return true;
                     }
+                    return false;
                 }
 
                 function handleHotKeyCode(hotKey, evWhich) {
-                    var hotKey = appendKey(hotKey, evWhich);
-                    //** --  no way to determine if pressed key is a special key and registered with *Code -- **//
-                    var pageAction_code = GlobalHotkeysService.getPageHotKeyActionCode($location.path(), hotKey);
-                    if (angular.isDefined(pageAction_code)) {
-                        pageAction_code();
+                    var completeHotkey = appendKey(hotKey, evWhich);
+                    var pageAction = GlobalHotkeysService.getPageHotKeyActionCode($location.path(), completeHotkey);
+                    if (angular.isDefined(pageAction)) {
+                        pageAction();
                         scope.$apply();
-                        return;
+                        return true;
                     }
 
-                    var globalAction_code = GlobalHotkeysService.getGlobalHotkeyActionCode(hotKey);
-                    if (angular.isDefined(globalAction_code)) {
-                        globalAction_code();
+                    var globalAction = GlobalHotkeysService.getGlobalHotkeyActionCode(completeHotkey);
+                    if (angular.isDefined(globalAction)) {
+                        globalAction();
                         scope.$apply();
-                        return;
+                        return true;
                     }
+                    return false;
                 }
 
                 function handleHotKey(event) {
@@ -366,9 +365,16 @@ angular.module('twigs.globalHotkeys', [])
                         hotKey = appendKey(hotKey, 'shift');
                     }
 
-                    handleHotKeyNormal(hotKey, event.which);
+                    /**
+                     * no way to determine if pressed key is a special key and registered with *Code
+                     * We search for a normal key first, if none found, search for a special one
+                     */
 
-                    handleHotKeyCode(hotKey, event.which);
+                    var normalHandled = handleHotKeyNormal(hotKey, event.which);
+
+                    if (!normalHandled) {
+                        handleHotKeyCode(hotKey, event.which);
+                    }
 
                 }
 
