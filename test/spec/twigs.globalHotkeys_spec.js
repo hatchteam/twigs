@@ -54,6 +54,17 @@ describe('Service: GlobalHotkeysService', function () {
         expect(GlobalHotkeysService.getGlobalHotkeyAction('shift+z')()).toBe('noop');
     });
 
+
+    it('should keep registered global hotkeys (keycode)', function () {
+
+        // 39 is arrow-right
+        GlobalHotkeysService.registerGlobalHotkeyCode('39', noop);
+
+        expect(GlobalHotkeysService.getGlobalHotkeyActionCode('39')).toBe(noop);
+        expect(GlobalHotkeysService.getGlobalHotkeyActionCode('39')()).toBe('noop');
+    });
+
+
     it('should keep registered global hotkeys (multiple)', function () {
 
         GlobalHotkeysService.registerGlobalHotkeys(['shift+z', 'alt+z'], noop);
@@ -63,6 +74,17 @@ describe('Service: GlobalHotkeysService', function () {
         expect(GlobalHotkeysService.getGlobalHotkeyAction('alt+z')).toBe(noop);
         expect(GlobalHotkeysService.getGlobalHotkeyAction('alt+z')()).toBe('noop');
     });
+
+    it('should keep registered global hotkeys (multiple) (keycode)', function () {
+
+        GlobalHotkeysService.registerGlobalHotkeyCodes(['39', '37'], noop);
+
+        expect(GlobalHotkeysService.getGlobalHotkeyActionCode('39')).toBe(noop);
+        expect(GlobalHotkeysService.getGlobalHotkeyActionCode('39')()).toBe('noop');
+        expect(GlobalHotkeysService.getGlobalHotkeyActionCode('37')).toBe(noop);
+        expect(GlobalHotkeysService.getGlobalHotkeyActionCode('37')()).toBe('noop');
+    });
+
 
     it('can retrieve hotkeys with uppercase', function () {
 
@@ -87,6 +109,21 @@ describe('Service: GlobalHotkeysService', function () {
 
     });
 
+    it('should keep registered page hotkeys (code)', function () {
+
+        andBrowserWouldBeOnPage(dummyPath);
+        GlobalHotkeysService.registerPageHotKeyCode('37', noop);
+
+        andBrowserWouldBeOnPage(dummyPath2);
+        GlobalHotkeysService.registerPageHotKeyCode('37', noop2);
+
+        expect(GlobalHotkeysService.getPageHotKeyActionCode(dummyPath, '37')).toBe(noop);
+        expect(GlobalHotkeysService.getPageHotKeyActionCode(dummyPath, '37')()).toBe('noop');
+        expect(GlobalHotkeysService.getPageHotKeyActionCode(dummyPath2, '37')).toBe(noop2);
+        expect(GlobalHotkeysService.getPageHotKeyActionCode(dummyPath2, '37')()).toBe('noop2');
+
+    });
+
 
 });
 
@@ -108,16 +145,16 @@ describe('Directive: twgHotkeys', function () {
         return element;
     }
 
-    function triggerKeyDown(element, keyCode) {
+    function triggerKeyDown(element, keyString) {
         var e = jQuery.Event("keydown");
-        e.which = keyCode.charCodeAt(0);
+        e.which = keyString.charCodeAt(0);
         element.trigger(e);
         $scope.$digest();
     };
 
-    function triggerKeyPress(element, keyCode) {
-        var e = jQuery.Event("keypress");
-        e.which = keyCode.charCodeAt(0);
+    function triggerKeyDownCode(element, keyCode) {
+        var e = jQuery.Event("keydown");
+        e.which = keyCode;
         element.trigger(e);
         $scope.$digest();
     };
@@ -125,7 +162,7 @@ describe('Directive: twgHotkeys', function () {
     it('should do nothing if no hotkey registered', function () {
         var htmlElement = angular.element('<html twg-global-hotkeys><body></body></html>');
         var element = whenCompiling(htmlElement);
-        triggerKeyPress(element, 'a');
+        triggerKeyDown(element, 'a');
     });
 
     it('should trigger on simple hotkey', function () {
@@ -137,7 +174,28 @@ describe('Directive: twgHotkeys', function () {
             callBackExecuted = true;
         });
 
-        triggerKeyPress(element, 'a');
+        triggerKeyDown(element, 'a');
+
+        waitsFor(function () {
+            return callBackExecuted;
+        }, 'callbackToBeExecuted', 1000);
+
+        runs(function () {
+            expect(callBackExecuted).toEqual(true);
+        });
+    });
+
+
+    it('should trigger on simple hotkey (code)', function () {
+        var htmlElement = angular.element('<div twg-global-hotkeys></div>');
+        var element = whenCompiling(htmlElement);
+        var callBackExecuted = false;
+
+        GlobalHotkeysService.registerGlobalHotkeyCode(10, function () {
+            callBackExecuted = true;
+        });
+
+        triggerKeyDownCode(element, 10);
 
         waitsFor(function () {
             return callBackExecuted;
@@ -158,7 +216,7 @@ describe('Directive: twgHotkeys', function () {
             callBackExecuted = true;
         });
 
-        triggerKeyPress(someElement, 'G');
+        triggerKeyDown(someElement, 'G');
 
         waitsFor(function () {
             return callBackExecuted;
@@ -179,7 +237,7 @@ describe('Directive: twgHotkeys', function () {
             callBackNotExecuted = false;
         });
 
-        triggerKeyPress(someElement, 'a');
+        triggerKeyDown(someElement, 'a');
 
         waits(200);
 
@@ -198,7 +256,7 @@ describe('Directive: twgHotkeys', function () {
             callBackNotExecuted = false;
         });
 
-        triggerKeyPress(inputElement, 'G');
+        triggerKeyDown(inputElement, 'G');
 
         waits(200);
 
@@ -217,7 +275,7 @@ describe('Directive: twgHotkeys', function () {
             callBackNotExecuted = false;
         });
 
-        triggerKeyPress(inputElement, 'G');
+        triggerKeyDown(inputElement, 'G');
 
         waits(200);
 
