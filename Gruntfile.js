@@ -23,6 +23,7 @@ module.exports = function (grunt) {
      * for automatic docu generation
      */
     grunt.loadNpmTasks('grunt-ngdocs');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-karma');
 
     grunt.initConfig({
@@ -116,11 +117,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-        cdnify: {
-            dist: {
-                html: ['<%= yeoman.dist %>/*.html']
-            }
-        },
         ngmin: {
             dist: {
                 files: [
@@ -163,6 +159,21 @@ module.exports = function (grunt) {
                 ]
             }
         },
+
+        uglify: {
+            dist: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: '<%= yeoman.dist %>',
+                        src: '*.js',
+                        dest: '<%= yeoman.dist %>',
+                        ext: '.min.js'
+                    }
+                ]
+            }
+        },
+
         ngdocs: {
             options: {
                 dest: 'docs',
@@ -209,7 +220,8 @@ module.exports = function (grunt) {
         'docu',
         'concat',
         'copy',
-        'ngmin'
+        'ngmin',
+        'uglify'
     ]);
 
     grunt.registerTask('default', ['build']);
