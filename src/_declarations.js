@@ -31,7 +31,9 @@ angular.module('twigs.dynamicSize', []);
 
 angular.module('twigs.flow', []);
 
-angular.module('twigs.globalHotkeys', []);
+angular.module('twigs.templates', []);
+
+angular.module('twigs.globalHotkeys', ['twigs.templates']);
 
 angular.module('twigs.security', []);
 

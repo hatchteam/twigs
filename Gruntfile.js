@@ -112,8 +112,8 @@ module.exports = function (grunt) {
             dist: {
                 files: {
                     '<%= yeoman.dist %>/twigs.js': [
-                        '.tmp/{,*/}*.js',
-                        '<%= yeoman.app %>/{,*/}*.js'
+                        '<%= yeoman.app %>/{,*/}*.js',
+                        '.tmp/{,*/}*.js'
                     ]
                 }
             }
@@ -156,12 +156,6 @@ module.exports = function (grunt) {
                             'images/{,*/}*.{gif,webp}',
                             'styles/fonts/*'
                         ]
-                    },
-                    {
-                        expand: true,
-                        cwd: '<%= yeoman.app %>/../',
-                        src: 'templates/*',
-                        dest: '<%= yeoman.dist %>'
                     }
                 ]
             }
