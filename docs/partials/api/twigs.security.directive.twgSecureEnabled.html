@@ -1,0 +1,24 @@
+<h1><code ng:non-bindable="">twgSecureEnabled</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">twigs.security</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="twigs-security-directive-page twigs-security-directive-twgsecureenabled-page"><p>Enables a input field only if the given expression evaluates to true.
+Allowed expressions are:</p>
+<ul>
+<li>hasRole()</li>
+<li>isAuthenticated()</li>
+<li>hasPermission(&#39;some&#39;,&#39;arguments&#39;)</li>
+</ul>
+</div></div>
+<h2 id="usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;input twg-secure-enabled&gt;
+   ...
+&lt;/input&gt;</pre>
+</div>
+<h2 id="example">Example</h2>
+<div class="example"><div class="twigs-security-directive-page twigs-security-directive-twgsecureenabled-page"><pre><code class="lang-html">&lt;input type=&quot;text&quot; twg-secure-enabled=&quot;hasPermission(&#39;entity&#39;,&#39;DELETE&#39;)&quot;&gt;&lt;/input&gt;</code></pre>
+<pre><code class="lang-html">&lt;input type=&quot;text&quot; twg-secure-enabled=&quot;isAuthenticated()&quot;&gt;&lt;/input&gt;</code></pre>
+</div></div>
+</div>

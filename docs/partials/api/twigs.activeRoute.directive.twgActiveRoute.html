@@ -1,0 +1,40 @@
+<h1><code ng:non-bindable="">twgActiveRoute</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">twigs.activeRoute</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="twigs-activeroute-directive-page twigs-activeroute-directive-twgactiveroute-page"><p>In almost every webpage you&#39;d like to mark elements as active, if the current view matches their link. E.g., in a navigation Menu,
+the currently active item should be highlighted.</p>
+<p>Add the active-route directive to the navigation elements and specify a regex that should match the currently active route.
+The directive will listen to url changes and add the css class <strong>&#39;active&#39;</strong> to the element.</p>
+<pre><code class="lang-html">&lt;ul&gt;
+  &lt;li&gt;&lt;a twg-active-route=&quot;/home&quot; href=&quot;/home&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a twg-active-route=&quot;/aboutMe&quot; href=&quot;/aboutMe&quot;&gt;About me&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<p>A more complex example:</p>
+<pre><code class="lang-html">&lt;ul&gt;
+  &lt;li twg-active-route=&quot;/home&quot;&gt;&lt;a href=&quot;/home&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+  &lt;li twg-active-route=&quot;/settings/.*&quot;&gt;Settings
+     &lt;ul&gt;
+       &lt;li twg-active-route=&quot;/settings/audio&quot;&gt;&lt;a href=&quot;/settings/audio&quot;&gt;Audio&lt;/li&gt;
+       &lt;li twg-active-route=&quot;/settings/video&quot;&gt;&lt;a href=&quot;/settings/video&quot;&gt;Video&lt;/li&gt;
+     &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<p>You can also set your own css class: The directive will set a flag (<strong>&#39;twgActive&#39;</strong>) on the scope to true, if the url matches the specified
+regex.</p>
+<pre><code class="lang-html">&lt;ul&gt;
+ &lt;li&gt;&lt;a twg-active-route=&quot;/home&quot; href=&quot;/home&quot;
+          ng-class=&quot;{current: twgActive}&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+ &lt;li&gt;
+     &lt;a twg-active-route=&quot;/about&quot; href=&quot;/aboutMe&quot;
+          ng-class=&quot;{current: twgActive}&quot;&gt;About me&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+</div></div>
+<h2 id="usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;ANY twg-active-route&gt;
+   ...
+&lt;/ANY&gt;</pre>
+</div>
+</div>

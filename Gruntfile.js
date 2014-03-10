@@ -180,7 +180,8 @@ module.exports = function (grunt) {
                 html5Mode: false,
                 startPage: '/api',
                 title: 'Twigs Documentation',
-                animation: true
+                animation: true,
+                styles: ['docs/css/twigsDocuStyles.css']
             },
             api: {
                 src: [
