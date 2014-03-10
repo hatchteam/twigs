@@ -6,6 +6,7 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
         this.modals = {};
         this.toasts = {};
         this.fileModals = {};
+        var serviceInstance = {};
 
         this.$get = function ($rootScope, $modal, $timeout, $templateCache, $http, $compile, $document, $sce) {
             var modals = this.modals;
@@ -98,41 +99,52 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
             /**
              * Preparate service instance with a function for each toast and modal
              */
-            var serviceInstance = {};
-            angular.forEach(modals, function(modal){
-                serviceInstance[modal.name] = function(messageText, title){
-                    return displayModal(modal, messageText, title);
-                };
-            });
-            angular.forEach(toasts, function(toast){
-                serviceInstance[toast.name] = function(messageText){
-                    displayToast(toast, messageText);
-                };
-            });
-            angular.forEach(fileModals, function(fileModal){
-                serviceInstance[fileModal.name] = function(messageText){
-                    displayFileModal(fileModal, messageText);
-                };
-            });
+            serviceInstance.displayModal = displayModal;
+            serviceInstance.displayToast = displayToast;
+            serviceInstance.displayFileModal = displayFileModal;
             return serviceInstance;
         };
 
+        /**
+         * Configure Provider
+         */
         this.createModal = function (messageName, options) {
-            this.modals[messageName]={
+            if(angular.isUndefined(options.modalOptions) || angular.isUndefined(options.modalOptions.templateUrl)){
+                throw "createModal requires at least modalOptions.templateUrl to be defined";
+            }
+
+            var modal={
                 name:messageName,
                 options:options
+            };
+            serviceInstance[messageName] = function(messageText, title){
+                return serviceInstance.displayModal(modal, messageText, title);
             };
         };
         this.createToast = function (messageName, options) {
-            this.toasts[messageName]={
+            if(angular.isUndefined(options.templateUrl)){
+                throw "createToast requires at least templateUrl to be defined";
+            }
+
+           var toast={
                 name:messageName,
                 options:options
             };
+            serviceInstance[messageName] = function(messageText){
+                serviceInstance.displayToast(toast, messageText);
+            };
         };
         this.createFileModal = function (messageName, options) {
-            this.fileModals[messageName]={
+            if(angular.isUndefined(options.modalOptions) || angular.isUndefined(options.modalOptions.templateUrl)){
+                throw "createFileModal requires at least modalOptions.templateUrl to be defined";
+            }
+
+            var fileModal={
                 name:messageName,
                 options:options
+            };
+            serviceInstance[messageName] = function(messageText){
+                serviceInstance.displayFileModal(fileModal, messageText);
             };
         };
     });
