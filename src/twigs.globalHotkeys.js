@@ -179,7 +179,7 @@ angular.module('twigs.globalHotkeys', [])
  * @element ANY
  *
  * @description
- * This directive registers for the jquery 'keypress' event and forwards them to
+ * This directive registers for the 'keypress' event and forwards them to
  * either custom hotkeys for the current page or global hotkey function, if defined.
  *
  * You can use this directive on the _html_ element, in order to catch all key events.
