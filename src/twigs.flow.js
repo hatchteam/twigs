@@ -136,7 +136,7 @@ angular.module('twigs.flow')
 
                 angular.forEach(flows, function (propertyValue, propertyName) {
                     angular.forEach(flows[propertyName].steps, function (step) {
-                        if (checkIfStepRouteMatchesGivenUrl(step.route, route)) {
+                        if (checkIfStepRouteRegexMatches(step.routeRegex, route)) {
                             retVal = {
                                 flow: flows[propertyName],
                                 step: step
@@ -150,43 +150,12 @@ angular.module('twigs.flow')
                 return retVal;
             }
 
-            /**
-             * RegEx Explanation:
-             * To enable placeholders for $flow routes we need to check for the placeholder charachter ":" in the given "route":
-             * E.g.
-             * .step({
-             *      'id': 'start',
-             *      'route': '/someWizard/:id',
-             *      'transitions': {
-             *          'next': 'mandateAdditional'
-             *      }
-             *  })
-             *
-             * where ":id" in the "route" attribute specifies a placeholder.
-             * As the actual browser url (e.g. "/someWizard/12345") will differ from the set "route"
-             * a simple equal check won't suffice.
-             * So, if we come across an url which contains a placeholder (regexPlaceholder), we then only look at
-             * the complete urls without the dynamic part ('/someWizard/')
-             *
-             * NOTICE:
-             * This certainly only works if there is only one placeholder defined.
-             * Also the placeholder needs to be at the end of the url.
-             * "/someWizard/something/:placeholder" will work while "someWizard/:placeholder/something"
-             * or "someWizard/:placeholderOne/:placeholderTwo" will not.
-             *
-             */
-            function checkIfStepRouteMatchesGivenUrl(route, givenUrl) {
-                var regexPlaceholder = new RegExp('(.*):');
-                var regexUrl = new RegExp('(.*\/)');
 
-                if (route === givenUrl) {
-                    return true;
-                } else if (regexPlaceholder.exec(route) !== null) {
-                    if (regexPlaceholder.exec(route)[1] === regexUrl.exec(givenUrl)[1]) {
-                        return true;
-                    }
+            function checkIfStepRouteRegexMatches(routeRegex, givenUrl) {
+                if (angular.isUndefined(routeRegex.test)) {
+                    throw 'Expected regex, but got ' + routeRegex;
                 }
-                return false;
+                return routeRegex.test(givenUrl);
             }
 
             /**
@@ -324,7 +293,7 @@ angular.module('twigs.flow')
                     }
                     targetStep = findStepForId(stepId, flowAndStep.flow.id);
 
-                    return checkIfStepRouteMatchesGivenUrl(targetStep.route, currentPath);
+                    return checkIfStepRouteRegexMatches(targetStep.routeRegex, currentPath);
                 },
 
                 finish: function () {
@@ -363,6 +332,45 @@ angular.module('twigs.flow')
             return this;
         };
 
+
+        /**
+         * this function is from the AngularJS sources. See /src/ngRoute/route.js
+         *
+         * computes regular expression for a given path string
+         *
+         * @param {string} path The Path as String (e.g.  /some/path/:id )
+         * @param {object} opts Options
+         * @returns {{originalPath: *, regexp: *}}
+         */
+        function pathRegExp(path, opts) {
+            var insensitive = opts.caseInsensitiveMatch,
+                ret = {
+                    originalPath: path,
+                    regexp: path
+                },
+                keys = ret.keys = [];
+
+            path = path
+                .replace(/([().])/g, '\\$1')
+                .replace(/(\/)?:(\w+)([\?\*])?/g, function (_, slash, key, option) {
+                    var optional = option === '?' ? option : null;
+                    var star = option === '*' ? option : null;
+                    keys.push({ name: key, optional: !!optional });
+                    slash = slash || '';
+                    return '' +
+                        (optional ? '' : slash) +
+                        '(?:' + (optional ? slash : '') +
+                        (star && '(.+?)' || '([^/]+)') +
+                        (optional || '') +
+                        ')' +
+                        (optional || '');
+                })
+                .replace(/([\/$\*])/g, '\\$1');
+
+            ret.regexp = new RegExp('^' + path + '$', insensitive ? 'i' : '');
+            return ret;
+        }
+
         /**
          * @ngdoc function
          * @name twigs.flow.provider:FlowProvider#step
@@ -389,6 +397,8 @@ angular.module('twigs.flow')
             var currentFlow = this.flows[this.currentFlowId];
 
             checkStepIdInFlow(currentFlow, stepConfig.id);
+
+            stepConfig.routeRegex = pathRegExp(stepConfig.route, {}).regexp;
 
             currentFlow.steps[stepConfig.id] = stepConfig;
 

@@ -178,7 +178,7 @@ describe('Service & Provider: Flow', function () {
                 .createFlow();
         }
 
-        function configureInvalidFlowWithPlaceholder() {
+        function configureValidFlowWithPlaceholderMiddle() {
 
             FlowProvider.flow('myNewFlow')
                 .step({
@@ -197,7 +197,7 @@ describe('Service & Provider: Flow', function () {
                 .createFlow();
         }
 
-        function configureInvalidFlowWithMultiplePlaceholders() {
+        function configureValidFlowWithMultiplePlaceholders() {
 
             FlowProvider.flow('myNewFlow')
                 .step({
@@ -294,24 +294,18 @@ describe('Service & Provider: Flow', function () {
             expect(result).toBe(true);
         });
 
-        it('should not accept placeholder if not placed last in url', function () {
-            configureInvalidFlowWithPlaceholder();
+        it('should also accept placeholder if not placed last in url', function () {
+            configureValidFlowWithPlaceholderMiddle();
             $location.path('/first/1234/something');
-            function tryJumpingToStepWithInvalidPlaceholer() {
-                Flow.isCurrentStep('firstStep')
-            }
-
-            expect(tryJumpingToStepWithInvalidPlaceholer).toThrow();
+            var result = Flow.isCurrentStep('firstStep');
+            expect(result).toBe(true);
         });
 
-        it('should not accept placeholder if there are multiple defined', function () {
-            configureInvalidFlowWithMultiplePlaceholders();
+        it('should also accept placeholder if there are multiple defined', function () {
+            configureValidFlowWithMultiplePlaceholders();
             $location.path('/first/1234/5678');
-            function tryJumpingToStepWithInvalidPlaceholer() {
-                Flow.isCurrentStep('firstStep')
-            }
-
-            expect(tryJumpingToStepWithInvalidPlaceholer).toThrow();
+            var result = Flow.isCurrentStep('firstStep');
+            expect(result).toBe(true);
         });
 
 
