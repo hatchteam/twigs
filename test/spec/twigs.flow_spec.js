@@ -159,6 +159,63 @@ describe('Service & Provider: Flow', function () {
                 .createFlow();
         }
 
+        function configureValidFlowWithPlaceholder() {
+
+            FlowProvider.flow('myNewFlow')
+                .step({
+                    'id': 'firstStep',
+                    'route': '/first/:placeholder',
+                    'transitions': {
+                        'next': 'secondStep'
+                    }
+                }).step({
+                    'id': 'secondStep',
+                    'route': '/second',
+                    'transitions': {
+                        'previous': 'firstStep'
+                    }
+                })
+                .createFlow();
+        }
+
+        function configureValidFlowWithPlaceholderMiddle() {
+
+            FlowProvider.flow('myNewFlow')
+                .step({
+                    'id': 'firstStep',
+                    'route': '/first/:placeholder/something',
+                    'transitions': {
+                        'next': 'secondStep'
+                    }
+                }).step({
+                    'id': 'secondStep',
+                    'route': '/second',
+                    'transitions': {
+                        'previous': 'firstStep'
+                    }
+                })
+                .createFlow();
+        }
+
+        function configureValidFlowWithMultiplePlaceholders() {
+
+            FlowProvider.flow('myNewFlow')
+                .step({
+                    'id': 'firstStep',
+                    'route': '/first/:placeholder/:anotherPlaceholder',
+                    'transitions': {
+                        'next': 'secondStep'
+                    }
+                }).step({
+                    'id': 'secondStep',
+                    'route': '/second',
+                    'transitions': {
+                        'previous': 'firstStep'
+                    }
+                })
+                .createFlow();
+        }
+
         it('should provide the model', function () {
             configureValidFlow();
             var flowModel = Flow.getModel();
@@ -217,7 +274,6 @@ describe('Service & Provider: Flow', function () {
             expect(jumpToInvalidStep).toThrow();
         });
 
-
         it('should keep model across steps', function () {
             configureValidFlow();
             $location.path('/first');
@@ -229,6 +285,29 @@ describe('Service & Provider: Flow', function () {
             expect($location.path()).toBe('/second');
             expect(Flow.getModel().myVariable).toEqual('Asterix');
         });
+
+        it('should accept placeholder if placed last in url', function () {
+            configureValidFlowWithPlaceholder();
+            $location.path('/first/1234');
+
+            var result = Flow.isCurrentStep('firstStep');
+            expect(result).toBe(true);
+        });
+
+        it('should also accept placeholder if not placed last in url', function () {
+            configureValidFlowWithPlaceholderMiddle();
+            $location.path('/first/1234/something');
+            var result = Flow.isCurrentStep('firstStep');
+            expect(result).toBe(true);
+        });
+
+        it('should also accept placeholder if there are multiple defined', function () {
+            configureValidFlowWithMultiplePlaceholders();
+            $location.path('/first/1234/5678');
+            var result = Flow.isCurrentStep('firstStep');
+            expect(result).toBe(true);
+        });
+
 
     });
 

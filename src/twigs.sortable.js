@@ -52,7 +52,7 @@
  * </table>
  * ```
  */
-angular.module('twigs.sortable', [])
+angular.module('twigs.sortable')
 
     .directive('twgSortable', function () {
 

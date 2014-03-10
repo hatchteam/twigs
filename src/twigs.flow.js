@@ -118,7 +118,7 @@
  *
  * See [FlowProvider](#/api/twigs.flow.provider:FlowProvider) for more information on how to set up flows.
  */
-angular.module('twigs.flow', [])
+angular.module('twigs.flow')
 
     .provider('Flow', function () {
         this.flows = {};
@@ -136,19 +136,26 @@ angular.module('twigs.flow', [])
 
                 angular.forEach(flows, function (propertyValue, propertyName) {
                     angular.forEach(flows[propertyName].steps, function (step) {
-                        if (step.route === route) {
+                        if (checkIfStepRouteRegexMatches(step.routeRegex, route)) {
                             retVal = {
                                 flow: flows[propertyName],
                                 step: step
                             };
-                            return false;
                         }
                     });
                 });
                 if (angular.isUndefined(retVal)) {
-                    $log.warn('no flow-step found for route ', route);
+                    throw 'no flow-step found for route ' + route;
                 }
                 return retVal;
+            }
+
+
+            function checkIfStepRouteRegexMatches(routeRegex, givenUrl) {
+                if (angular.isUndefined(routeRegex.test)) {
+                    throw 'Expected regex, but got ' + routeRegex;
+                }
+                return routeRegex.test(givenUrl);
             }
 
             /**
@@ -286,7 +293,7 @@ angular.module('twigs.flow', [])
                     }
                     targetStep = findStepForId(stepId, flowAndStep.flow.id);
 
-                    return $location.path() === targetStep.route;
+                    return checkIfStepRouteRegexMatches(targetStep.routeRegex, currentPath);
                 },
 
                 finish: function () {
@@ -325,6 +332,45 @@ angular.module('twigs.flow', [])
             return this;
         };
 
+
+        /**
+         * this function is from the AngularJS sources. See /src/ngRoute/route.js
+         *
+         * computes regular expression for a given path string
+         *
+         * @param {string} path The Path as String (e.g.  /some/path/:id )
+         * @param {object} opts Options
+         * @returns {{originalPath: *, regexp: *}}
+         */
+        function pathRegExp(path, opts) {
+            var insensitive = opts.caseInsensitiveMatch,
+                ret = {
+                    originalPath: path,
+                    regexp: path
+                },
+                keys = ret.keys = [];
+
+            path = path
+                .replace(/([().])/g, '\\$1')
+                .replace(/(\/)?:(\w+)([\?\*])?/g, function (_, slash, key, option) {
+                    var optional = option === '?' ? option : null;
+                    var star = option === '*' ? option : null;
+                    keys.push({ name: key, optional: !!optional });
+                    slash = slash || '';
+                    return '' +
+                        (optional ? '' : slash) +
+                        '(?:' + (optional ? slash : '') +
+                        (star && '(.+?)' || '([^/]+)') +
+                        (optional || '') +
+                        ')' +
+                        (optional || '');
+                })
+                .replace(/([\/$\*])/g, '\\$1');
+
+            ret.regexp = new RegExp('^' + path + '$', insensitive ? 'i' : '');
+            return ret;
+        }
+
         /**
          * @ngdoc function
          * @name twigs.flow.provider:FlowProvider#step
@@ -351,6 +397,8 @@ angular.module('twigs.flow', [])
             var currentFlow = this.flows[this.currentFlowId];
 
             checkStepIdInFlow(currentFlow, stepConfig.id);
+
+            stepConfig.routeRegex = pathRegExp(stepConfig.route, {}).regexp;
 
             currentFlow.steps[stepConfig.id] = stepConfig;
 

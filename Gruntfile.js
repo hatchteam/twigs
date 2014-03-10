@@ -23,6 +23,7 @@ module.exports = function (grunt) {
      * for automatic docu generation
      */
     grunt.loadNpmTasks('grunt-ngdocs');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-angular-templates');
 
@@ -117,11 +118,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-        cdnify: {
-            dist: {
-                html: ['<%= yeoman.dist %>/*.html']
-            }
-        },
         ngmin: {
             dist: {
                 files: [
@@ -170,13 +166,29 @@ module.exports = function (grunt) {
                 ]
             }
         },
+
+        uglify: {
+            dist: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: '<%= yeoman.dist %>',
+                        src: '*.js',
+                        dest: '<%= yeoman.dist %>',
+                        ext: '.min.js'
+                    }
+                ]
+            }
+        },
+
         ngdocs: {
             options: {
                 dest: 'docs',
                 html5Mode: false,
                 startPage: '/api',
                 title: 'Twigs Documentation',
-                animation: true
+                animation: true,
+                styles: ['docs/css/twigsDocuStyles.css']
             },
             api: {
                 src: [
@@ -236,7 +248,8 @@ module.exports = function (grunt) {
         'concat',
         'less:dist',
         'copy',
-        'ngmin'
+        'ngmin',
+        'uglify'
     ]);
 
     grunt.registerTask('default', ['build']);

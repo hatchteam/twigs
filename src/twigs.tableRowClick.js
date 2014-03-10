@@ -31,7 +31,9 @@
  * ```
  *
  * ```html
- * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}" >  ....</tr>
+ * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}" >
+ *     ....
+ * </tr>
  * ```
  *
  * Additionally it can handle events that bubble up from other elements with ng-click handlers within the row (and thus correctly ignoring these).
@@ -44,12 +46,37 @@
  *  <td>Some text</td>
  * </tr>
  * ```
+ *
+ * ### Secure tableRowClick
+ *
+ * Additionally, if you use the twigs.security module, you can guard table-row clicks with security expressions:
+ *
+ * ```html
+ * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}"
+ *     twg-table-row-click-secure="hasRole('ADMIN')" >
+ *  <td>Some text</td>
+ * </tr>
+ * ```
+ *
  */
-angular.module('twigs.tableRowClick', [])
-    .directive('twgTableRowClick', function ($location) {
+angular.module('twigs.tableRowClick')
+    .directive('twgTableRowClick', function ($location, ExpressionEvaluator) {
         return {
             restrict: 'A',
             link: function (scope, element, attrs) {
+
+
+                /**
+                 * check permission if attribute is present
+                 */
+                function isAllowed() {
+                    var permissionExpression = attrs.twgTableRowClickSecure;
+                    if (angular.isUndefined(permissionExpression) || permissionExpression === '') {
+                        return true;
+                    }
+
+                    return ExpressionEvaluator.evaluate(permissionExpression);
+                }
 
                 /**
                  * if an element is clicked that has a 'ng-click' attribute on it's own, do not reacte to this click.
@@ -73,7 +100,7 @@ angular.module('twigs.tableRowClick', [])
                 var targetUrl = attrs.twgTableRowClick;
 
                 element.on('click', function (event) {
-                    if (!isNgClickWrappedElement(event.target)) {
+                    if (isAllowed() && !isNgClickWrappedElement(event.target)) {
                         scope.$apply(function () {
                             $location.path(targetUrl);
                         });

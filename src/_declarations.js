@@ -17,6 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+/**
+ *  define all modules here!
+ *  If we don't do this, we get problems when concatenating all files into one (grunt concatenates in alphabetical order)
+ */
+
+angular.module('twigs.activeRoute', []);
+
+angular.module('twigs.devel', ['ngCookies']);
+
+angular.module('twigs.dynamicSize', []);
+
+angular.module('twigs.flow', []);
+
+angular.module('twigs.globalHotkeys', []);
+
+angular.module('twigs.security', []);
+
+angular.module('twigs.sortable', []);
+
+angular.module('twigs.tableRowClick', ['twigs.security']);
+
+angular.module('twigs.protectedRoutes', ['twigs.security', 'ngRoute']);
+
+
 /**
  * @ngdoc overview
  * @name twigs
@@ -26,7 +51,7 @@
  * So for convenience, use 'twigs' as a dependency in your module to include all Twigs modules at once.
  *
  * ```javascript
- * var App = angular.module('Main',['twigs']);
+ * var App = angular.module('Main', ['twigs']);
  * ```
  */
 angular.module('twigs', [
@@ -36,4 +61,6 @@ angular.module('twigs', [
     'twigs.globalHotkeys',
     'twigs.security',
     'twigs.sortable',
-    'twigs.tableRowClick']);
+    'twigs.dynamicSize',
+    'twigs.tableRowClick',
+    'twigs.protectedRoutes']);

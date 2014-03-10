@@ -103,8 +103,6 @@ describe('Service & Provider: Permissions ', function () {
             expect(PermissionsProvider.registerPermissionEvaluationFunction).toBeDefined();
             PermissionsProvider.registerPermissionEvaluationFunction(function () {
                 return function (user, args) {
-                    dump(user, args);
-
                     return false;
                 };
             });
