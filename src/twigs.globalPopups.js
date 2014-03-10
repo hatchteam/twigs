@@ -1,21 +1,21 @@
 "use strict";
 
 /* twigs
-* Copyright (C) 2014, Hatch Development Team
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-    * (at your option) any later version.
-    *
-* This program is distributed in the hope that it will be useful,
-    * but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-    *
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2014, Hatch Development Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * @ngdoc object
@@ -146,19 +146,19 @@
  */
 angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
 
-    .provider('GlobalPopups',function GlobalPopupsProvider(){
+    .provider('GlobalPopups', function GlobalPopupsProvider() {
         var serviceInstance = {};
         this.modals = {};
         this.toasts = {};
         this.fileModals = {};
 
         this.$get = function ($rootScope, $modal, $timeout, $templateCache, $http, $compile, $document, $sce) {
-            var rootToastElement, toastStack;
+            var toastStack;
 
             /**
              * Display Modals using angular bootstrap $modal
              */
-            var displayModal = function(modal, messageText, title, primaryButtonText, secondaryButtonText){
+            var displayModal = function (modal, messageText, title, primaryButtonText, secondaryButtonText) {
                 var modalOptions = modal.options.modalOptions;
                 modalOptions.controller = ModalInstanceCtrl;
                 modalOptions.resolve = {
@@ -168,10 +168,10 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
                     title: function () {
                         return title;
                     },
-                    primaryButtonText:function(){
+                    primaryButtonText: function () {
                         return primaryButtonText;
                     },
-                    secondaryButtonText:function(){
+                    secondaryButtonText: function () {
                         return secondaryButtonText;
                     }
                 };
@@ -181,7 +181,7 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
              * Display File Modals using angular bootstrap $modal
              * (open url as trusted resource)
              */
-            var displayFileModal = function(modal, url, title, backButtonText){
+            var displayFileModal = function (modal, url, title, backButtonText) {
                 var modalOptions = modal.options.modalOptions;
                 modalOptions.controller = FileModalInstanceCtrl;
                 modalOptions.resolve = {
@@ -191,7 +191,7 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
                     title: function () {
                         return title;
                     },
-                    backButtonText : function(){
+                    backButtonText: function () {
                         return backButtonText;
                     }
                 };
@@ -201,10 +201,10 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
              * Controller for angular bootstrap $modals used for basic Modals
              */
             var ModalInstanceCtrl = function ($scope, $modalInstance, messageText, title, primaryButtonText, secondaryButtonText) {
-                $scope.message=messageText;
-                $scope.title=title;
-                $scope.primaryButtonText=primaryButtonText;
-                $scope.secondaryButtonText=secondaryButtonText;
+                $scope.message = messageText;
+                $scope.title = title;
+                $scope.primaryButtonText = primaryButtonText;
+                $scope.secondaryButtonText = secondaryButtonText;
 
                 $scope.ok = function () {
                     $modalInstance.close();
@@ -218,9 +218,9 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
              * Controller for angular bootstrap $modals used for File Modals
              */
             var FileModalInstanceCtrl = function ($scope, $modalInstance, messageText, title, backButtonText) {
-                $scope.message=messageText;
-                $scope.title=title;
-                $scope.backButtonText=backButtonText;
+                $scope.message = messageText;
+                $scope.title = title;
+                $scope.backButtonText = backButtonText;
 
                 $scope.ok = function () {
                     $modalInstance.close();
@@ -234,17 +234,18 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
             /**
              * Displays a toast template by adding it to the body element in the dom
              */
-            toastStack = {hasElements : false};
-            var displayToast = function(toast, messageText){
-                getTemplatePromise(toast.options.templateUrl).then(function(content){
+            toastStack = { };
+            var displayToast = function (toast, messageText) {
+                getTemplatePromise(toast.options.templateUrl).then(function (content) {
                     var body = $document.find('body');
                     var scope = $rootScope.$new(true);
+                    var rootToastElement = $document.find('#twigs-toast');
 
                     /**
                      * forms a wrapper to put toast templates into
                      */
-                    if(toastStack.hasElements === false){
-                        rootToastElement = angular.element('<div class="twigs-toast"></div>');
+                    if (rootToastElement.length < 1) {
+                        rootToastElement = angular.element('<div id="twigs-toast"></div>');
                         body.append(rootToastElement);
                     }
 
@@ -254,7 +255,6 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
                     var toastElement = $compile(content)(scope);
                     scope.id = new Date().getTime();
                     toastStack[scope.id] = toastElement;
-                    toastStack.hasElements = true;
                     rootToastElement.append(toastElement);
 
                     /**
@@ -265,9 +265,9 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
                     /**
                      * removes the toast template on user click or displayDuration timeout
                      */
-                    scope.close = function(){
+                    scope.close = function () {
                         //maybe the user already closed the toast
-                        if(angular.isDefined(toastStack[scope.id])){
+                        if (angular.isDefined(toastStack[scope.id])) {
                             toastStack[scope.id].remove();
                             delete toastStack[scope.id];
                         }
@@ -276,9 +276,9 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
                     /**
                      * Removes the toast template after the given displayDuration
                      */
-                    if(angular.isDefined(toast.options.displayDuration)){
-                        $timeout(function(){
-                            return scope.close();
+                    if (angular.isDefined(toast.options.displayDuration)) {
+                        $timeout(function () {
+                            scope.close();
                         }, toast.options.displayDuration);
                     }
                 });
@@ -287,7 +287,7 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
             /**
              * loads a html template
              */
-            var getTemplatePromise = function(templateUrl) {
+            var getTemplatePromise = function (templateUrl) {
                 return $http.get(templateUrl, {cache: $templateCache}).then(function (result) {
                     return result.data;
                 });
@@ -331,17 +331,17 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
          * ```
          */
         this.createModal = function (messageName, options) {
-            if(angular.isUndefined(options.modalOptions) || angular.isUndefined(options.modalOptions.templateUrl)){
+            if (angular.isUndefined(options.modalOptions) || angular.isUndefined(options.modalOptions.templateUrl)) {
                 throw "createModal requires at least modalOptions.templateUrl to be defined";
             }
 
-            var modal={
-                name:messageName,
-                options:options
+            var modal = {
+                name: messageName,
+                options: options
             };
-            serviceInstance[messageName] = function(messageText, title, primaryButtonText, secondaryButtonText){
-                if(angular.isUndefined(messageText)){
-                    throw "GlobalPupupService."+messageName+" must be called with a message";
+            serviceInstance[messageName] = function (messageText, title, primaryButtonText, secondaryButtonText) {
+                if (angular.isUndefined(messageText)) {
+                    throw "GlobalPupupService." + messageName + " must be called with a message";
                 }
                 return serviceInstance.displayModal(modal, messageText, title, primaryButtonText, secondaryButtonText);
             };
@@ -370,17 +370,17 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
          * ```
          */
         this.createToast = function (messageName, options) {
-            if(angular.isUndefined(options.templateUrl)){
+            if (angular.isUndefined(options.templateUrl)) {
                 throw "createToast requires templateUrl to be defined";
             }
 
-            var toast={
-                name:messageName,
-                options:options
+            var toast = {
+                name: messageName,
+                options: options
             };
-            serviceInstance[messageName] = function(messageText){
-                if(angular.isUndefined(messageText)){
-                    throw "GlobalPupupService."+messageName+" must be called with a message";
+            serviceInstance[messageName] = function (messageText) {
+                if (angular.isUndefined(messageText)) {
+                    throw "GlobalPupupService." + messageName + " must be called with a message";
                 }
                 serviceInstance.displayToast(toast, messageText);
             };
@@ -414,44 +414,44 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
          * ```
          */
         this.createFileModal = function (messageName, options) {
-            if(angular.isUndefined(options.modalOptions) || angular.isUndefined(options.modalOptions.templateUrl)){
+            if (angular.isUndefined(options.modalOptions) || angular.isUndefined(options.modalOptions.templateUrl)) {
                 throw "createFileModal requires at least modalOptions.templateUrl to be defined";
             }
 
-            var fileModal={
-                name:messageName,
-                options:options
+            var fileModal = {
+                name: messageName,
+                options: options
             };
-            serviceInstance[messageName] = function(url, title, backButtonText){
-                if(angular.isUndefined(url)){
-                    throw "GlobalPopupService."+messageName+" must be called with a valid url";
+            serviceInstance[messageName] = function (url, title, backButtonText) {
+                if (angular.isUndefined(url)) {
+                    throw "GlobalPopupService." + messageName + " must be called with a valid url";
                 }
                 serviceInstance.displayFileModal(fileModal, url, title, backButtonText);
             };
         };
     })
 
-    /**
-     * Default modals and toasts. Can be used without further configuration or can be overridden or supplemented with own configuration.
-     */
+/**
+ * Default modals and toasts. Can be used without further configuration or can be overridden or supplemented with own configuration.
+ */
     .config(function (GlobalPopupsProvider) {
-        GlobalPopupsProvider.createToast('successToast',{
+        GlobalPopupsProvider.createToast('successToast', {
             templateUrl: 'templates/successToast.html',
             displayDuration: 7000
         });
-        GlobalPopupsProvider.createToast('warningToast',{
+        GlobalPopupsProvider.createToast('warningToast', {
             templateUrl: 'templates/warningToast.html',
             displayDuration: 7000
         });
-        GlobalPopupsProvider.createModal('infoDialog',{
+        GlobalPopupsProvider.createModal('infoDialog', {
             modalOptions: {
                 templateUrl: 'templates/infoModal.html',
-                windowClass:'modal-info',
+                windowClass: 'modal-info',
                 backdrop: false,
                 keyboard: true
             }
         });
-        GlobalPopupsProvider.createModal('yesnoDialog',{
+        GlobalPopupsProvider.createModal('yesnoDialog', {
             modalOptions: {
                 templateUrl: 'templates/yesnoModal.html',
                 windowClass: 'modal-yesno',
@@ -459,14 +459,14 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
                 keyboard: false
             }
         });
-        GlobalPopupsProvider.createFileModal('fileDialog',{
+        GlobalPopupsProvider.createFileModal('fileDialog', {
             modalOptions: {
                 templateUrl: 'templates/fileModal.html',
                 windowClass: 'modal-file',
                 keyboard: true
             }
         });
-        GlobalPopupsProvider.createModal('errorDialog',{
+        GlobalPopupsProvider.createModal('errorDialog', {
             modalOptions: {
                 templateUrl: 'templates/errorModal.html',
                 windowClass: 'modal-error',
@@ -474,7 +474,7 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
                 keyboard: false
             }
         });
-        GlobalPopupsProvider.createModal('warningDialog',{
+        GlobalPopupsProvider.createModal('warningDialog', {
             modalOptions: {
                 templateUrl: 'templates/warningModal.html',
                 windowClass: 'modal-warning',

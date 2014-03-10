@@ -33,31 +33,31 @@ describe('Service & Provider: GlobalPopups', function () {
         angular.mock.module('twigs.globalPopups', 'testApp');
     });
 
-    describe('GlobalPopups Provider', function (){
+    describe('GlobalPopups Provider', function () {
         var capturedModalOptions;
 
         /**
          * Inject GlobalPopups Service
          */
-        beforeEach(inject(function (_GlobalPopups_){
+        beforeEach(inject(function (_GlobalPopups_) {
             GlobalPopups = _GlobalPopups_;
         }));
 
         it('allows to register new dialog configs', function () {
             expect(GlobalPopupsProvider).toBeDefined();
 
-            GlobalPopupsProvider.createToast('successToast',{
+            GlobalPopupsProvider.createToast('successToast', {
                 templateUrl: 'views/globalMsg/successToast.html',
                 displayDuration: 7000
             });
-            GlobalPopupsProvider.createModal('infoDialog',{
+            GlobalPopupsProvider.createModal('infoDialog', {
                 modalOptions: {
                     templateUrl: 'views/globalMsg/infoModal.html',
                     backdrop: false,
                     keyboard: true
                 }
             });
-            GlobalPopupsProvider.createFileModal('fileDialog',{
+            GlobalPopupsProvider.createFileModal('fileDialog', {
                 modalOptions: {
                     templateUrl: 'views/globalMsg/fileModal.html',
                     keyboard: true
@@ -72,14 +72,15 @@ describe('Service & Provider: GlobalPopups', function () {
         it('throws errors if required config parameters are missing', function () {
             expect(GlobalPopupsProvider).toBeDefined();
 
-            function crateToast(){
-                GlobalPopupsProvider.createToast('mySuccessToast',{
+            function crateToast() {
+                GlobalPopupsProvider.createToast('mySuccessToast', {
                     //missing templateUrl
                     displayDuration: 7000
                 });
             }
-            function createModal(){
-                GlobalPopupsProvider.createModal('myInfoDialog',{
+
+            function createModal() {
+                GlobalPopupsProvider.createModal('myInfoDialog', {
                     modalOptions: {
                         //missing templateUrl
                         backdrop: false,
@@ -87,14 +88,16 @@ describe('Service & Provider: GlobalPopups', function () {
                     }
                 });
             }
-            function createFileModal(){
-                GlobalPopupsProvider.createFileModal('myFileDialog',{
+
+            function createFileModal() {
+                GlobalPopupsProvider.createFileModal('myFileDialog', {
                     modalOptions: {
                         //missing templateUrl
                         keyboard: true
                     }
                 });
             }
+
             expect(crateToast).toThrow();
             expect(createModal).toThrow();
             expect(createFileModal).toThrow();
@@ -107,28 +110,29 @@ describe('Service & Provider: GlobalPopups', function () {
         it('should throw errors on missing call params', function () {
             expect(GlobalPopupsProvider).toBeDefined();
 
-            GlobalPopupsProvider.createToast('successToast',{
+            GlobalPopupsProvider.createToast('successToast', {
                 templateUrl: 'views/globalMsg/successToast.html',
                 displayDuration: 7000
             });
-            GlobalPopupsProvider.createModal('infoDialog',{
+            GlobalPopupsProvider.createModal('infoDialog', {
                 modalOptions: {
                     templateUrl: 'views/globalMsg/infoModal.html',
                     backdrop: false,
                     keyboard: true
                 }
             });
-            GlobalPopupsProvider.createFileModal('fileDialog',{
+            GlobalPopupsProvider.createFileModal('fileDialog', {
                 modalOptions: {
                     templateUrl: 'views/globalMsg/fileModal.html',
                     keyboard: true
                 }
             });
 
-            function openSuccessToast(){
+            function openSuccessToast() {
                 GlobalPopups.successToast();
             }
-            function openInfoDialog(){
+
+            function openInfoDialog() {
                 GlobalPopups.infoDialog();
             }
 
@@ -138,17 +142,17 @@ describe('Service & Provider: GlobalPopups', function () {
         });
     });
 
-    describe('GlobalPopups Modal', function (){
+    describe('GlobalPopups Modal', function () {
         var $modal, capturedModalOptions;
 
         /**
          * mock $modal
          */
-        beforeEach(function (){
+        beforeEach(function () {
             $modal = {
-                open : function(modalOptions){
-                    capturedModalOptions=modalOptions;
-                    return {result: function(){
+                open: function (modalOptions) {
+                    capturedModalOptions = modalOptions;
+                    return {result: function () {
                     }};
                 }
             }
@@ -159,14 +163,14 @@ describe('Service & Provider: GlobalPopups', function () {
         /**
          * Inject GlobalPopups Service
          */
-        beforeEach(inject(function (_GlobalPopups_){
+        beforeEach(inject(function (_GlobalPopups_) {
             GlobalPopups = _GlobalPopups_;
         }));
 
         it('should open info modal', function () {
             expect(GlobalPopupsProvider).toBeDefined();
 
-            GlobalPopupsProvider.createModal('infoDialog',{
+            GlobalPopupsProvider.createModal('infoDialog', {
                 modalOptions: {
                     templateUrl: 'views/globalMsg/infoModal.html',
                     backdrop: false,
@@ -187,7 +191,7 @@ describe('Service & Provider: GlobalPopups', function () {
         it('should open file modal', function () {
             expect(GlobalPopupsProvider).toBeDefined();
 
-            GlobalPopupsProvider.createFileModal('fileModal',{
+            GlobalPopupsProvider.createFileModal('fileModal', {
                 modalOptions: {
                     templateUrl: 'views/globalMsg/fileModal.html',
                     keyboard: true
@@ -206,26 +210,27 @@ describe('Service & Provider: GlobalPopups', function () {
     });
 
     describe('GlobalPopups Toast', function () {
-        var document, $httpBackend;
+        var document, $httpBackend, $timeout;
 
         /**
          * Inject GlobalPopups Service and mock dependencies
          */
-        beforeEach(inject(function (_GlobalPopups_, _$document_, _$httpBackend_){
+        beforeEach(inject(function (_GlobalPopups_, _$document_, _$httpBackend_, _$timeout_) {
             GlobalPopups = _GlobalPopups_;
             document = _$document_;
             $httpBackend = _$httpBackend_;
+            $timeout = _$timeout_;
 
-           $httpBackend.whenGET('views/globalMsg/successToast.html').respond('<div>my success content</div>');
-           $httpBackend.whenGET('views/globalMsg/warningToast.html').respond('<div>my warning content</div>');
+            $httpBackend.whenGET('views/globalMsg/successToast.html').respond('<div>my success content</div>');
+            $httpBackend.whenGET('views/globalMsg/warningToast.html').respond('<div>my warning content</div>');
         }));
 
         it('should display toast and remove after timeout', function () {
             expect(GlobalPopupsProvider).toBeDefined();
 
-            GlobalPopupsProvider.createToast('successToast',{
+            GlobalPopupsProvider.createToast('successToast', {
                 templateUrl: 'views/globalMsg/successToast.html',
-                displayDuration: 50
+                displayDuration: 7000
             });
 
             $httpBackend.resetExpectations();
@@ -235,23 +240,23 @@ describe('Service & Provider: GlobalPopups', function () {
 
             $httpBackend.flush();
 
-            expect(document.find('body').html()).toContain('<div class="twigs-toast"><div class="ng-scope">my success content</div></div>');
+            expect(document.find('body').html()).toContain('<div id="twigs-toast"><div class="ng-scope">my success content</div></div>');
 
-            setTimeout(function(){
-                expect(document.find('body').html()).toNotContain('<div class="twigs-toast"><div class="ng-scope">my success content</div></div>');
-            },100);
+            $timeout.flush();
+
+            expect(document.find('body').html()).toNotContain('<div id="twigs-toast"><div class="ng-scope">my success content</div></div>');
         });
 
         it('should stack toasts', function () {
             expect(GlobalPopupsProvider).toBeDefined();
 
-            GlobalPopupsProvider.createToast('successToast',{
+            GlobalPopupsProvider.createToast('successToast', {
                 templateUrl: 'views/globalMsg/successToast.html',
-                displayDuration: 100
+                displayDuration: 8000
             });
-            GlobalPopupsProvider.createToast('warningToast',{
+            GlobalPopupsProvider.createToast('warningToast', {
                 templateUrl: 'views/globalMsg/warningToast.html',
-                displayDuration: 500
+                displayDuration: 5000
             });
 
             $httpBackend.resetExpectations();
@@ -264,9 +269,10 @@ describe('Service & Provider: GlobalPopups', function () {
             expect(document.find('body').html()).toContain('<div class="ng-scope">my success content</div>');
             expect(document.find('body').html()).toContain('<div class="ng-scope">my warning content</div>');
 
-            setTimeout(function(){
-                expect(document.find('body').html()).toNotContain('<div class="twigs-toast ng-scope"><div>my success content</div></div>');
-            },200);
+            $timeout.flush(6000);
+
+            expect(document.find('body').html()).toNotContain('<div class="ng-scope">my warning content</div>');
+            expect(document.find('body').html()).toContain('<div class="ng-scope">my success content</div>');
         });
     });
 });
