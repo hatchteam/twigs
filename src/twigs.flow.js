@@ -118,7 +118,7 @@
  *
  * See [FlowProvider](#/api/twigs.flow.provider:FlowProvider) for more information on how to set up flows.
  */
-angular.module('twigs.flow', [])
+angular.module('twigs.flow')
 
     .provider('Flow', function () {
         this.flows = {};

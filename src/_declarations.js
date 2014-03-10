@@ -17,6 +17,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+/**
+ *  define all modules here!
+ *  If we don't do this, we get problems when concatenating all files into one (grunt concatenates in alphabetical order)
+ */
+
+angular.module('twigs.activeRoute', []);
+
+angular.module('twigs.devel', ['ngCookies']);
+
+angular.module('twigs.dynamicSize', []);
+
+angular.module('twigs.flow', []);
+
+angular.module('twigs.globalHotkeys', []);
+
+angular.module('twigs.security', []);
+
+angular.module('twigs.sortable', []);
+
+angular.module('twigs.tableRowClick', ['twigs.security']);
+
+
 /**
  * @ngdoc overview
  * @name twigs

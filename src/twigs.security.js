@@ -18,7 +18,7 @@
  */
 
 
-angular.module('twigs.security', [])
+angular.module('twigs.security')
 
     .service('UserObjectSanityChecker', function () {
 

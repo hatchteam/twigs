@@ -64,7 +64,7 @@
  * ```
  *
  */
-angular.module('twigs.activeRoute', [])
+angular.module('twigs.activeRoute')
 
     .directive('twgActiveRoute', function ($location, $parse) {
         return {

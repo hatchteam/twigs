@@ -59,7 +59,7 @@
  * ```
  *
  */
-angular.module('twigs.tableRowClick', ['twigs.security'])
+angular.module('twigs.tableRowClick')
     .directive('twgTableRowClick', function ($location, ExpressionEvaluator) {
         return {
             restrict: 'A',

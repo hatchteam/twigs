@@ -65,7 +65,7 @@
  * ```
  *
  */
-angular.module('twigs.globalHotkeys', [])
+angular.module('twigs.globalHotkeys')
 
     .factory('GlobalHotkeysService', function ($location) {
         var

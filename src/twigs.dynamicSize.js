@@ -18,7 +18,7 @@
  */
 
 
-angular.module('twigs.dynamicSize', [])
+angular.module('twigs.dynamicSize')
 
     .service('DynamicSizeHelper', function () {
 
