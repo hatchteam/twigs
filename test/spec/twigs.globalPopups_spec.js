@@ -73,13 +73,13 @@ describe('Service & Provider: GlobalPopups', function () {
             expect(GlobalPopupsProvider).toBeDefined();
 
             function crateToast(){
-                GlobalPopupsProvider.createToast('successToast',{
+                GlobalPopupsProvider.createToast('mySuccessToast',{
                     //missing templateUrl
                     displayDuration: 7000
                 });
             }
             function createModal(){
-                GlobalPopupsProvider.createModal('infoDialog',{
+                GlobalPopupsProvider.createModal('myInfoDialog',{
                     modalOptions: {
                         //missing templateUrl
                         backdrop: false,
@@ -88,7 +88,7 @@ describe('Service & Provider: GlobalPopups', function () {
                 });
             }
             function createFileModal(){
-                GlobalPopupsProvider.createFileModal('fileDialog',{
+                GlobalPopupsProvider.createFileModal('myFileDialog',{
                     modalOptions: {
                         //missing templateUrl
                         keyboard: true
@@ -99,9 +99,42 @@ describe('Service & Provider: GlobalPopups', function () {
             expect(createModal).toThrow();
             expect(createFileModal).toThrow();
 
-            expect(GlobalPopups.successToast).toBeUndefined();
-            expect(GlobalPopups.infoDialog).toBeUndefined();
-            expect(GlobalPopups.fileDialog).toBeUndefined();
+            expect(GlobalPopups.mySuccessToast).toBeUndefined();
+            expect(GlobalPopups.myInfoDialog).toBeUndefined();
+            expect(GlobalPopups.myFileDialog).toBeUndefined();
+        });
+
+        it('should throw errors on missing call params', function () {
+            expect(GlobalPopupsProvider).toBeDefined();
+
+            GlobalPopupsProvider.createToast('successToast',{
+                templateUrl: 'views/globalMsg/successToast.html',
+                displayDuration: 7000
+            });
+            GlobalPopupsProvider.createModal('infoDialog',{
+                modalOptions: {
+                    templateUrl: 'views/globalMsg/infoModal.html',
+                    backdrop: false,
+                    keyboard: true
+                }
+            });
+            GlobalPopupsProvider.createFileModal('fileDialog',{
+                modalOptions: {
+                    templateUrl: 'views/globalMsg/fileModal.html',
+                    keyboard: true
+                }
+            });
+
+            function openSuccessToast(){
+                GlobalPopups.successToast();
+            }
+            function openInfoDialog(){
+                GlobalPopups.infoDialog();
+            }
+
+            expect(openSuccessToast).toThrow();
+            expect(openInfoDialog).toThrow();
+            GlobalPopups.fileDialog('my info message');
         });
     });
 
@@ -130,7 +163,7 @@ describe('Service & Provider: GlobalPopups', function () {
             GlobalPopups = _GlobalPopups_;
         }));
 
-        it('should display modal', function () {
+        it('should open info modal', function () {
             expect(GlobalPopupsProvider).toBeDefined();
 
             GlobalPopupsProvider.createModal('infoDialog',{
@@ -150,6 +183,26 @@ describe('Service & Provider: GlobalPopups', function () {
             expect(capturedModalOptions.backdrop).toBeFalsy();
             expect(capturedModalOptions.keyboard).toBeTruthy();
         });
+
+        it('should open file modal', function () {
+            expect(GlobalPopupsProvider).toBeDefined();
+
+            GlobalPopupsProvider.createFileModal('fileModal',{
+                modalOptions: {
+                    templateUrl: 'views/globalMsg/fileModal.html',
+                    keyboard: true
+                }
+            });
+            spyOn($modal, 'open').andCallThrough();
+
+            expect(GlobalPopups.fileModal).toBeDefined();
+            GlobalPopups.fileModal("http://www.mathworks.com/moler/random.pdf", "This is a title!");
+
+            expect($modal.open).toHaveBeenCalled();
+            expect(capturedModalOptions.templateUrl).toBe('views/globalMsg/fileModal.html');
+            expect(capturedModalOptions.backdrop).toBeFalsy();
+            expect(capturedModalOptions.keyboard).toBeTruthy();
+        });
     });
 
     describe('GlobalPopups Toast', function () {
@@ -162,24 +215,58 @@ describe('Service & Provider: GlobalPopups', function () {
             GlobalPopups = _GlobalPopups_;
             document = _$document_;
             $httpBackend = _$httpBackend_;
+
+           $httpBackend.whenGET('views/globalMsg/successToast.html').respond('<div>my success content</div>');
+           $httpBackend.whenGET('views/globalMsg/warningToast.html').respond('<div>my warning content</div>');
         }));
 
-        it('should display toast', function () {
+        it('should display toast and remove after timeout', function () {
             expect(GlobalPopupsProvider).toBeDefined();
 
             GlobalPopupsProvider.createToast('successToast',{
                 templateUrl: 'views/globalMsg/successToast.html',
-                displayDuration: 7000
+                displayDuration: 50
             });
 
-            $httpBackend.expectGET('views/globalMsg/successToast.html').respond('<div>my special content</div>');
+            $httpBackend.resetExpectations();
 
             expect(GlobalPopups.successToast).toBeDefined();
             GlobalPopups.successToast('my success message');
 
             $httpBackend.flush();
 
-            expect(document.find('body').html()).toContain('<div class="twigs-toast ng-scope"><div>my special content</div></div>');
+            expect(document.find('body').html()).toContain('<div class="twigs-toast"><div class="ng-scope">my success content</div></div>');
+
+            setTimeout(function(){
+                expect(document.find('body').html()).toNotContain('<div class="twigs-toast"><div class="ng-scope">my success content</div></div>');
+            },100);
+        });
+
+        it('should stack toasts', function () {
+            expect(GlobalPopupsProvider).toBeDefined();
+
+            GlobalPopupsProvider.createToast('successToast',{
+                templateUrl: 'views/globalMsg/successToast.html',
+                displayDuration: 100
+            });
+            GlobalPopupsProvider.createToast('warningToast',{
+                templateUrl: 'views/globalMsg/warningToast.html',
+                displayDuration: 500
+            });
+
+            $httpBackend.resetExpectations();
+
+            expect(GlobalPopups.successToast).toBeDefined();
+            GlobalPopups.successToast('my success message');
+            GlobalPopups.warningToast('my warning message');
+            $httpBackend.flush();
+
+            expect(document.find('body').html()).toContain('<div class="ng-scope">my success content</div>');
+            expect(document.find('body').html()).toContain('<div class="ng-scope">my warning content</div>');
+
+            setTimeout(function(){
+                expect(document.find('body').html()).toNotContain('<div class="twigs-toast ng-scope"><div>my success content</div></div>');
+            },200);
         });
     });
 });
