@@ -1,3 +1,5 @@
+'use strict';
+
 /* twigs
  * Copyright (C) 2014, Hatch Development Team
  *
@@ -15,22 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
-describe('Twigs main module', function () {
-
-    it('should load all modules', function () {
-        var $injector = angular.injector(['ng', 'twigs']);
-
-        // if the main twigs module does not specify a dependency one of the
-        // other twigs-modules, these calls to angular.module would fail.
-        angular.module('twigs.activeRoute');
-        angular.module('twigs.devel');
-        angular.module('twigs.flow');
-        angular.module('twigs.globalHotkeys');
-        angular.module('twigs.security');
-        angular.module('twigs.sortable');
-        angular.module('twigs.tableRowClick');
-    });
-
-});
+/**
+ * @ngdoc overview
+ * @name twigs
+ *
+ * @description
+ * The main module which collects all other Twigs modules.
+ * So for convenience, use 'twigs' as a dependency in your module to include all Twigs modules at once.
+ *
+ * ```javascript
+ * var App = angular.module('Main', ['twigs']);
+ * ```
+ */
+angular.module('twigs', [
+    'twigs.activeRoute',
+    'twigs.devel',
+    'twigs.flow',
+    'twigs.globalHotkeys',
+    'twigs.security',
+    'twigs.sortable',
+    'twigs.dynamicSize',
+    'twigs.tableRowClick']);
