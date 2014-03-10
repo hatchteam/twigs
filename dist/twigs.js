@@ -16,6 +16,63 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
+ *  define all modules here!
+ *  If we don't do this, we get problems when concatenating all files into one (grunt concatenates in alphabetical order)
+ */
+angular.module('twigs.activeRoute', []);
+angular.module('twigs.devel', ['ngCookies']);
+angular.module('twigs.dynamicSize', []);
+angular.module('twigs.flow', []);
+angular.module('twigs.templates', []);
+angular.module('twigs.globalHotkeys', ['twigs.templates']);
+angular.module('twigs.security', []);
+angular.module('twigs.sortable', []);
+angular.module('twigs.tableRowClick', ['twigs.security']);
+angular.module('twigs.protectedRoutes', [
+  'twigs.security',
+  'ngRoute'
+]);
+/**
+ * @ngdoc overview
+ * @name twigs
+ *
+ * @description
+ * The main module which collects all other Twigs modules.
+ * So for convenience, use 'twigs' as a dependency in your module to include all Twigs modules at once.
+ *
+ * ```javascript
+ * var App = angular.module('Main', ['twigs']);
+ * ```
+ */
+angular.module('twigs', [
+  'twigs.activeRoute',
+  'twigs.devel',
+  'twigs.flow',
+  'twigs.globalHotkeys',
+  'twigs.security',
+  'twigs.sortable',
+  'twigs.dynamicSize',
+  'twigs.tableRowClick',
+  'twigs.protectedRoutes'
+]);
+'use strict';
+/* twigs
+ * Copyright (C) 2014, Hatch Development Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+/**
  * @ngdoc directive
  * @name twigs.activeRoute.directive:twgActiveRoute
  * @element ANY
@@ -53,13 +110,16 @@
  *
  * ```html
  * <ul>
- *  <li><a twg-active-route="/home" href="/home" ng-class="{current: twgActive}">Home</a></li>
- *  <li><a twg-active-route="/about" href="/aboutMe" ng-class="{current: twgActive}">About me</li>
+ *  <li><a twg-active-route="/home" href="/home"
+ *           ng-class="{current: twgActive}">Home</a></li>
+ *  <li>
+ *      <a twg-active-route="/about" href="/aboutMe"
+ *           ng-class="{current: twgActive}">About me</a></li>
  * </ul>
  * ```
  *
  */
-angular.module('twigs.activeRoute', []).directive('twgActiveRoute', [
+angular.module('twigs.activeRoute').directive('twgActiveRoute', [
   '$location',
   '$parse',
   function ($location, $parse) {
@@ -116,7 +176,7 @@ angular.module('twigs.activeRoute', []).directive('twgActiveRoute', [
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-angular.module('twigs.devel', ['ngCookies']).constant('ERROR_REPORTED_EVENT', 'twigs.devel.errorReported').constant('SERVER_REQUEST_REPORTED_EVENT', 'twigs.devel.serverRequestReported').provider('DevelopmentInfoService', function () {
+angular.module('twigs.devel').constant('ERROR_REPORTED_EVENT', 'twigs.devel.errorReported').constant('SERVER_REQUEST_REPORTED_EVENT', 'twigs.devel.serverRequestReported').provider('DevelopmentInfoService', function () {
   var urlFilterPattern = /.*/;
   /**
          * @ngdoc function
@@ -272,6 +332,82 @@ angular.module('twigs.devel', ['ngCookies']).constant('ERROR_REPORTED_EVENT', 't
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+angular.module('twigs.dynamicSize').service('DynamicSizeHelper', function () {
+  function isNumber(n) {
+    return !isNaN(parseInt(n, 10)) && isFinite(n);
+  }
+  // TODO: parse into whole numbers, no fractions
+  function parseDynamicSizeAttribute(attributeValue) {
+    if (attributeValue.length === 0) {
+      throw 'Please specify a dynamic size attribute!';
+    }
+    if (!isNumber(attributeValue)) {
+      throw 'Dynamic size attribute must be numeric!';
+    }
+    if (attributeValue % 1 !== 0) {
+      throw 'Dynamic size attribute must be a whole number!';
+    }
+    return parseInt(attributeValue, 10);
+  }
+  return { parseDynamicSizeAttribute: parseDynamicSizeAttribute };
+}).directive('twgDynamicHeight', [
+  '$window',
+  'DynamicSizeHelper',
+  function ($window, DynamicSizeHelper) {
+    return {
+      restrict: 'A',
+      link: function (scope, element, attrs) {
+        var theWindow = angular.element($window);
+        var heightDelta = DynamicSizeHelper.parseDynamicSizeAttribute(attrs.twgDynamicHeight);
+        function dynamicResize() {
+          var newHeight = heightDelta + theWindow.height();
+          console.log('setting height of ', element, ' to ' + newHeight);
+          element.css('height', newHeight);
+        }
+        theWindow.resize(function () {
+          dynamicResize();
+        });
+        dynamicResize();
+      }
+    };
+  }
+]).directive('twgDynamicWidth', [
+  '$window',
+  'DynamicSizeHelper',
+  function ($window, DynamicSizeHelper) {
+    return {
+      restrict: 'A',
+      link: function (scope, element, attrs) {
+        var theWindow = angular.element($window);
+        var widthDelta = DynamicSizeHelper.parseDynamicSizeAttribute(attrs.twgDynamicWidth);
+        function dynamicResize() {
+          element.css('width', widthDelta + theWindow.width());
+        }
+        theWindow.resize(function () {
+          dynamicResize();
+        });
+        dynamicResize();
+      }
+    };
+  }
+]);
+'use strict';
+/* twigs
+ * Copyright (C) 2014, Hatch Development Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 /**
  * @ngdoc object
  * @name twigs.flow.provider:FlowProvider
@@ -372,7 +508,7 @@ angular.module('twigs.devel', ['ngCookies']).constant('ERROR_REPORTED_EVENT', 't
  *
  * See [FlowProvider](#/api/twigs.flow.provider:FlowProvider) for more information on how to set up flows.
  */
-angular.module('twigs.flow', []).provider('Flow', function () {
+angular.module('twigs.flow').provider('Flow', function () {
   this.flows = {};
   this.$get = [
     '$location',
@@ -387,19 +523,24 @@ angular.module('twigs.flow', []).provider('Flow', function () {
         var retVal;
         angular.forEach(flows, function (propertyValue, propertyName) {
           angular.forEach(flows[propertyName].steps, function (step) {
-            if (step.route === route) {
+            if (checkIfStepRouteRegexMatches(step.routeRegex, route)) {
               retVal = {
                 flow: flows[propertyName],
                 step: step
               };
-              return false;
             }
           });
         });
         if (angular.isUndefined(retVal)) {
-          $log.warn('no flow-step found for route ', route);
+          throw 'no flow-step found for route ' + route;
         }
         return retVal;
+      }
+      function checkIfStepRouteRegexMatches(routeRegex, givenUrl) {
+        if (angular.isUndefined(routeRegex.test)) {
+          throw 'Expected regex, but got ' + routeRegex;
+        }
+        return routeRegex.test(givenUrl);
       }
       /**
              * finds a step object with the given id within the given flow
@@ -463,7 +604,7 @@ angular.module('twigs.flow', []).provider('Flow', function () {
               throw 'no flow found for path ' + currentPath;
             }
             targetStep = findStepForId(stepId, flowAndStep.flow.id);
-            return $location.path() === targetStep.route;
+            return checkIfStepRouteRegexMatches(targetStep.routeRegex, currentPath);
           },
           finish: function () {
             this.currentFlowId = undefined;
@@ -496,6 +637,33 @@ angular.module('twigs.flow', []).provider('Flow', function () {
     return this;
   };
   /**
+         * this function is from the AngularJS sources. See /src/ngRoute/route.js
+         *
+         * computes regular expression for a given path string
+         *
+         * @param {string} path The Path as String (e.g.  /some/path/:id )
+         * @param {object} opts Options
+         * @returns {{originalPath: *, regexp: *}}
+         */
+  function pathRegExp(path, opts) {
+    var insensitive = opts.caseInsensitiveMatch, ret = {
+        originalPath: path,
+        regexp: path
+      }, keys = ret.keys = [];
+    path = path.replace(/([().])/g, '\\$1').replace(/(\/)?:(\w+)([\?\*])?/g, function (_, slash, key, option) {
+      var optional = option === '?' ? option : null;
+      var star = option === '*' ? option : null;
+      keys.push({
+        name: key,
+        optional: !!optional
+      });
+      slash = slash || '';
+      return '' + (optional ? '' : slash) + '(?:' + (optional ? slash : '') + (star && '(.+?)' || '([^/]+)') + (optional || '') + ')' + (optional || '');
+    }).replace(/([\/$\*])/g, '\\$1');
+    ret.regexp = new RegExp('^' + path + '$', insensitive ? 'i' : '');
+    return ret;
+  }
+  /**
          * @ngdoc function
          * @name twigs.flow.provider:FlowProvider#step
          * @methodOf twigs.flow.provider:FlowProvider
@@ -518,6 +686,7 @@ angular.module('twigs.flow', []).provider('Flow', function () {
     checkStepConfig(stepConfig);
     var currentFlow = this.flows[this.currentFlowId];
     checkStepIdInFlow(currentFlow, stepConfig.id);
+    stepConfig.routeRegex = pathRegExp(stepConfig.route, {}).regexp;
     currentFlow.steps[stepConfig.id] = stepConfig;
     return this;
   };
@@ -573,29 +742,29 @@ angular.module('twigs.flow', []).provider('Flow', function () {
  */
 /**
  * @ngdoc service
- * @name twigs.globalHotKeys.service:GlobalHotKeysService
+ * @name twigs.globalHotKeys.service:GlobalHotkeysService
  *
  * @description
  * GlobalHotkeys allows you to assign actions to specific keyboard key combinations.
  * In order for it to work, add the 'twg-global-hotkeys' directive to the top-element of your angular application (e.g. the html-element in a single page application).
  *
- * **Note:** All keypress/keydown events within input fields (input/textarea/select), links and buttons do not trigger the hotkey callback.
+ * **Note:** All keydown events within input fields (input/textarea/select), links and buttons do not trigger the hotkey callback.
  *
  * ### Globally defined hotkeys
  * Globally defined hotkeys are available on all pages (except if explicitly overridden by path-specific hotkeys). You can define them in the **run** function of your Application's main module.
  *
  * ```javascript
- * var App = angular.module('Main',['twigs.globalHotKeys']);
+ * var App = angular.module('Main',['twigs.globalHotkeys']);
  *
- * App.run(function ($location, GlobalHotKeysService) {
+ * App.run(function ($location, GlobalHotkeysService) {
  *
- *    GlobalHotKeysService.registerGlobalHotKeys(["alt+h", "shift+h"], function () {
+ *    GlobalHotkeysService.registerGlobalHotkeys(["alt+h", "shift+h"], function () {
  *        // go to home view
  *        $location.path('/#');
  *    });
  *
  *
- *    GlobalHotKeysService.registerGlobalHotKeys(["alt+a", "shift+a"], function () {
+ *    GlobalHotkeysService.registerGlobalHotkeys(["alt+a", "shift+a"], function () {
  *        // do something here
  *    });
  *
@@ -608,9 +777,9 @@ angular.module('twigs.flow', []).provider('Flow', function () {
  *
  * ```javascript
  *
- * App.controller('SomeController', function (GlobalHotKeysService) {
+ * App.controller('SomeController', function (GlobalHotkeysService) {
  *
- *    GlobalHotKeysService.registerPageHotKey("alt+i", function () {
+ *    GlobalHotkeysService.registerPageHotkey("alt+i", function () {
  *        // do something here
  *    });
  *
@@ -619,10 +788,10 @@ angular.module('twigs.flow', []).provider('Flow', function () {
  * ```
  *
  */
-angular.module('twigs.globalHotKeys', []).factory('GlobalHotKeysService', [
+angular.module('twigs.globalHotkeys').factory('GlobalHotkeysService', [
   '$location',
   function ($location) {
-    var pageHotKeys = {}, globalHotKeys = {};
+    var HOTKEY_CODE_PREFIX = 'c_', pageHotKeys = {}, globalHotKeys = {};
     function getPageHotKeyAction(page, hotKey) {
       var hotKeys = pageHotKeys[page];
       if (angular.isUndefined(hotKeys)) {
@@ -630,8 +799,18 @@ angular.module('twigs.globalHotKeys', []).factory('GlobalHotKeysService', [
       }
       return hotKeys[hotKey.toLowerCase()];
     }
-    function getGlobalHotKeyAction(hotKey) {
+    function getPageHotKeyActionCode(page, hotKey) {
+      var hotKeys = pageHotKeys[page];
+      if (angular.isUndefined(hotKeys)) {
+        return undefined;
+      }
+      return hotKeys[HOTKEY_CODE_PREFIX + hotKey];
+    }
+    function getGlobalHotkeyAction(hotKey) {
       return globalHotKeys[hotKey.toLowerCase()];
+    }
+    function getGlobalHotkeyActionCode(hotKey) {
+      return globalHotKeys[HOTKEY_CODE_PREFIX + hotKey];
     }
     function registerPageHotKey(hotKey, actionFunction) {
       var page = $location.path();
@@ -642,34 +821,62 @@ angular.module('twigs.globalHotKeys', []).factory('GlobalHotKeysService', [
       }
       hotKeys[hotKey.toLowerCase()] = actionFunction;
     }
+    function registerPageHotKeyCode(hotKeyCode, actionFunction) {
+      var page = $location.path();
+      var hotKeys = pageHotKeys[page];
+      if (angular.isUndefined(hotKeys)) {
+        hotKeys = {};
+        pageHotKeys[page] = hotKeys;
+      }
+      hotKeys[HOTKEY_CODE_PREFIX + hotKeyCode] = actionFunction;
+    }
     function registerPageHotKeys(hotKeys, actionFunction) {
       angular.forEach(hotKeys, function (key) {
         registerPageHotKey(key, actionFunction);
       });
     }
-    function registerGlobalHotKey(hotKey, actionFunction) {
+    function registerPageHotKeyCodes(hotKeyCodes, actionFunction) {
+      angular.forEach(hotKeyCodes, function (key) {
+        registerPageHotKeyCode(key, actionFunction);
+      });
+    }
+    function registerGlobalHotkey(hotKey, actionFunction) {
       globalHotKeys[hotKey.toLowerCase()] = actionFunction;
     }
-    function registerGlobalHotKeys(hotKeys, actionFunction) {
+    function registerGlobalHotkeys(hotKeys, actionFunction) {
       angular.forEach(hotKeys, function (key) {
-        registerGlobalHotKey(key, actionFunction);
+        registerGlobalHotkey(key, actionFunction);
+      });
+    }
+    function registerGlobalHotkeyCode(hotKeyCode, actionFunction) {
+      globalHotKeys[HOTKEY_CODE_PREFIX + hotKeyCode] = actionFunction;
+    }
+    function registerGlobalHotkeyCodes(hotKeyCodes, actionFunction) {
+      angular.forEach(hotKeyCodes, function (key) {
+        registerGlobalHotkeyCode(key, actionFunction);
       });
     }
     var serviceInstance = {
         getPageHotKeyAction: getPageHotKeyAction,
-        getGlobalHotKeyAction: getGlobalHotKeyAction,
+        getPageHotKeyActionCode: getPageHotKeyActionCode,
+        getGlobalHotkeyAction: getGlobalHotkeyAction,
+        getGlobalHotkeyActionCode: getGlobalHotkeyActionCode,
         registerPageHotKey: registerPageHotKey,
+        registerPageHotKeyCode: registerPageHotKeyCode,
         registerPageHotKeys: registerPageHotKeys,
-        registerGlobalHotKey: registerGlobalHotKey,
-        registerGlobalHotKeys: registerGlobalHotKeys
+        registerPageHotKeyCodes: registerPageHotKeyCodes,
+        registerGlobalHotkey: registerGlobalHotkey,
+        registerGlobalHotkeys: registerGlobalHotkeys,
+        registerGlobalHotkeyCode: registerGlobalHotkeyCode,
+        registerGlobalHotkeyCodes: registerGlobalHotkeyCodes
       };
     return serviceInstance;
   }
 ]).directive('twgGlobalHotkeys', [
   '$location',
   '$rootScope',
-  'GlobalHotKeysService',
-  function ($location, $rootScope, GlobalHotKeysService) {
+  'GlobalHotkeysService',
+  function ($location, $rootScope, GlobalHotkeysService) {
     return {
       restrict: 'A',
       link: function (scope, element) {
@@ -685,27 +892,47 @@ angular.module('twigs.globalHotKeys', []).factory('GlobalHotKeysService', [
             return false;
           }
         }
-        /*
-                 * register to the keypress event (works for most keys, i.e. this is the 'normal' way)
-                 */
-        element.bind('keypress', function (event) {
-          if (isForbiddenElement(event)) {
-            return;
-          }
-          handleHotKey(event);
-        });
         /**
-                 * register to keydown to handle 'alt+' in chrome
+                 * register to keydown
                  */
         element.bind('keydown', function (event) {
           if (isForbiddenElement(event)) {
             return;
           }
-          if (event.altKey !== true) {
-            return;
-          }
           handleHotKey(event);
         });
+        function handleHotKeyNormal(hotKey, evWhich) {
+          var completeHotkey = appendKey(hotKey, String.fromCharCode(evWhich));
+          var pageAction = GlobalHotkeysService.getPageHotKeyAction($location.path(), completeHotkey);
+          if (angular.isDefined(pageAction)) {
+            pageAction();
+            scope.$apply();
+            return true;
+          }
+          var globalAction = GlobalHotkeysService.getGlobalHotkeyAction(completeHotkey);
+          if (angular.isDefined(globalAction)) {
+            globalAction();
+            scope.$apply();
+            return true;
+          }
+          return false;
+        }
+        function handleHotKeyCode(hotKey, evWhich) {
+          var completeHotkey = appendKey(hotKey, evWhich);
+          var pageAction = GlobalHotkeysService.getPageHotKeyActionCode($location.path(), completeHotkey);
+          if (angular.isDefined(pageAction)) {
+            pageAction();
+            scope.$apply();
+            return true;
+          }
+          var globalAction = GlobalHotkeysService.getGlobalHotkeyActionCode(completeHotkey);
+          if (angular.isDefined(globalAction)) {
+            globalAction();
+            scope.$apply();
+            return true;
+          }
+          return false;
+        }
         function handleHotKey(event) {
           var hotKey = '';
           if (event.ctrlKey) {
@@ -717,17 +944,14 @@ angular.module('twigs.globalHotKeys', []).factory('GlobalHotKeysService', [
           if (event.shiftKey) {
             hotKey = appendKey(hotKey, 'shift');
           }
-          hotKey = appendKey(hotKey, String.fromCharCode(event.which));
-          var pageAction = GlobalHotKeysService.getPageHotKeyAction($location.path(), hotKey);
-          if (angular.isDefined(pageAction)) {
-            pageAction();
-          } else {
-            var globalAction = GlobalHotKeysService.getGlobalHotKeyAction(hotKey);
-            if (angular.isDefined(globalAction)) {
-              globalAction();
-            }
+          /**
+                     * no way to determine if pressed key is a special key and registered with *Code
+                     * We search for a normal key first, if none found, search for a special one
+                     */
+          var normalHandled = handleHotKeyNormal(hotKey, event.which);
+          if (!normalHandled) {
+            handleHotKeyCode(hotKey, event.which);
           }
-          scope.$apply();
         }
         var appendKey = function (oldHotKey, nextKey) {
           var hotKey = oldHotKey;
@@ -779,22 +1003,837 @@ angular.module('twigs.globalHotKeys', []).factory('GlobalHotKeysService', [
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @ngdoc overview
- * @name twigs
+ * @ngdoc object
+ * @name twigs.globalPopups.provider:GlobalPopupsProvider
  *
  * @description
- * The main module which collects all other Twigs modules.
- * So for convenience, use 'twigs' as a dependency in your module to include all Twigs modules at once.
+ * GlobalPopupsProvider can be used to define custom GlobalPopups or override twitch default GlobalPopups.
+ *
+ * ### Usage
+ * You need to specify a config block to create a new GlobalPopup and you need to create a html template for the Popup content.
  *
  * ```javascript
- * var App = angular.module('Main',['twigs']);
+ * angular.module('myApp').config(function (GlobalPopupsProvider) {
+ *      GlobalPopupsProvider.createModal('myOwnPopup',{
+ *          modalOptions: {
+ *              templateUrl: 'views/globalMsg/myOwnPopup.html',
+ *              windowClass: 'modal-myOwnPopup',
+ *              backdrop: 'static',
+ *              keyboard: false
+ *          }
+ *      });
+ * });
+ * ```
+ * ```html
+ * <div class="modal-header">
+ *      <button type="button" ng-click="$close()" >x</button>
+ *      <h3>{{title}}</h3>
+ * </div>
+ * <div class="modal-body">
+ *      <p>{{message}}</p>
+ * </div>
+ * <div class="modal-footer">
+ *      <button class="btn btn-default" ng-click="$close()">close</button>
+ * </div>
+ * ```
+ *
+ * ```javascript
+ * angular.module('awesome.admin')
+ *       .controller('UserCtrl', function ($scope, GlobalPopups, ...) {
+ *               if(someErrorOccurred){
+ *                      GlobalPopups.myOwnPopup('Show my message');
+ *               }
+ *        });
  * ```
  */
-angular.module('twigs', [
-  'twigs.globalHotkeys',
-  'twigs.activeRoute',
-  'twigs.tableRowClick'
+/**
+ * @ngdoc object
+ * @name twigs.globalPopups.provider:GlobalPopups
+ *
+ * @description
+ * GlobalPopups globally defines popups dialogs which can be called in every controller of your Angular JS application. They consist of two different types of dialogs:
+ *
+ * * Modals: Wrapper of [UI Bootstrap Modals](http://angular-ui.github.io/bootstrap/#/modal) which defines global templates for modals you use frequently in your application.
+ * * Toasts: Lightweight html templates which can be displayed i.e. on the top of your GUI to inform the user about actions (save actions, warnings, etc.)
+ *
+ * If you want to define your own GlobalPopups, consider [GlobalPopupsProvider](#/api/twigs.globalPopups.provider:GlobalPopupsProvider).
+ *
+ *  ### How to use GlobalPopups
+ * ```javascript
+ * angular.module('awesome.admin')
+ *       .controller('UserCtrl', function ($scope, GlobalPopups) {
+ *               if(someErrorOccurred){
+ *                      GlobalPopups.errorDialog('Error during creation of new User',
+ *                      'Error', 'ok');
+ *               }
+ *        });
+ * ```
+ *
+ * ### Predefined Popups are:
+ * These are all preconfigured Popups. You can find a more detailed description on some of the predefined methods further below.
+ * * GlobalPopups.infoDialog(String message, String popupTitle, String okButtonText);
+ * * GlobalPopups.warningDialog(String message, String popupTitle, String okButtonText);
+ * * GlobalPopups.errorDialog(String message, String popupTitle, String okButtonText);
+ *
+ * * GlobalPopups.yesnoDialog(String message, String popupTitle, String noButtonText, String yesButtonText);
+ *      returns a promise, callback is boolean whether the user clicked yes or no
+ *
+ * * GlobalPopups.fileDialog(String url, String popupTitle, String backButtonText);
+ * *     example: GlobalPopups.fileDialog('http://someURL.com/random.pdf', 'PDF Dispaly', 'Back');
+ *
+ * * GlobalPopups.successToast(String successMessage);
+ * * GlobalPopups.warningToast(String warningMessage);
+ */
+/**
+ * @ngdoc function
+ * @name twigs.globalPopups.provider:GlobalPopups#successToast
+ * @methodOf twigs.globalPopups.provider:GlobalPopups
+ *
+ * @param {String} successMessage The message displayed as content of the toast.
+ */
+/**
+ * @ngdoc function
+ * @name twigs.globalPopups.provider:GlobalPopups#infoDialog
+ * @methodOf twigs.globalPopups.provider:GlobalPopups
+ *
+ * @param {String} message The message displayed as content of the modal.
+ * @param {String} popupTitle The title of the Modal.
+ * @param {String} okButtonText The text of the ok button in the modal footer.
+ */
+/**
+ * @ngdoc function
+ * @name twigs.globalPopups.provider:GlobalPopups#yesnoDialog
+ * @methodOf twigs.globalPopups.provider:GlobalPopups
+ *
+ * @param {String} message The message displayed as content of the modal.
+ * @param {String} popupTitle The title of the Modal.
+ * @param {String} noButtonText The text of the left button, interpreted as cancel.
+ * @param {String} yesButtonText The text of the right button, interpreted as ok or yes.
+ * @returns {Promise} Promise resolved with true or false once the user clicks the yes or no button. (yes -> true, no -> false)
+ *
+ * @example
+ * ```javascript
+ * angular.module('awesome.admin')
+ *       .controller('UserCtrl', function ($scope, GlobalPopups) {
+ *              GlobalPopups.yesnoDialog('Realy?', 'Title', 'no', 'yes').then(
+ *              function(userClickedYes){
+ *               if (userClickedYes) {
+ *                   GlobalPopups.successToast('You clicked yes');
+ *               } else {
+ *                   GlobalPopups.successToast('You clicked no');
+ *               }
+ *           });
+ * ```
+ */
+angular.module('twigs.globalPopups', ['ui.bootstrap.modal']).provider('GlobalPopups', function GlobalPopupsProvider() {
+  var serviceInstance = {};
+  this.modals = {};
+  this.toasts = {};
+  this.fileModals = {};
+  this.$get = [
+    '$rootScope',
+    '$modal',
+    '$timeout',
+    '$templateCache',
+    '$http',
+    '$compile',
+    '$document',
+    '$sce',
+    function ($rootScope, $modal, $timeout, $templateCache, $http, $compile, $document, $sce) {
+      var toastStack;
+      /**
+             * Display Modals using angular bootstrap $modal
+             */
+      var displayModal = function (modal, messageText, title, primaryButtonText, secondaryButtonText) {
+        var modalOptions = modal.options.modalOptions;
+        modalOptions.controller = ModalInstanceCtrl;
+        modalOptions.resolve = {
+          messageText: function () {
+            return messageText;
+          },
+          title: function () {
+            return title;
+          },
+          primaryButtonText: function () {
+            return primaryButtonText;
+          },
+          secondaryButtonText: function () {
+            return secondaryButtonText;
+          }
+        };
+        return $modal.open(modalOptions).result;
+      };
+      /**
+             * Display File Modals using angular bootstrap $modal
+             * (open url as trusted resource)
+             */
+      var displayFileModal = function (modal, url, title, backButtonText) {
+        var modalOptions = modal.options.modalOptions;
+        modalOptions.controller = FileModalInstanceCtrl;
+        modalOptions.resolve = {
+          messageText: function () {
+            return $sce.trustAsResourceUrl(url);
+          },
+          title: function () {
+            return title;
+          },
+          backButtonText: function () {
+            return backButtonText;
+          }
+        };
+        return $modal.open(modalOptions).result;
+      };
+      /**
+             * Controller for angular bootstrap $modals used for basic Modals
+             */
+      var ModalInstanceCtrl = function ($scope, $modalInstance, messageText, title, primaryButtonText, secondaryButtonText) {
+        $scope.message = messageText;
+        $scope.title = title;
+        $scope.primaryButtonText = primaryButtonText;
+        $scope.secondaryButtonText = secondaryButtonText;
+        $scope.ok = function () {
+          $modalInstance.close();
+        };
+        $scope.cancel = function () {
+          $modalInstance.dismiss();
+        };
+      };
+      /**
+             * Controller for angular bootstrap $modals used for File Modals
+             */
+      var FileModalInstanceCtrl = function ($scope, $modalInstance, messageText, title, backButtonText) {
+        $scope.message = messageText;
+        $scope.title = title;
+        $scope.backButtonText = backButtonText;
+        $scope.ok = function () {
+          $modalInstance.close();
+        };
+        $scope.cancel = function () {
+          $modalInstance.dismiss();
+        };
+      };
+      /**
+             * Displays a toast template by adding it to the body element in the dom
+             */
+      toastStack = {};
+      var displayToast = function (toast, messageText) {
+        getTemplatePromise(toast.options.templateUrl).then(function (content) {
+          var body = $document.find('body');
+          var scope = $rootScope.$new(true);
+          var rootToastElement = $document.find('#twigs-toast');
+          /**
+                     * forms a wrapper to put toast templates into
+                     */
+          if (rootToastElement.length < 1) {
+            rootToastElement = angular.element('<div id="twigs-toast"></div>');
+            body.append(rootToastElement);
+          }
+          /**
+                     * appends the toast template to twigs-toast div
+                     */
+          var toastElement = $compile(content)(scope);
+          scope.id = new Date().getTime();
+          toastStack[scope.id] = toastElement;
+          rootToastElement.append(toastElement);
+          /**
+                     * The message displayed in the toast
+                     */
+          scope.message = messageText;
+          /**
+                     * removes the toast template on user click or displayDuration timeout
+                     */
+          scope.close = function () {
+            //maybe the user already closed the toast
+            if (angular.isDefined(toastStack[scope.id])) {
+              toastStack[scope.id].remove();
+              delete toastStack[scope.id];
+            }
+          };
+          /**
+                     * Removes the toast template after the given displayDuration
+                     */
+          if (angular.isDefined(toast.options.displayDuration)) {
+            $timeout(function () {
+              scope.close();
+            }, toast.options.displayDuration);
+          }
+        });
+      };
+      /**
+             * loads a html template
+             */
+      var getTemplatePromise = function (templateUrl) {
+        return $http.get(templateUrl, { cache: $templateCache }).then(function (result) {
+          return result.data;
+        });
+      };
+      /**
+             * Preparate service instance with a function for each toast and modal
+             */
+      serviceInstance.displayModal = displayModal;
+      serviceInstance.displayToast = displayToast;
+      serviceInstance.displayFileModal = displayFileModal;
+      return serviceInstance;
+    }
+  ];
+  /**
+         * @ngdoc function
+         * @name twigs.globalPopups.provider:GlobalPopupsProvider#createModal
+         * @methodOf twigs.globalPopups.provider:GlobalPopupsProvider
+         *
+         * @description
+         * Defines a Modal.
+         *
+         * @param {String} messageName The name of this Modal, is later used to display this Modal with GlobalPopups.messageName('my message', 'my title', 'ok');
+         * @param {Object} options conatining the options of this Modal.
+         * All options of [UI Bootstrap Modals](http://angular-ui.github.io/bootstrap/#/modal) are additionally possible
+         * Required properties:
+         *    * modalOptions: {
+         *           `templateUrl` (required) specifying the location of the html template for this popup.
+         *      }
+         *
+         * Example:
+         * ```javascript
+         * GlobalPopupsProvider.createModal('infoDialog',{
+         *      modalOptions: {
+         *          templateUrl: 'templates/infoModal.html',
+         *          windowClass:'modal-info',
+         *          backdrop: false,
+         *          keyboard: true
+         *      }
+         * });
+         * ```
+         */
+  this.createModal = function (messageName, options) {
+    if (angular.isUndefined(options.modalOptions) || angular.isUndefined(options.modalOptions.templateUrl)) {
+      throw 'createModal requires at least modalOptions.templateUrl to be defined';
+    }
+    var modal = {
+        name: messageName,
+        options: options
+      };
+    serviceInstance[messageName] = function (messageText, title, primaryButtonText, secondaryButtonText) {
+      if (angular.isUndefined(messageText)) {
+        throw 'GlobalPupupService.' + messageName + ' must be called with a message';
+      }
+      return serviceInstance.displayModal(modal, messageText, title, primaryButtonText, secondaryButtonText);
+    };
+  };
+  /**
+         * @ngdoc function
+         * @name twigs.globalPopups.provider:GlobalPopupsProvider#createToast
+         * @methodOf twigs.globalPopups.provider:GlobalPopupsProvider
+         *
+         * @description
+         * Defines a Toast.
+         *
+         * @param {String} messageName The name of this Toast, is later used to display this Modal with GlobalPopups.messageName('user saved successfully');
+         * @param {Object} options conatining the options of this Modal. Required property is 'templateUrl' specifying the location of the html template for this popup.
+         * All options of [UI Bootstrap Modals](http://angular-ui.github.io/bootstrap/#/modal) are additionally possible
+         * Required properties:
+         *    * `templateUrl` (required) specifying the location of the html template for this popup.
+         *    * `splayDuration` (optional) specifying the timeout in miliseconds until the toast is hidden again. If left empty, the modal does not disappear automatically
+         *
+         * Example:
+         * ```javascript
+         * GlobalPopupsProvider.createToast('warningToast',{
+         *      templateUrl: 'templates/warningToast.html',
+         *      displayDuration: 5000
+         * });
+         * ```
+         */
+  this.createToast = function (messageName, options) {
+    if (angular.isUndefined(options.templateUrl)) {
+      throw 'createToast requires templateUrl to be defined';
+    }
+    var toast = {
+        name: messageName,
+        options: options
+      };
+    serviceInstance[messageName] = function (messageText) {
+      if (angular.isUndefined(messageText)) {
+        throw 'GlobalPupupService.' + messageName + ' must be called with a message';
+      }
+      serviceInstance.displayToast(toast, messageText);
+    };
+  };
+  /**
+         * @ngdoc function
+         * @name twigs.globalPopups.provider:GlobalPopupsProvider#createFileModal
+         * @methodOf twigs.globalPopups.provider:GlobalPopupsProvider
+         *
+         * @description
+         * Defines a File Modal. Can be used to display files directly in the browser, i.e. PDF.
+         * The Browsers file display is used.
+         *
+         * @param {String} messageName The name of this Modal, is later used to display this Modal with GlobalPopups.messageName('http://myurl.com', 'title', 'back');
+         * @param {Object} options conatining the options of this Modal.
+         * All options of [UI Bootstrap Modals](http://angular-ui.github.io/bootstrap/#/modal) are additionally possible
+         * Required properties:
+         *    * modalOptions: {
+         *           `templateUrl` (required) specifying the location of the html template for this popup.
+         *      }
+         *
+         * Example:
+         * ```javascript
+         * GlobalPopupsProvider.createFileModal('fileDialog',{
+         *      modalOptions: {
+         *          templateUrl: 'templates/fileModal.html',
+         *          windowClass:'modal-file',
+         *          keyboard: true
+         *      }
+         * });
+         * ```
+         */
+  this.createFileModal = function (messageName, options) {
+    if (angular.isUndefined(options.modalOptions) || angular.isUndefined(options.modalOptions.templateUrl)) {
+      throw 'createFileModal requires at least modalOptions.templateUrl to be defined';
+    }
+    var fileModal = {
+        name: messageName,
+        options: options
+      };
+    serviceInstance[messageName] = function (url, title, backButtonText) {
+      if (angular.isUndefined(url)) {
+        throw 'GlobalPopupService.' + messageName + ' must be called with a valid url';
+      }
+      serviceInstance.displayFileModal(fileModal, url, title, backButtonText);
+    };
+  };
+}).config([
+  'GlobalPopupsProvider',
+  function (GlobalPopupsProvider) {
+    GlobalPopupsProvider.createToast('successToast', {
+      templateUrl: 'templates/successToast.html',
+      displayDuration: 7000
+    });
+    GlobalPopupsProvider.createToast('warningToast', {
+      templateUrl: 'templates/warningToast.html',
+      displayDuration: 7000
+    });
+    GlobalPopupsProvider.createModal('infoDialog', {
+      modalOptions: {
+        templateUrl: 'templates/infoModal.html',
+        windowClass: 'modal-info',
+        backdrop: false,
+        keyboard: true
+      }
+    });
+    GlobalPopupsProvider.createModal('yesnoDialog', {
+      modalOptions: {
+        templateUrl: 'templates/yesnoModal.html',
+        windowClass: 'modal-yesno',
+        backdrop: 'static',
+        keyboard: false
+      }
+    });
+    GlobalPopupsProvider.createFileModal('fileDialog', {
+      modalOptions: {
+        templateUrl: 'templates/fileModal.html',
+        windowClass: 'modal-file',
+        keyboard: true
+      }
+    });
+    GlobalPopupsProvider.createModal('errorDialog', {
+      modalOptions: {
+        templateUrl: 'templates/errorModal.html',
+        windowClass: 'modal-error',
+        backdrop: 'static',
+        keyboard: false
+      }
+    });
+    GlobalPopupsProvider.createModal('warningDialog', {
+      modalOptions: {
+        templateUrl: 'templates/warningModal.html',
+        windowClass: 'modal-warning',
+        keyboard: true
+      }
+    });
+  }
 ]);
+'use strict';
+/* twigs
+ * Copyright (C) 2014, Hatch Development Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+angular.module('twigs.protectedRoutes').provider('ProtectedRoute', [
+  '$routeProvider',
+  function ($routeProvider) {
+    var neededRolesForRoutes = {};
+    /**
+         * needed to mirror the angular's RouteProvider api !
+         */
+    this.otherwise = $routeProvider.otherwise;
+    /**
+         * the when function delegates to the angular routeProvider "when".
+         */
+    this.when = function (path, route) {
+      if (isProtectedRouteConfig(route)) {
+        route.resolve = angular.extend(route.resolve || {}, {
+          'hasPermission': function ($q, Permissions) {
+            return isUserAllowedToAccessRoute($q, Permissions, route.neededRoles);
+          }
+        });
+        neededRolesForRoutes[path] = route.neededRoles;
+      }
+      $routeProvider.when(path, route);
+      return this;
+    };
+    function isProtectedRouteConfig(route) {
+      if (angular.isDefined(route.neededRoles)) {
+        if (typeof route.neededRoles === 'object') {
+          return true;
+        } else {
+          throw 'Invalid protected route config: neededRoles must be an array';
+        }
+      }
+      return false;
+    }
+    function isUserAllowedToAccessRoute($q, Permissions, neededRoles) {
+      var deferred = $q.defer();
+      Permissions.getUser().then(function () {
+        if (userHasAllRoles(neededRoles, Permissions)) {
+          deferred.resolve({});
+        } else {
+          deferred.reject(new Error('missing_roles'));
+        }
+      }, function (err) {
+        deferred.reject(err);
+      });
+      return deferred.promise;
+    }
+    function userHasAllRoles(neededRoles, Permissions) {
+      var allRoles = true;
+      angular.forEach(neededRoles, function (neededRole) {
+        if (!allRoles) {
+          return;
+        }
+        if (!Permissions.hasRole(neededRole)) {
+          allRoles = false;
+        }
+      });
+      return allRoles;
+    }
+    this.$get = function () {
+      return {};
+    };
+  }
+]);
+'use strict';
+/* twigs
+ * Copyright (C) 2014, Hatch Development Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+angular.module('twigs.security').service('UserObjectSanityChecker', function () {
+  var EXPECTED_PROPERTIES = [
+      'username',
+      'roles',
+      'permissions'
+    ];
+  function _isSaneUserObject(userObject) {
+    if (angular.isUndefined(userObject)) {
+      return false;
+    }
+    var allPropertiesFound = true;
+    EXPECTED_PROPERTIES.forEach(function (prop) {
+      if (angular.isUndefined(userObject[prop])) {
+        allPropertiesFound = false;
+      }
+    });
+    return allPropertiesFound;
+  }
+  return { isSane: _isSaneUserObject };
+}).provider('Permissions', function () {
+  var
+    /**
+             * @ngdoc property
+             * @name twigs.security.provider:PermissionsProvider#user
+             * @propertyOf twigs.security.provider:PermissionsProvider
+             *
+             * @description
+             *  The user object
+             */
+    user = {},
+    /**
+             * @ngdoc property
+             * @name twigs.security.provider:PermissionsProvider#userLoader
+             * @propertyOf twigs.security.provider:PermissionsProvider
+             *
+             * @description
+             *  The userLoader function (register via .registerUserLoader()
+             */
+    userLoader,
+    /**
+             * @ngdoc property
+             * @name twigs.security.provider:PermissionsProvider#permissionEvaluatorFunction
+             * @propertyOf twigs.security.provider:PermissionsProvider
+             *
+             * @description
+             *   The evaluator function (register via .registerPermissionEvaluationFunction()
+             */
+    permissionEvaluatorFunction,
+    /**
+             * @ngdoc property
+             * @name twigs.security.provider:PermissionsProvider#userLoadingPromise
+             * @propertyOf twigs.security.provider:PermissionsProvider
+             *
+             * @description
+             *  we remember, that we are already loading the user.
+             *  A second call to "Permissions.user()" while the first call ist still waiting for a server-response,
+             *  will receive the same promise;
+             */
+    userLoadingPromise;
+  /**
+         * @ngdoc function
+         * @name twigs.security.provider:PermissionsProvider#registerUserLoader
+         * @methodOf twigs.security.provider:PermissionsProvider
+         *
+         * @description
+         * Registers the loader function to load the user Object. The given loader function must return
+         * a promise which resolves to the user Object.
+         * The user object is expected to be of the form:
+         *
+         * ```javascript
+         *  {
+         *   username:'John',
+         *   roles:['ROLE_1','ROLE_2' ],
+         *   permissions:[]
+         *  }
+         * ```
+         *
+         * It is valid to resolve to a user object which has additional properties.
+         *
+         * ```javascript
+         * PermissionsProvider.registerUserLoader(function ($q, $resource) {
+         *       return function () {
+         *           var deferred = $q.defer();
+         *           $resource('/users/current').get({},
+         *               function (data) {
+         *                  return deferred.resolve(data);
+         *              }, function () {
+         *                  return deferred.reject();
+         *               });
+         *
+         *          return deferred.promise;
+         *      };
+         *   });
+         * ```
+         *
+         * @param {function} loader The user loader function
+         */
+  this.registerUserLoader = function (loader) {
+    userLoader = loader;
+  };
+  /**
+         * @ngdoc function
+         * @name twigs.security.provider:PermissionsProvider#registerPermissionEvaluationFunction
+         * @methodOf twigs.security.provider:PermissionsProvider
+         *
+         * @description
+         * Registers the evaluation function for evaluating permissions.
+         * Permissions service will pass in the users permission, and the needed permissions (arguments)
+         *
+         * ```javascript
+         * PermissionsProvider.registerPermissionEvaluationFunction(function () {
+         *       return function (permissions, args) {
+         *          // decide upon users permissions and args.
+         *          // return true or false
+         *          return true:
+         *      };
+         *   });
+         * ```
+         *
+         * @param {function} fn The evaluator function
+         */
+  this.registerPermissionEvaluationFunction = function (fn) {
+    permissionEvaluatorFunction = fn;
+  };
+  /**
+         * @ngdoc object
+         * @name twigs.security.service:Permissions
+         *
+         **/
+  this.$get = [
+    '$rootScope',
+    '$q',
+    '$injector',
+    'UserObjectSanityChecker',
+    function ($rootScope, $q, $injector, UserObjectSanityChecker) {
+      function _hasPermission() {
+        if (!_isAuthenticated()) {
+          return false;
+        }
+        var evalFn = $injector.invoke(permissionEvaluatorFunction);
+        return evalFn(user.permissions, arguments);
+      }
+      function _hasRole(roleName) {
+        if (!_isAuthenticated()) {
+          return false;
+        }
+        var hasRole = false;
+        user.roles.forEach(function (role) {
+          if (role === roleName) {
+            hasRole = true;
+          }
+        });
+        return hasRole;
+      }
+      function _loadUser() {
+        if (angular.isUndefined(userLoader)) {
+          throw 'No userLoader defined! Call PermissionsProvider.registerUserLoader(fn)  first!';
+        }
+        var deferred = $q.defer(), loaderFn = $injector.invoke(userLoader);
+        loaderFn().then(function (data) {
+          if (!UserObjectSanityChecker.isSane(data)) {
+            deferred.reject('Loaded user object did not pass sanity check!');
+          } else {
+            user = data;
+            deferred.resolve(data);
+          }
+        }, function () {
+          deferred.reject();
+        });
+        return deferred.promise;
+      }
+      function _getCurrentUser() {
+        var deferred = $q.defer();
+        if (angular.isDefined(user.username)) {
+          deferred.resolve(user);
+        } else {
+          if (angular.isUndefined(userLoadingPromise)) {
+            _loadUser().then(function () {
+              $rootScope.$broadcast('userInitialized');
+              deferred.resolve(user);
+            }, function (error) {
+              deferred.reject(error);
+            });
+            userLoadingPromise = deferred.promise;
+          }
+        }
+        return userLoadingPromise;
+      }
+      function _isAuthenticated() {
+        return angular.isDefined(user.username);
+      }
+      function _clearSecurityContext() {
+        user = {};
+        userLoadingPromise = undefined;
+        $rootScope.$broadcast('userCleared');
+      }
+      return {
+        getUser: _getCurrentUser,
+        clearSecurityContext: _clearSecurityContext,
+        hasPermission: _hasPermission,
+        hasRole: _hasRole,
+        isAuthenticated: _isAuthenticated
+      };
+    }
+  ];
+}).service('ExpressionEvaluator', [
+  'Permissions',
+  function (Permissions) {
+    if (angular.isUndefined(Permissions)) {
+      throw 'We need Permissions Service for evaluating!';
+    }
+    var VALID_EXPRESSION_PATTERNS = [
+        /hasPermission\(.*\)/,
+        /hasRole\(.*\)/,
+        /isAuthenticated\(\)/
+      ];
+    function _throwIfInvalidExpression(expression) {
+      var errorString = 'Invalid permission expression';
+      if (angular.isUndefined(expression) || expression.length < 1) {
+        throw errorString;
+      }
+      var isValidPattern = false;
+      VALID_EXPRESSION_PATTERNS.forEach(function (pattern) {
+        if (isValidPattern) {
+          // break the loop;
+          return;
+        }
+        if (pattern.test(expression)) {
+          isValidPattern = true;
+        }
+      });
+      if (isValidPattern !== true) {
+        throw errorString;
+      }
+    }
+    function _evaluate(expression) {
+      _throwIfInvalidExpression(expression);
+      return eval('Permissions.' + expression);
+    }
+    return { evaluate: _evaluate };
+  }
+]).directive('twgSecureShow', [
+  'ExpressionEvaluator',
+  '$animate',
+  function (ExpressionEvaluator, $animate) {
+    return {
+      restrict: 'A',
+      scope: true,
+      link: function (scope, element, attrs) {
+        scope.$on('userInitialized', function () {
+          evaluate();
+        });
+        scope.$on('userCleared', function () {
+          evaluate();
+        });
+        var evaluate = function () {
+          var result = ExpressionEvaluator.evaluate(attrs.twgSecureShow);
+          $animate[result ? 'removeClass' : 'addClass'](element, 'ng-hide');
+        };
+        evaluate();
+      }
+    };
+  }
+]).directive('twgSecureEnabled', [
+  'ExpressionEvaluator',
+  function (ExpressionEvaluator) {
+    return {
+      restrict: 'A',
+      scope: true,
+      link: function (scope, element, attrs) {
+        scope.$on('userInitialized', function () {
+          evaluate();
+        });
+        scope.$on('userCleared', function () {
+          evaluate();
+        });
+        var evaluate = function () {
+          var result = ExpressionEvaluator.evaluate(attrs.twgSecureEnabled);
+          element.attr('disabled', !result);
+        };
+        evaluate();
+      }
+    };
+  }
+]);
+;
 'use strict';
 /* twigs
  * Copyright (C) 2014, Hatch Development Team
@@ -847,7 +1886,7 @@ angular.module('twigs', [
  * </table>
  * ```
  */
-angular.module('twigs.sortable', []).directive('twgSortable', function () {
+angular.module('twigs.sortable').directive('twgSortable', function () {
   var CLASS_SORT_ASC = 'column-sort-asc';
   var CLASS_SORT_DESC = 'column-sort-desc';
   var CLASS_SORT_NONE = 'column-sort-none';
@@ -926,7 +1965,9 @@ angular.module('twigs.sortable', []).directive('twgSortable', function () {
  * ```
  *
  * ```html
- * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}" >  ....</tr>
+ * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}" >
+ *     ....
+ * </tr>
  * ```
  *
  * Additionally it can handle events that bubble up from other elements with ng-click handlers within the row (and thus correctly ignoring these).
@@ -939,13 +1980,36 @@ angular.module('twigs.sortable', []).directive('twgSortable', function () {
  *  <td>Some text</td>
  * </tr>
  * ```
+ *
+ * ### Secure tableRowClick
+ *
+ * Additionally, if you use the twigs.security module, you can guard table-row clicks with security expressions:
+ *
+ * ```html
+ * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}"
+ *     twg-table-row-click-secure="hasRole('ADMIN')" >
+ *  <td>Some text</td>
+ * </tr>
+ * ```
+ *
  */
-angular.module('twigs.tableRowClick', []).directive('twgTableRowClick', [
+angular.module('twigs.tableRowClick').directive('twgTableRowClick', [
   '$location',
-  function ($location) {
+  'ExpressionEvaluator',
+  function ($location, ExpressionEvaluator) {
     return {
       restrict: 'A',
       link: function (scope, element, attrs) {
+        /**
+                 * check permission if attribute is present
+                 */
+        function isAllowed() {
+          var permissionExpression = attrs.twgTableRowClickSecure;
+          if (angular.isUndefined(permissionExpression) || permissionExpression === '') {
+            return true;
+          }
+          return ExpressionEvaluator.evaluate(permissionExpression);
+        }
         /**
                  * if an element is clicked that has a 'ng-click' attribute on it's own, do not reacte to this click.
                  * also, if the clicked element has a parent somewhere with a 'ng-click' attribute on its own, do not react to this click.
@@ -964,7 +2028,7 @@ angular.module('twigs.tableRowClick', []).directive('twgTableRowClick', [
         element.addClass('tablerow-clickable');
         var targetUrl = attrs.twgTableRowClick;
         element.on('click', function (event) {
-          if (!isNgClickWrappedElement(event.target)) {
+          if (isAllowed() && !isNgClickWrappedElement(event.target)) {
             scope.$apply(function () {
               $location.path(targetUrl);
             });
@@ -972,5 +2036,18 @@ angular.module('twigs.tableRowClick', []).directive('twgTableRowClick', [
         });
       }
     };
+  }
+]);
+angular.module('twigs.templates').run([
+  '$templateCache',
+  function ($templateCache) {
+    'use strict';
+    $templateCache.put('templates/errorModal.html', '<div class="modal-header">\r' + '\n' + '    <button type="button" class="close" x-ng-click="$close()" aria-hidden="true">&times;</button>\r' + '\n' + '    <h3><i class="glyphicon glyphicon-exclamation-sign"></i>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <p>{{message}}</p>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{primaryButtonText}}</button>\r' + '\n' + '</div>');
+    $templateCache.put('templates/fileModal.html', '<div class="modal-header">\r' + '\n' + '    <h3>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <iframe id="modal-fileframe" x-ng-src="{{message}}"></iframe>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{backButtonText}}</button>\r' + '\n' + '</div>');
+    $templateCache.put('templates/infoModal.html', '<div class="modal-header">\r' + '\n' + '    <button type="button" class="close" x-ng-click="$close()">&times;</button>\r' + '\n' + '    <h3><i class="glyphicon glyphicon-info-sign"></i>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <p>{{message}}</p>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{primaryButtonText}}</button>\r' + '\n' + '</div>');
+    $templateCache.put('templates/successToast.html', '<!-- for success messages, centered on top of browser window (aka "Toast")-->\r' + '\n' + '<div class="alert alert-success fade-in" x-ng-click="close()">\r' + '\n' + '    <button type="button" class="close" x-ng-click="close()">&times;</button>\r' + '\n' + '    <div id="successMessage"> <i class="pull-left glyphicon glyphicon-check"></i>\r' + '\n' + '        <div style="margin-left: 25px;">{{message}}</div>\r' + '\n' + '    </div>\r' + '\n' + '</div>\r' + '\n');
+    $templateCache.put('templates/warningModal.html', '<div class="modal-header">\r' + '\n' + '    <button type="button" class="close" x-ng-click="$close()" aria-hidden="true">&times;</button>\r' + '\n' + '    <h3><i class="glyphicon glyphicon-exclamation-sign"></i>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <p><translate>{{message}}</translate></p>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{primaryButtonText}}</button>\r' + '\n' + '</div>');
+    $templateCache.put('templates/warningToast.html', '<!-- for success messages, centered on top of browser window (aka "Toast")-->\r' + '\n' + '<div class="alert alert-warning fade-in" x-ng-click="close()">\r' + '\n' + '    <button type="button" class="close" x-ng-click="close()">&times;</button>\r' + '\n' + '    <div id="successMessage"> <i class="pull-left glyphicon glyphicon-check"></i>\r' + '\n' + '        <div style="margin-left: 25px;">{{message}}</div>\r' + '\n' + '    </div>\r' + '\n' + '</div>\r' + '\n');
+    $templateCache.put('templates/yesnoModal.html', '<div class="modal-header">\r' + '\n' + '    <h3>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <p>{{message}}</p>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-danger" x-ng-click="$close(false)">{{primaryButtonText}}</button>\r' + '\n' + '    <button class="btn btn-yes {{message.yesButtonCls}} btn-success" x-ng-click="$close(true)">{{secondaryButtonText}}</button>\r' + '\n' + '</div>');
   }
 ]);
