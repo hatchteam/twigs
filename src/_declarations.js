@@ -39,6 +39,8 @@ angular.module('twigs.sortable', []);
 
 angular.module('twigs.tableRowClick', ['twigs.security']);
 
+angular.module('twigs.protectedRoutes', ['twigs.security', 'ngRoute']);
+
 
 /**
  * @ngdoc overview
@@ -60,4 +62,5 @@ angular.module('twigs', [
     'twigs.security',
     'twigs.sortable',
     'twigs.dynamicSize',
-    'twigs.tableRowClick']);
+    'twigs.tableRowClick',
+    'twigs.protectedRoutes']);

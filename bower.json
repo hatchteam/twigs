@@ -13,13 +13,16 @@
         "**/*.json",
         "**/*.html"
     ],
-    "dependencies": {
-    },
+    "dependencies": {},
     "devDependencies": {
         "jquery": "~1.10.0",
-        "angular": "~1.2.13",
-        "angular-cookies": "~1.2.13",
-        "angular-mocks": "~1.2.13",
-        "angular-scenario": "~1.2.13"
+        "angular": "1.2.13",
+        "angular-cookies": "1.2.13",
+        "angular-mocks": "1.2.13",
+        "angular-scenario": "1.2.13",
+        "angular-route": "1.2.13"
+    },
+    "resolutions": {
+        "angular": "1.2.13"
     }
 }

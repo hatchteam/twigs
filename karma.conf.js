@@ -18,6 +18,7 @@ module.exports = function (config) {
             'components/angular/angular.js',
             'components/angular-cookies/angular-cookies.js',
             'components/angular-mocks/angular-mocks.js',
+            'components/angular-route/angular-route.js',
             'src/*.js',
             'src/*.js',
             'test/spec/**/*.js'
