@@ -36,7 +36,7 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
     <head>
     <!-- include twigs css for twigs.globalPopups -->
     <link rel="stylesheet" href="components/twigs/dist/styles/twigs.css">
-    <h/ead>
+    </head>
     <body>
     <!-- here goes your app/markup -->
 
