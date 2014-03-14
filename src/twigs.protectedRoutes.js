@@ -71,6 +71,9 @@ angular.module('twigs.protectedRoutes')
         this.when = function (path, route) {
             if (isProtectedRouteConfig(route)) {
                 route.resolve = angular.extend(route.resolve || {}, {
+                    'CurrentUser': function (Permissions) {
+                        return Permissions.getUser();
+                    },
                     'hasPermission': function ($q, Permissions) {
                         return isUserAllowedToAccessRoute($q, Permissions, route.neededRoles);
                     }
@@ -122,7 +125,8 @@ angular.module('twigs.protectedRoutes')
         }
 
         this.$get = function () {
-            return {};
+            return {
+            };
         };
 
     }
