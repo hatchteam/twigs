@@ -205,7 +205,7 @@ angular.module('twigs.security')
 
                 loaderFn().then(function (data) {
                     if (!UserObjectSanityChecker.isSane(data)) {
-                        console.error('Loaded user object did not pass sanity check!')
+                        console.error('Loaded user object did not pass sanity check!');
                         deferred.reject(new Error('Loaded user object did not pass sanity check!'));
                     } else {
                         user = data;
