@@ -223,12 +223,14 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test:unit', [
         'clean:server',
+        'ngtemplates',
         'connect:test',
         'karma:unit'
     ]);
 
     grunt.registerTask('test:unitwatch', [
         'clean:server',
+        'ngtemplates',
         'connect:test',
         'karma:unitwatch'
     ]);
