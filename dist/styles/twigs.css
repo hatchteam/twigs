@@ -1,13 +1,4 @@
 /* ----- START: styles for twigs.globalPopups ------- */
-.modal-header {
-  color: #666;
-  background-color: #f9f9f9;
-  border-top-right-radius: inherit;
-  border-top-left-radius: inherit;
-  -moz-border-radius-topleft: inherit;
-  -webkit-border-top-right-radius: inherit;
-  -webkit-border-top-left-radius: inherit;
-}
 .modal-footer {
   background-color: #f9f9f9;
   border-bottom-right-radius: inherit;
@@ -16,6 +7,15 @@
   -moz-border-radius-bottomright: inherit;
   -webkit-border-bottom-right-radius: inherit;
   -webkit-border-bottom-left-radius: inherit;
+}
+.modal-header {
+  background-color: #f9f9f9;
+  border-top-right-radius: inherit;
+  border-top-left-radius: inherit;
+  -moz-border-radius-topleft: inherit;
+  -moz-border-radius-topright: inherit;
+  -webkit-border-top-right-radius: inherit;
+  -webkit-border-top-left-radius: inherit;
 }
 .modal-error .modal-header {
   border-color: #eed3d7;
