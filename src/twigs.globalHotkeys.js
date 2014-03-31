@@ -35,13 +35,13 @@
  *
  * App.run(function ($location, GlobalHotkeysService) {
  *
- *    GlobalHotkeysService.registerGlobalHotkeys(["alt+h", "shift+h"], function () {
+ *    GlobalHotkeysService.registerGlobalHotkeys(["alt+h", "shift+h"], function (ev) {
  *        // go to home view
  *        $location.path('/#');
  *    });
  *
  *
- *    GlobalHotkeysService.registerGlobalHotkeys(["alt+a", "shift+a"], function () {
+ *    GlobalHotkeysService.registerGlobalHotkeys(["alt+a", "shift+a"], function (ev) {
  *        // do something here
  *    });
  *
@@ -315,36 +315,36 @@ angular.module('twigs.globalHotkeys')
                     handleHotkey(event);
                 });
 
-                function handleHotkeyNormal(hotkey, evWhich) {
-                    var completeHotkey = appendKey(hotkey, String.fromCharCode(evWhich));
+                function handleHotkeyNormal(hotkey, event) {
+                    var completeHotkey = appendKey(hotkey, String.fromCharCode(event.which));
                     var pageAction = GlobalHotkeysService.getPageHotkeyAction($location.path(), completeHotkey);
                     if (angular.isDefined(pageAction)) {
-                        pageAction();
+                        pageAction(event);
                         scope.$apply();
                         return true;
                     }
 
                     var globalAction = GlobalHotkeysService.getGlobalHotkeyAction(completeHotkey);
                     if (angular.isDefined(globalAction)) {
-                        globalAction();
+                        globalAction(event);
                         scope.$apply();
                         return true;
                     }
                     return false;
                 }
 
-                function handleHotkeyCode(hotkey, evWhich) {
-                    var completeHotkey = appendKey(hotkey, evWhich);
+                function handleHotkeyCode(hotkey, event) {
+                    var completeHotkey = appendKey(hotkey, event.which);
                     var pageAction = GlobalHotkeysService.getPageHotkeyActionCode($location.path(), completeHotkey);
                     if (angular.isDefined(pageAction)) {
-                        pageAction();
+                        pageAction(event);
                         scope.$apply();
                         return true;
                     }
 
                     var globalAction = GlobalHotkeysService.getGlobalHotkeyActionCode(completeHotkey);
                     if (angular.isDefined(globalAction)) {
-                        globalAction();
+                        globalAction(event);
                         scope.$apply();
                         return true;
                     }
@@ -370,10 +370,10 @@ angular.module('twigs.globalHotkeys')
                      * We search for a normal key first, if none found, search for a special one
                      */
 
-                    var normalHandled = handleHotkeyNormal(hotkey, event.which);
+                    var normalHandled = handleHotkeyNormal(hotkey, event);
 
                     if (!normalHandled) {
-                        handleHotkeyCode(hotkey, event.which);
+                        handleHotkeyCode(hotkey, event);
                     }
 
                 }

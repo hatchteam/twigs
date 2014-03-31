@@ -124,7 +124,6 @@ describe('Service: GlobalHotkeysService', function () {
 
     });
 
-
 });
 
 
@@ -169,9 +168,11 @@ describe('Directive: twgHotkeys', function () {
         var htmlElement = angular.element('<div twg-global-hotkeys></div>');
         var element = whenCompiling(htmlElement);
         var callBackExecuted = false;
+        var event;
 
-        GlobalHotkeysService.registerGlobalHotkey('a', function () {
+        GlobalHotkeysService.registerGlobalHotkey('a', function (ev) {
             callBackExecuted = true;
+            event = ev;
         });
 
         triggerKeyDown(element, 'a');
@@ -182,6 +183,7 @@ describe('Directive: twgHotkeys', function () {
 
         runs(function () {
             expect(callBackExecuted).toEqual(true);
+            expect(event).toBeDefined();
         });
     });
 
@@ -190,9 +192,11 @@ describe('Directive: twgHotkeys', function () {
         var htmlElement = angular.element('<div twg-global-hotkeys></div>');
         var element = whenCompiling(htmlElement);
         var callBackExecuted = false;
+        var event;
 
-        GlobalHotkeysService.registerGlobalHotkeyCode(10, function () {
+        GlobalHotkeysService.registerGlobalHotkeyCode(10, function (ev) {
             callBackExecuted = true;
+            event = ev;
         });
 
         triggerKeyDownCode(element, 10);
@@ -203,6 +207,7 @@ describe('Directive: twgHotkeys', function () {
 
         runs(function () {
             expect(callBackExecuted).toEqual(true);
+            expect(event).toBeDefined();
         });
     });
 
