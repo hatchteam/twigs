@@ -97,30 +97,30 @@ describe('Service: GlobalHotkeysService', function () {
     it('should keep registered page hotkeys', function () {
 
         andBrowserWouldBeOnPage(dummyPath);
-        GlobalHotkeysService.registerPageHotKey('shift+z', noop);
+        GlobalHotkeysService.registerPageHotkey('shift+z', noop);
 
         andBrowserWouldBeOnPage(dummyPath2);
-        GlobalHotkeysService.registerPageHotKey('shift+z', noop2);
+        GlobalHotkeysService.registerPageHotkey('shift+z', noop2);
 
-        expect(GlobalHotkeysService.getPageHotKeyAction(dummyPath, 'shift+z')).toBe(noop);
-        expect(GlobalHotkeysService.getPageHotKeyAction(dummyPath, 'shift+z')()).toBe('noop');
-        expect(GlobalHotkeysService.getPageHotKeyAction(dummyPath2, 'shift+z')).toBe(noop2);
-        expect(GlobalHotkeysService.getPageHotKeyAction(dummyPath2, 'shift+z')()).toBe('noop2');
+        expect(GlobalHotkeysService.getPageHotkeyAction(dummyPath, 'shift+z')).toBe(noop);
+        expect(GlobalHotkeysService.getPageHotkeyAction(dummyPath, 'shift+z')()).toBe('noop');
+        expect(GlobalHotkeysService.getPageHotkeyAction(dummyPath2, 'shift+z')).toBe(noop2);
+        expect(GlobalHotkeysService.getPageHotkeyAction(dummyPath2, 'shift+z')()).toBe('noop2');
 
     });
 
     it('should keep registered page hotkeys (code)', function () {
 
         andBrowserWouldBeOnPage(dummyPath);
-        GlobalHotkeysService.registerPageHotKeyCode('37', noop);
+        GlobalHotkeysService.registerPageHotkeyCode('37', noop);
 
         andBrowserWouldBeOnPage(dummyPath2);
-        GlobalHotkeysService.registerPageHotKeyCode('37', noop2);
+        GlobalHotkeysService.registerPageHotkeyCode('37', noop2);
 
-        expect(GlobalHotkeysService.getPageHotKeyActionCode(dummyPath, '37')).toBe(noop);
-        expect(GlobalHotkeysService.getPageHotKeyActionCode(dummyPath, '37')()).toBe('noop');
-        expect(GlobalHotkeysService.getPageHotKeyActionCode(dummyPath2, '37')).toBe(noop2);
-        expect(GlobalHotkeysService.getPageHotKeyActionCode(dummyPath2, '37')()).toBe('noop2');
+        expect(GlobalHotkeysService.getPageHotkeyActionCode(dummyPath, '37')).toBe(noop);
+        expect(GlobalHotkeysService.getPageHotkeyActionCode(dummyPath, '37')()).toBe('noop');
+        expect(GlobalHotkeysService.getPageHotkeyActionCode(dummyPath2, '37')).toBe(noop2);
+        expect(GlobalHotkeysService.getPageHotkeyActionCode(dummyPath2, '37')()).toBe('noop2');
 
     });
 

@@ -53,6 +53,7 @@ angular.module('twigs', [
   'twigs.sortable',
   'twigs.dynamicSize',
   'twigs.tableRowClick',
+  'twigs.globalPopups',
   'twigs.protectedRoutes'
 ]);
 'use strict';
@@ -742,7 +743,7 @@ angular.module('twigs.flow').provider('Flow', function () {
  */
 /**
  * @ngdoc service
- * @name twigs.globalHotKeys.service:GlobalHotkeysService
+ * @name twigs.globalHotkeys.service:GlobalHotkeysService
  *
  * @description
  * GlobalHotkeys allows you to assign actions to specific keyboard key combinations.
@@ -791,80 +792,80 @@ angular.module('twigs.flow').provider('Flow', function () {
 angular.module('twigs.globalHotkeys').factory('GlobalHotkeysService', [
   '$location',
   function ($location) {
-    var HOTKEY_CODE_PREFIX = 'c_', pageHotKeys = {}, globalHotKeys = {};
-    function getPageHotKeyAction(page, hotKey) {
-      var hotKeys = pageHotKeys[page];
-      if (angular.isUndefined(hotKeys)) {
+    var HOTKEY_CODE_PREFIX = 'c_', pageHotkeys = {}, globalHotkeys = {};
+    function getPageHotkeyAction(page, hotkey) {
+      var hotkeys = pageHotkeys[page];
+      if (angular.isUndefined(hotkeys)) {
         return undefined;
       }
-      return hotKeys[hotKey.toLowerCase()];
+      return hotkeys[hotkey.toLowerCase()];
     }
-    function getPageHotKeyActionCode(page, hotKey) {
-      var hotKeys = pageHotKeys[page];
-      if (angular.isUndefined(hotKeys)) {
+    function getPageHotkeyActionCode(page, hotkey) {
+      var hotkeys = pageHotkeys[page];
+      if (angular.isUndefined(hotkeys)) {
         return undefined;
       }
-      return hotKeys[HOTKEY_CODE_PREFIX + hotKey];
+      return hotkeys[HOTKEY_CODE_PREFIX + hotkey];
     }
-    function getGlobalHotkeyAction(hotKey) {
-      return globalHotKeys[hotKey.toLowerCase()];
+    function getGlobalHotkeyAction(hotkey) {
+      return globalHotkeys[hotkey.toLowerCase()];
     }
-    function getGlobalHotkeyActionCode(hotKey) {
-      return globalHotKeys[HOTKEY_CODE_PREFIX + hotKey];
+    function getGlobalHotkeyActionCode(hotkey) {
+      return globalHotkeys[HOTKEY_CODE_PREFIX + hotkey];
     }
-    function registerPageHotKey(hotKey, actionFunction) {
+    function registerPageHotkey(hotkey, actionFunction) {
       var page = $location.path();
-      var hotKeys = pageHotKeys[page];
-      if (angular.isUndefined(hotKeys)) {
-        hotKeys = {};
-        pageHotKeys[page] = hotKeys;
+      var hotkeys = pageHotkeys[page];
+      if (angular.isUndefined(hotkeys)) {
+        hotkeys = {};
+        pageHotkeys[page] = hotkeys;
       }
-      hotKeys[hotKey.toLowerCase()] = actionFunction;
+      hotkeys[hotkey.toLowerCase()] = actionFunction;
     }
-    function registerPageHotKeyCode(hotKeyCode, actionFunction) {
+    function registerPageHotkeyCode(hotkeyCode, actionFunction) {
       var page = $location.path();
-      var hotKeys = pageHotKeys[page];
-      if (angular.isUndefined(hotKeys)) {
-        hotKeys = {};
-        pageHotKeys[page] = hotKeys;
+      var hotkeys = pageHotkeys[page];
+      if (angular.isUndefined(hotkeys)) {
+        hotkeys = {};
+        pageHotkeys[page] = hotkeys;
       }
-      hotKeys[HOTKEY_CODE_PREFIX + hotKeyCode] = actionFunction;
+      hotkeys[HOTKEY_CODE_PREFIX + hotkeyCode] = actionFunction;
     }
-    function registerPageHotKeys(hotKeys, actionFunction) {
-      angular.forEach(hotKeys, function (key) {
-        registerPageHotKey(key, actionFunction);
+    function registerPageHotkeys(hotkeys, actionFunction) {
+      angular.forEach(hotkeys, function (key) {
+        registerPageHotkey(key, actionFunction);
       });
     }
-    function registerPageHotKeyCodes(hotKeyCodes, actionFunction) {
-      angular.forEach(hotKeyCodes, function (key) {
-        registerPageHotKeyCode(key, actionFunction);
+    function registerPageHotkeyCodes(hotkeyCodes, actionFunction) {
+      angular.forEach(hotkeyCodes, function (key) {
+        registerPageHotkeyCode(key, actionFunction);
       });
     }
-    function registerGlobalHotkey(hotKey, actionFunction) {
-      globalHotKeys[hotKey.toLowerCase()] = actionFunction;
+    function registerGlobalHotkey(hotkey, actionFunction) {
+      globalHotkeys[hotkey.toLowerCase()] = actionFunction;
     }
-    function registerGlobalHotkeys(hotKeys, actionFunction) {
-      angular.forEach(hotKeys, function (key) {
+    function registerGlobalHotkeys(hotkeys, actionFunction) {
+      angular.forEach(hotkeys, function (key) {
         registerGlobalHotkey(key, actionFunction);
       });
     }
-    function registerGlobalHotkeyCode(hotKeyCode, actionFunction) {
-      globalHotKeys[HOTKEY_CODE_PREFIX + hotKeyCode] = actionFunction;
+    function registerGlobalHotkeyCode(hotkeyCode, actionFunction) {
+      globalHotkeys[HOTKEY_CODE_PREFIX + hotkeyCode] = actionFunction;
     }
-    function registerGlobalHotkeyCodes(hotKeyCodes, actionFunction) {
-      angular.forEach(hotKeyCodes, function (key) {
+    function registerGlobalHotkeyCodes(hotkeyCodes, actionFunction) {
+      angular.forEach(hotkeyCodes, function (key) {
         registerGlobalHotkeyCode(key, actionFunction);
       });
     }
     var serviceInstance = {
-        getPageHotKeyAction: getPageHotKeyAction,
-        getPageHotKeyActionCode: getPageHotKeyActionCode,
+        getPageHotkeyAction: getPageHotkeyAction,
+        getPageHotkeyActionCode: getPageHotkeyActionCode,
         getGlobalHotkeyAction: getGlobalHotkeyAction,
         getGlobalHotkeyActionCode: getGlobalHotkeyActionCode,
-        registerPageHotKey: registerPageHotKey,
-        registerPageHotKeyCode: registerPageHotKeyCode,
-        registerPageHotKeys: registerPageHotKeys,
-        registerPageHotKeyCodes: registerPageHotKeyCodes,
+        registerPageHotkey: registerPageHotkey,
+        registerPageHotkeyCode: registerPageHotkeyCode,
+        registerPageHotkeys: registerPageHotkeys,
+        registerPageHotkeyCodes: registerPageHotkeyCodes,
         registerGlobalHotkey: registerGlobalHotkey,
         registerGlobalHotkeys: registerGlobalHotkeys,
         registerGlobalHotkeyCode: registerGlobalHotkeyCode,
@@ -899,11 +900,11 @@ angular.module('twigs.globalHotkeys').factory('GlobalHotkeysService', [
           if (isForbiddenElement(event)) {
             return;
           }
-          handleHotKey(event);
+          handleHotkey(event);
         });
-        function handleHotKeyNormal(hotKey, evWhich) {
-          var completeHotkey = appendKey(hotKey, String.fromCharCode(evWhich));
-          var pageAction = GlobalHotkeysService.getPageHotKeyAction($location.path(), completeHotkey);
+        function handleHotkeyNormal(hotkey, evWhich) {
+          var completeHotkey = appendKey(hotkey, String.fromCharCode(evWhich));
+          var pageAction = GlobalHotkeysService.getPageHotkeyAction($location.path(), completeHotkey);
           if (angular.isDefined(pageAction)) {
             pageAction();
             scope.$apply();
@@ -917,9 +918,9 @@ angular.module('twigs.globalHotkeys').factory('GlobalHotkeysService', [
           }
           return false;
         }
-        function handleHotKeyCode(hotKey, evWhich) {
-          var completeHotkey = appendKey(hotKey, evWhich);
-          var pageAction = GlobalHotkeysService.getPageHotKeyActionCode($location.path(), completeHotkey);
+        function handleHotkeyCode(hotkey, evWhich) {
+          var completeHotkey = appendKey(hotkey, evWhich);
+          var pageAction = GlobalHotkeysService.getPageHotkeyActionCode($location.path(), completeHotkey);
           if (angular.isDefined(pageAction)) {
             pageAction();
             scope.$apply();
@@ -933,33 +934,33 @@ angular.module('twigs.globalHotkeys').factory('GlobalHotkeysService', [
           }
           return false;
         }
-        function handleHotKey(event) {
-          var hotKey = '';
+        function handleHotkey(event) {
+          var hotkey = '';
           if (event.ctrlKey) {
-            hotKey = appendKey(hotKey, 'ctrl');
+            hotkey = appendKey(hotkey, 'ctrl');
           }
           if (event.altKey) {
-            hotKey = appendKey(hotKey, 'alt');
+            hotkey = appendKey(hotkey, 'alt');
           }
           if (event.shiftKey) {
-            hotKey = appendKey(hotKey, 'shift');
+            hotkey = appendKey(hotkey, 'shift');
           }
           /**
                      * no way to determine if pressed key is a special key and registered with *Code
                      * We search for a normal key first, if none found, search for a special one
                      */
-          var normalHandled = handleHotKeyNormal(hotKey, event.which);
+          var normalHandled = handleHotkeyNormal(hotkey, event.which);
           if (!normalHandled) {
-            handleHotKeyCode(hotKey, event.which);
+            handleHotkeyCode(hotkey, event.which);
           }
         }
-        var appendKey = function (oldHotKey, nextKey) {
-          var hotKey = oldHotKey;
-          if (oldHotKey.length > 0) {
-            hotKey += '+';
+        var appendKey = function (oldHotkey, nextKey) {
+          var hotkey = oldHotkey;
+          if (oldHotkey.length > 0) {
+            hotkey += '+';
           }
-          hotKey += nextKey;
-          return hotKey;
+          hotkey += nextKey;
+          return hotkey;
         };
         /**
                  * returns the dom-element that fired the event.
@@ -1482,6 +1483,9 @@ angular.module('twigs.protectedRoutes').provider('ProtectedRoute', [
     this.when = function (path, route) {
       if (isProtectedRouteConfig(route)) {
         route.resolve = angular.extend(route.resolve || {}, {
+          'CurrentUser': function (Permissions) {
+            return Permissions.getUser();
+          },
           'hasPermission': function ($q, Permissions) {
             return isUserAllowedToAccessRoute($q, Permissions, route.neededRoles);
           }
@@ -1709,7 +1713,8 @@ angular.module('twigs.security').service('UserObjectSanityChecker', function () 
         var deferred = $q.defer(), loaderFn = $injector.invoke(userLoader);
         loaderFn().then(function (data) {
           if (!UserObjectSanityChecker.isSane(data)) {
-            deferred.reject('Loaded user object did not pass sanity check!');
+            console.error('Loaded user object did not pass sanity check!');
+            deferred.reject(new Error('Loaded user object did not pass sanity check!'));
           } else {
             user = data;
             deferred.resolve(data);
