@@ -63,14 +63,13 @@ describe('Service & Provider: Menu', function () {
             expect(mainMenu.items[0].name).toBe('refdata');
             expect(mainMenu.items[0].text).toBe('refdata');
             expect(mainMenu.items[0].link).toBe('/refdata/users');
-            expect(mainMenu.items[0].pxRoute).toBe('/users(/.*)?');
-            expect(mainMenu.items[0].iconClass).toBe('glyphicon glyphicon-person');
+            expect(mainMenu.items[0].options.iconClass).toBe('glyphicon glyphicon-person');
             expect(mainMenu.items[0].items.length).toBe(0);
 
             expect(mainMenu.items[1].name).toBe('logout');
             expect(mainMenu.items[1].text).toBe('logout');
             expect(mainMenu.items[1].link).toBe('/dologout');
-            expect(mainMenu.items[1].iconClass).toBe('glyphicon glyphicon-logout');
+            expect(mainMenu.items[1].options.iconClass).toBe('glyphicon glyphicon-logout');
             expect(mainMenu.items[1].items.length).toBe(0);
         });
     });
@@ -103,8 +102,7 @@ describe('Service & Provider: Menu', function () {
                     '<a x-ng-repeat="menuItem in menu.items" ' +
                     'class="list-group-item" ' +
                     'x-ng-href="#{{menuItem.link}}"' +
-                    ' px-route="{{menuItem.pxRoute}}"  ' +
-                    'x-ng-class="{active: $pxRoute}">{{menuItem.text}}</a>' +
+                    'x-ng-class="{active: menuItem.active}">{{menuItem.text}}</a>' +
                     '</div>');
             $httpBackend.whenGET('views/menu/secondaryNavigation.html').respond(
                 '<div class="list-group">' +
@@ -153,7 +151,7 @@ describe('Service & Provider: Menu', function () {
                     redirectTo: '/'
                 });
 
-            var el = angular.element('<div><twigs-menu menu-name="main_menu"></twigs-menu></div>');
+            var el = angular.element('<div><twg-menu menu-name="main_menu"></twigs-menu></div>');
             var element = whenCompiling(el);
 
             $httpBackend.flush();
@@ -211,7 +209,7 @@ describe('Service & Provider: Menu', function () {
                     redirectTo: '/'
                 });
 
-            var el = angular.element('<div><twigs-menu menu-name="secondaryNavigation"></twigs-menu></div>');
+            var el = angular.element('<div><twg-menu menu-name="secondaryNavigation"></twigs-menu></div>');
             var element = whenCompiling(el);
 
             $httpBackend.flush();
@@ -251,7 +249,7 @@ describe('Service & Provider: Menu', function () {
                     iconClass: 'glyphicon glyphicon-file'
                 });
 
-            var el = angular.element('<div><twigs-menu menu-name="secondaryNavigation"></twigs-menu></div>');
+            var el = angular.element('<div><twg-menu menu-name="secondaryNavigation"></twigs-menu></div>');
             var element = whenCompiling(el);
             $httpBackend.flush();
 

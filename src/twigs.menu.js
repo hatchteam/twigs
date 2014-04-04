@@ -17,16 +17,165 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-angular.module('twigs.menu', [])
 /**
- * Provider for programmatical creation and update of application menus.
+ * @ngdoc object
+ * @name twigs.menu.provider:MenuProvider
+ *
+ * @description
+ * MenuProvider can be used to define menus globally which can later be used in multiple views.
+ *
+ * The currently active menu item is determined over the current window location and the link defined for each menu item.
+ * If the link of a menu item matches the current path, the property menuItem.active will be true for that item.
+ *
+ * Menus can be filtered using the functionality of twigs.ProtectedRouteProvider. If the link of a menu item matches
+ * with the link of a protected route and the current users role does not meet the needed roles to access that route,
+ * the menu item will be removed from the menu.
+ * Therefore twigs.ProtectedRouteProvider must be included in your application and configured as described under [ProtectedRouteProvider](#/api/twigs.menu.provider:ProtectedRouteProvider)
+ *
+ * ### Usage
+ * You need to specify a config block to create a new Menu and you need to create a html template for the Menu content.
+ *
+ * MenuProvider.createMenu(... creates a new Menu with the given name and html template.
+ * Menuitems or submenus can be added to this menu, nested as much as you like.
+ *
+ * ```javascript
+ * angular.module('myApp').config(function (MenuProvider) {
+ *       var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html')
+ *       .addItem('main_menu_home', {
+ *           text : 'Home',
+ *           link: '/home',
+ *           iconClass: 'fa fa-desktop fa-lg'
+ *       });
+ *
+ *      var settingsMenu = mainMenu.createSubMenu('main_menu_settings',
+ *          {link: '/settings/ac',text : 'Settings-Menu', iconClass: 'fa fa-lock fa-lg'});
+ *
+ *       settingsMenu.addItem('main_menu_settings_users', {
+ *          text : 'Users',
+ *          link: '/settings/ac/users'
+ *       }).addItem('main_menu_settings_roles', {
+ *          text : 'Roles',
+ *          link: '/settings/ac/roles'
+ *      });
+ * });
+ * ```
+ * The html template 'views/mainMenu.html' referenced by MenuProvider.createMenu(...
+ * Here you can iterate over all menu.items.
+ * ```html
+ * <ul>
+ *      <li class="openable" ng-class="{'active': menuItem.active}"
+ *          x-ng-repeat="menuItem in menu.items">
+ *           <a x-ng-href="#{{menuItem.link}}">
+ *              <span class="menu-icon">
+ *                <i x-ng-class="menuItem.options.iconClass"></i>
+ *               </span>
+ *              <span class="text">
+ *                {{menuItem.text}}
+ *              </span>
+ *              <span class="menu-hover"></span>
+ *          </a>
+ *      </li>
+ * </ul>
+ * ```
+ *
+ * The directive used in every one of your pages where the menu should be displayed:
+ * ```html
+ * <twg-menu menu-name="main_menu"></twg-menu>
+ * ```
+ *
+ * ### A more complex example with nested menus:
+ * Each menu item can contain a list of menu item children. Each parent menu / children menu structure is nothing else than a menu item with a list of menu items as menu.items property.
+ * ```javascript
+ * MenuProvider.userLoadedEventName('userInitialized'); //for details see below
+ * var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html')
+ * .addItem('main_menu_home', {
+ *           text : 'Home',
+ *           link: '/home',
+ *           iconClass: 'fa fa-desktop fa-lg'
+ *       });
+ *
+ * var settingsMenu = mainMenu.createSubMenu('main_menu_settings',
+ *      {link: '/settings/ac',text : 'Settings-Menu', iconClass: 'fa fa-lock fa-lg'});
+ *
+ * settingsMenu.addItem('main_menu_settings_users', {
+ *      text : 'Users',
+ *       link: '/settings/ac/users'
+ *   }).addItem('main_menu_settings_roles', {
+ *       text : 'Roles',
+ *       link: '/settings/ac/roles'
+ *   });
+ *
+ * var ordersMenu = mainMenu.createSubMenu('main_menu_orders',
+ *      {link: '/orders/', text : 'Orders', iconClass: 'fa fa-lock fa-lg'});
+ *
+ * ordersMenu.addItem('main_menu_orders_new_order', {
+ *      text : 'New Order',
+ *      link: '/orders/new'
+ *   }).addItem('main_menu_orders_overview', {
+ *       text : 'Order Overview',
+ *       link: '/orders/overview'
+ *   });
+ * ```
+ * The corresponding html template:
+ * ```html
+ * <ul>
+ *      <li class="openable" ng-class="{'active': menuItem.active}"
+ *          x-ng-repeat="menuItem in menu.items">
+ *          <a x-ng-href="#{{menuItem.link}}">
+ *              <span class="menu-icon">
+ *                  <i x-ng-class="menuItem.options.iconClass"></i>
+ *              </span>
+ *              <span class="text">
+ *                  {{menuItem.text}}
+ *              </span>
+ *              <span class="menu-hover"></span>
+ *          </a>
+ *
+ *          <ul class="submenu" x-ng-if="menuItem.items.length > 0">
+ *              <li x-ng-repeat="subMenuItem in menuItem.items"
+ *                  ng-class="{'active': subMenuItem.active}">
+ *                  <a href="#{{subMenuItem.link}}">
+ *                          <span class="submenu-label">{{subMenuItem.text}}</span>
+ *                   </a>
+ *              </li>
+ *          </ul>
+ *      </li>
+ * </ul>
+ * ```
+ *
+ * See [twgMenu](#/api/twigs.menu.directive:twgMenu) for more information on how to use the twgMenu directive in your views.
  */
+
+/**
+ * @ngdoc directive
+ * @name twigs.menu.directive:twgMenu
+ * @element ANY
+ *
+ * @description
+ * In many web applications you will need navigations or menus which are present on all or multiple html pages. TwgMenu allows you
+ * to define those menues globally so that you only need to include a directive referencing the menu in your html page.
+ *
+ * TwgMenu registers each route change and ensures that correspondent menu entry is marked active as well as parent menu items if the menu is collapsable.
+ *
+ * TwgMenu can filter menu items with links referencing restricted routes (using twg.protectedRoutes) so that only users with the necessary access roles see those menu items.
+ * In order to use menu filtering, twg.protectedRoutes needs to be included in your app and properly configured. See [ProtectedRouteProvider](#/api/twigs.menu.provider:ProtectedRouteProvider)
+ *
+ * ```html
+ *<twigs-menu menu-name="main_menu"></twigs-menu>
+ * ```
+ *
+ * See [MenuProvider](#/api/twigs.menu.provider:MenuProvider) for more information on how to set up Menus.
+ */
+angular.module('twigs.menu', [])
     .provider('Menu', function Menu() {
         var menus = {}, userLoadedEventName;
 
         var serviceInstance = {
             createMenu: function (menuName, templateUrl) {
                 var menu = new RootMenuItem(menuName, templateUrl);
+                if(angular.isDefined(menus[menuName])){
+                    throw 'Menu is already defined: ' + menuName;
+                }
                 menus[menuName] = menu;
                 return menu;
             },
@@ -49,29 +198,35 @@ angular.module('twigs.menu', [])
         };
 
         /**
-         * Creates new menu in the system. If menu with specified menuName already exists,
-         * it will be overwritten with new menu. In order to prevent accidental overwrites
-         * when you are not sure if menu already exists, you can use getOrCreateMenu.
-         * @param {string} menuName name of the menu
-         * @returns {SubMenuItem} root instance for the new menu.
+         * @ngdoc function
+         * @name twigs.menu.provider:MenuProvider#createMenu
+         * @methodOf twigs.menu.provider:MenuProvider
+         *
+         * @description
+         * Defines a new Menu.
+         *
+         * @param {String} menuName The name of the menu
+         * @param {String} templateUrl The template used to render this menu
+         * @returns {RootMenuItem} root instance for the new menu.
+         *
+         * Example:
+         * ```javascript
+         * var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html');
+         * ```
          */
         this.createMenu = function (menuName, templateUrl) {
             return serviceInstance.createMenu(menuName, templateUrl);
         };
 
         /**
-         * Creates new menu in the system if there is no existing menu with specified menuName.
-         * Otherwise, it doesn't make any changes.
-         * @param {string} menuName name of the menu
-         * @returns {SubMenuItem} root instance for the menu.
-         */
-        this.getOrCreateMenu = function (menuName) {
-            return serviceInstance.getOrCreateMenu(menuName);
-        };
-
-        /**
+         * @ngdoc function
+         * @name twigs.menu.provider:MenuProvider#menu
+         * @methodOf twigs.menu.provider:MenuProvider
+         *
+         * @description
          * Returns root SubMenuItem instance for the menu with the specified menuName if it exists;
          * otherwise, returns undefined.
+         *
          * @param {string} menuName name of the menu
          * @returns {SubMenuItem} root instance for the menu.
          */
@@ -80,16 +235,41 @@ angular.module('twigs.menu', [])
         };
 
         /**
+         * @ngdoc function
+         * @name twigs.menu.provider:MenuProvider#removeMenu
+         * @methodOf twigs.menu.provider:MenuProvider
+         *
+         * @description
          * Removes menu with the specified menuName from the system.
-         * @param menuName name of the menu
+         *
+         * @param {string} menuName name of the menu
          */
         this.removeMenu = function (menuName) {
             serviceInstance.removeMenu(menuName);
         };
 
-        this.userLoadedEventName = function(userLoadedEventName){
+        /**
+         * @ngdoc function
+         * @name twigs.menu.provider:MenuProvider#setUserLoadedEventName
+         * @methodOf twigs.menu.provider:MenuProvider
+         *
+         * @description
+         * If the menuitems should be filtered by the current users role, a event which signals
+         * successfull loading of the user and his role needs to be specified. This event triggers
+         * a re-filtering of the menu after successful login. Otherwise the menu is always filtered
+         * pre login which means the user has no role yet.
+         * If you use twigs.security the default event name is 'userInitialized'
+         *
+         * @param {String} userLoadedEventName The name of the user successfully loaded event
+         *
+         * Example:
+         * ```javascript
+         * MenuProvider.setUserLoadedEventName('userInitialized');
+         * ```
+         */
+        this.setUserLoadedEventName = function(userLoadedEventName){
             serviceInstance.setUserLoadedEventName(userLoadedEventName);
-        }
+        };
 
         function validateMenuLink(linkFromConfig) {
             if (angular.isUndefined(linkFromConfig) || linkFromConfig.length < 1) {
@@ -112,9 +292,6 @@ angular.module('twigs.menu', [])
         function MenuItem(name){
             this.name = name;
         }
-        //inherit methods of MenuItem
-        RootMenuItem.prototype = new MenuItem(name);
-        SubMenuItem.prototype = new MenuItem(name);
 
         /**
          * Creates new RootMenuItem instance.
@@ -141,18 +318,31 @@ angular.module('twigs.menu', [])
             var _options = options || {};
             this.text = _options.text || name;
             this.link = validateMenuLink(_options.link);
-            this.pxRoute = _options.pxRoute;
-            this.iconClass = _options.iconClass;
+            this.options = _options;
         }
 
+        //inherit methods of MenuItem
+        RootMenuItem.prototype = new MenuItem(name);
+        SubMenuItem.prototype = new MenuItem(name);
+
         /**
+         * @ngdoc function
+         * @name twigs.menu.provider:MenuProvider#addItem
+         * @methodOf twigs.menu.provider:MenuProvider
+         *
+         * @description
          * Adds new item with the specified itemName to the list of the child items.
+         *
          * @param {string} itemName name of the menu item. Name should be unique in the context of
          * the whole menu (not just among direct siblings). This restriction is not strictly
          * enforced, but functionality of some of the SubMenuItem methods depend on it.
-         * @param {object} itemOptions optional parameter should be used for the configuration of
-         * the menu item and can contain same fields as SubMenuItem
+         * @param {object} itemOptions used for the configuration of the menu item.
+         * Can contain any attribute which may by referenced in the html template of your menu. itemOptions.text and itemOptions.link
+         * are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)
+         * @param {string} itemOptions.text The display text or translation key of the item
+         * @param {string} itemOptions.link The link which should be opened when the item is clicked
          * @returns {SubMenuItem} current instance
+         *
          */
         MenuItem.prototype.addItem = function (itemName, itemOptions) {
             this._createAndAddItem(itemName, itemOptions);
@@ -160,59 +350,26 @@ angular.module('twigs.menu', [])
         };
 
         /**
+         * @ngdoc function
+         * @name twigs.menu.provider:MenuProvider#createSubMenu
+         * @methodOf twigs.menu.provider:MenuProvider
+         *
+         * @description
          * Adds new submenu with the specified menuName to the list of the child items.
+         *
          * @param {string} menuName name of the submenu. Name should be unique in the context of
          * the whole menu (not just among direct siblings). This restriction is not strictly
          * enforced, but functionality of some of the SubMenuItem methods depend on it.
-         * @param {object} menuOptions optional parameter should be used for the configuration of
-         * the submenu and can contain same fields as SubMenuItem
+         * * @param {object} menuOptions used for the configuration of the menu item.
+         * Can contain any attribute which may by referenced in the html template of your menu. itemOptions.text and itemOptions.link
+         * are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)
+         * @param {string} menuOptions.text The display text or translation key of the item
+         * @param {string} menuOptions.link The link which should be opened when the item is clicked
          * @returns {SubMenuItem} instance for the new submenu
+         *
          */
         MenuItem.prototype.createSubMenu = function (menuName, menuOptions) {
             return this._createAndAddItem(menuName, menuOptions);
-        };
-
-        /**
-         * Finds the item with the specified itemName among all descendants of the current
-         * instance (not just among direct child items).
-         * @param {string} itemName name of the item to find
-         * @returns {SubMenuItem} instance for the requested item if exists; otherwise undefined
-         */
-        MenuItem.prototype.findItem = function (itemName) {
-            // TODO: Maybe think of another visiting strategy
-            for (var i = 0; i < this.items.length; i++) {
-                var item = this.items[i];
-                if (item.name === itemName) {
-                    return item;
-                }
-                var subItem = item.findItem(itemName);
-                if (subItem) {
-                    return subItem;
-                }
-            }
-            return null; // or maybe throw exception?
-        };
-
-        /**
-         * Removes the item with the specified itemName from system. System will try to find
-         * and remove first item among all descendants of the current instance (not just among
-         * direct child items).
-         * @param {string} itemName name of the item to remove
-         * @returns {boolean} true if item was removed; otherwise false
-         */
-        MenuItem.prototype.removeItem = function (itemName) {
-            // TODO: Maybe think of another visiting strategy
-            for (var i = 0; i < this.items.length; i++) {
-                var item = this.items[i];
-                if (item.name === itemName) {
-                    this.items.splice(i, 1);
-                    return true;
-                }
-                if (item.removeItem(itemName)) {
-                    return true;
-                }
-            }
-            return false;
         };
 
         MenuItem.prototype._createAndAddItem = function (itemName, itemOptions) {
@@ -284,11 +441,9 @@ angular.module('twigs.menu', [])
         };
     })
 
-    .directive('twigsMenu', function ($rootScope, $location, $log, Menu, MenuPermissionService) {
+    .directive('twgMenu', function ($rootScope, $location, $log, Menu, MenuPermissionService) {
         return {
             restrict: 'E',
-            controller: function ($scope) {
-            },
             link : function(scope, element, attrs){
 
                 function setActiveMenuEntryRecursively(path, menu){
@@ -346,7 +501,7 @@ angular.module('twigs.menu', [])
                 });
             },
             templateUrl: function(element, attrs){
-                return Menu.menu(attrs.menuName).templateUrl
+                return Menu.menu(attrs.menuName).templateUrl;
             }
         };
     });
