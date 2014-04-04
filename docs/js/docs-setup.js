@@ -86,19 +86,19 @@ NG_DOCS={
     },
     {
       "section": "api",
-      "id": "twigs.globalHotKeys.directive:twgGlobalHotkeys",
+      "id": "twigs.globalHotkeys.directive:twgGlobalHotkeys",
       "shortName": "twgGlobalHotkeys",
       "type": "directive",
-      "moduleName": "twigs.globalHotKeys",
+      "moduleName": "twigs.globalHotkeys",
       "shortDescription": "This directive registers for the &#39;keydown&#39; event and forwards them to",
       "keywords": "_html_ api buttons catch current custom defined directive element elements event events form forwards function global globalhotkeys hotkey hotkeys ignores key keydown keystrokes links order registers service twigs"
     },
     {
       "section": "api",
-      "id": "twigs.globalHotKeys.service:GlobalHotkeysService",
+      "id": "twigs.globalHotkeys.service:GlobalHotkeysService",
       "shortName": "GlobalHotkeysService",
       "type": "service",
-      "moduleName": "twigs.globalHotKeys",
+      "moduleName": "twigs.globalHotkeys",
       "shortDescription": "GlobalHotkeys allows you to assign actions to specific keyboard key combinations.",
       "keywords": "$location actionfunction actions active add allows alt angular api app application array arrows assign buttons call callback combinations controller controllers current define defined directive events explicitly fields function global globalhotkeys globalhotkeysservice globally hotkey hotkeys html-element input invoked javascript key keyboard keycode keycodes keydown links main module order overridden override path path-specific pressed register registerglobalhotkey registerglobalhotkeycode registerglobalhotkeycodes registerglobalhotkeys registerpagehotkey registerpagehotkeycode registerpagehotkeycodes registerpagehotkeys route- service shift single somecontroller special specific string top-element trigger twg-global-hotkeys twigs var view work"
     },
