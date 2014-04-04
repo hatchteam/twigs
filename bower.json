@@ -1,7 +1,7 @@
 {
   "name": "twigs",
   "version": "0.1.2",
-  "main": "./twigs.js",
+  "main": "./dist/twigs.js",
   "ignore": [
     "test",
     "node_modules",

@@ -65,4 +65,5 @@ angular.module('twigs', [
     'twigs.sortable',
     'twigs.dynamicSize',
     'twigs.tableRowClick',
+    'twigs.globalPopups',
     'twigs.protectedRoutes']);

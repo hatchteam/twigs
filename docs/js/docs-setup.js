@@ -86,19 +86,19 @@ NG_DOCS={
     },
     {
       "section": "api",
-      "id": "twigs.globalHotKeys.directive:twgGlobalHotkeys",
+      "id": "twigs.globalHotkeys.directive:twgGlobalHotkeys",
       "shortName": "twgGlobalHotkeys",
       "type": "directive",
-      "moduleName": "twigs.globalHotKeys",
+      "moduleName": "twigs.globalHotkeys",
       "shortDescription": "This directive registers for the &#39;keydown&#39; event and forwards them to",
       "keywords": "_html_ api buttons catch current custom defined directive element elements event events form forwards function global globalhotkeys hotkey hotkeys ignores key keydown keystrokes links order registers service twigs"
     },
     {
       "section": "api",
-      "id": "twigs.globalHotKeys.service:GlobalHotkeysService",
+      "id": "twigs.globalHotkeys.service:GlobalHotkeysService",
       "shortName": "GlobalHotkeysService",
       "type": "service",
-      "moduleName": "twigs.globalHotKeys",
+      "moduleName": "twigs.globalHotkeys",
       "shortDescription": "GlobalHotkeys allows you to assign actions to specific keyboard key combinations.",
       "keywords": "$location actionfunction actions active add allows alt angular api app application array arrows assign buttons call callback combinations controller controllers current define defined directive events explicitly fields function global globalhotkeys globalhotkeysservice globally hotkey hotkeys html-element input invoked javascript key keyboard keycode keycodes keydown links main module order overridden override path path-specific pressed register registerglobalhotkey registerglobalhotkeycode registerglobalhotkeycodes registerglobalhotkeys registerpagehotkey registerpagehotkeycode registerpagehotkeycodes registerpagehotkeys route- service shift single somecontroller special specific string top-element trigger twg-global-hotkeys twigs var view work"
     },
@@ -119,6 +119,24 @@ NG_DOCS={
       "moduleName": "twigs.globalPopups",
       "shortDescription": "GlobalPopupsProvider can be used to define custom GlobalPopups or override twitch default GlobalPopups.",
       "keywords": "$close additionally admin angular api automatically awesome backdrop block bootstrap browser browsers btn btn-default button class conatining config content controller create createfilemodal createmodal createtoast custom default define defines directly disappear display displayduration empty example false file filedialog files function github globalpopup globalpopups globalpopupsprovider hidden html http infodialog io javascript keyboard left location message messagename miliseconds modal modal-body modal-file modal-footer modal-header modal-info modal-myownpopup modaloptions modals module myapp myownpopup ng-click object options override pdf popup properties property provider required saved splayduration static template templates templateurl timeout title toast true twigs twitch type usage user userctrl views warningtoast windowclass"
+    },
+    {
+      "section": "api",
+      "id": "twigs.menu.directive:twgMenu",
+      "shortName": "twgMenu",
+      "type": "directive",
+      "moduleName": "twigs.menu",
+      "shortDescription": "In many web applications you will need navigations or menus which are present on all or multiple html pages. TwgMenu allows you",
+      "keywords": "access active allows api app applications change collapsable configured correspondent define directive ensures entry filter filtering globally html include included items links main_menu marked menu menu-name menues menus multiple navigations order parent properly protectedroutes provider referencing registers restricted roles route routes set twg twgmenu twigs users web"
+    },
+    {
+      "section": "api",
+      "id": "twigs.menu.provider:MenuProvider",
+      "shortName": "MenuProvider",
+      "type": "object",
+      "moduleName": "twigs.menu",
+      "shortDescription": "MenuProvider can be used to define menus globally which can later be used in multiple views.",
+      "keywords": "access accessible active additem adds angular api application attribute block child children class clicked complex config configuration configured content context corresponding create createmenu creates createsubmenu current currently default define defined defines depend described details determined direct directive directly display displayed enforced event example exists fa fa-desktop fa-lg fa-lock filtered function functionality globally href html iconclass included instance item itemname itemoptions items iterate javascript key length link list loaded loading location login main_menu main_menu_home main_menu_orders main_menu_orders_new_order main_menu_orders_overview main_menu_settings main_menu_settings_roles main_menu_settings_users mainmenu mapped matches meet menu menu-hover menu-icon menu-name menuitem menuitems menuname menuoptions menuprovider menus methods module multiple myapp needed nested ng-class object openable opened options order orders ordersmenu overview parent path pre predefined property protected protectedrouteprovider provider re-filtering referenced removed removemenu removes render restriction returns role roles root route security settings-menu settingsmenu setuserloadedeventname siblings signals strictly structure submenu submenu-label submenuitem submenus successful successfull template templateurl text translation triggers true twgmenu twigs undefined unique usage user userinitialized userloadedeventname users var views window x-ng-class x-ng-href x-ng-if x-ng-repeat"
     },
     {
       "section": "api",
