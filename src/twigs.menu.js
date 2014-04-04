@@ -224,7 +224,7 @@ angular.module('twigs.menu', [])
          * @methodOf twigs.menu.provider:MenuProvider
          *
          * @description
-         * Returns root SubMenuItem instance for the menu with the specified menuName if it exists;
+         * Returns the root menu item instance for the menu with the specified menuName if it exists;
          * otherwise, returns undefined.
          *
          * @param {string} menuName name of the menu
@@ -240,7 +240,7 @@ angular.module('twigs.menu', [])
          * @methodOf twigs.menu.provider:MenuProvider
          *
          * @description
-         * Removes menu with the specified menuName from the system.
+         * Removes menu with the specified menuName
          *
          * @param {string} menuName name of the menu
          */
@@ -331,7 +331,7 @@ angular.module('twigs.menu', [])
          * @methodOf twigs.menu.provider:MenuProvider
          *
          * @description
-         * Adds new item with the specified itemName to the list of the child items.
+         * Adds new item with the specified itemName to the list of the child items of a menu item.
          *
          * @param {string} itemName name of the menu item. Name should be unique in the context of
          * the whole menu (not just among direct siblings). This restriction is not strictly
@@ -355,7 +355,7 @@ angular.module('twigs.menu', [])
          * @methodOf twigs.menu.provider:MenuProvider
          *
          * @description
-         * Adds new submenu with the specified menuName to the list of the child items.
+         * Adds a new submenu with the specified menuName to the list of the child items of a menu item.
          *
          * @param {string} menuName name of the submenu. Name should be unique in the context of
          * the whole menu (not just among direct siblings). This restriction is not strictly
@@ -451,6 +451,7 @@ angular.module('twigs.menu', [])
 
                     if(angular.isDefined(menu.items) && menu.items.length > 0){
                         angular.forEach(menu.items, function (item) {
+                            item.active=false;
                             if(setActiveMenuEntryRecursively(path, item) === true){
                                 subItemFound = true;
                                 item.active = true;
@@ -468,16 +469,6 @@ angular.module('twigs.menu', [])
                         return menu.link === path;
                     }
                 }
-                function deactivateAllMenuItems(menu){
-                    menu.active = false;
-                    if(angular.isDefined(menu.items) && menu.items.length > 0){
-                        angular.forEach(menu.items, function (item) {
-                            deactivateAllMenuItems(item);
-                        });
-                    } else {
-                        menu.active = false;
-                    }
-                }
 
                 var menu = angular.copy(Menu.menu(attrs.menuName));
                 scope.menu = MenuPermissionService.filterMenuForRouteRestrictions(menu);
@@ -492,11 +483,9 @@ angular.module('twigs.menu', [])
                     $log.debug("twigs.menu has no user initialized event registered. This may cause problems when using twigs.menu permission filtering");
                 }
 
-                deactivateAllMenuItems(scope.menu);
                 setActiveMenuEntryRecursively($location.path(), scope.menu);
 
                 $rootScope.$on('$routeChangeSuccess', function () {
-                    deactivateAllMenuItems(scope.menu);
                     setActiveMenuEntryRecursively($location.path(), scope.menu);
                 });
             },
