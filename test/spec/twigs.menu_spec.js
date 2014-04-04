@@ -34,9 +34,7 @@ describe('Service & Provider: Menu', function () {
     });
 
     describe('Menu Provider', function () {
-        /**
-         * Inject Menu Service
-         */
+
         beforeEach(inject(function (_Menu_) {
             Menu = _Menu_;
         }));
@@ -45,13 +43,14 @@ describe('Service & Provider: Menu', function () {
             expect(MenuProvider).toBeDefined();
 
             var mainMenu = MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html")
-                .addItem('refdata', {
+                .addItem('main_menu_refdata', {
                     link: '/refdata/users',
-                    pxRoute: '/users(/.*)?',
+                    text: 'Reference Data',
                     iconClass: 'glyphicon glyphicon-person'
                 })
-                .addItem('logout', {
+                .addItem('main_menu_logout', {
                     link: '/dologout',
+                    text: 'Logout',
                     iconClass: 'glyphicon glyphicon-logout'
                 });
 
@@ -60,14 +59,14 @@ describe('Service & Provider: Menu', function () {
             expect(mainMenu.templateUrl).toBe('views/menu/mainMenuTemplate.html');
             expect(mainMenu.items.length).toBe(2);
 
-            expect(mainMenu.items[0].name).toBe('refdata');
-            expect(mainMenu.items[0].text).toBe('refdata');
+            expect(mainMenu.items[0].name).toBe('main_menu_refdata');
+            expect(mainMenu.items[0].text).toBe('Reference Data');
             expect(mainMenu.items[0].link).toBe('/refdata/users');
             expect(mainMenu.items[0].options.iconClass).toBe('glyphicon glyphicon-person');
             expect(mainMenu.items[0].items.length).toBe(0);
 
-            expect(mainMenu.items[1].name).toBe('logout');
-            expect(mainMenu.items[1].text).toBe('logout');
+            expect(mainMenu.items[1].name).toBe('main_menu_logout');
+            expect(mainMenu.items[1].text).toBe('Logout');
             expect(mainMenu.items[1].link).toBe('/dologout');
             expect(mainMenu.items[1].options.iconClass).toBe('glyphicon glyphicon-logout');
             expect(mainMenu.items[1].items.length).toBe(0);
@@ -104,6 +103,7 @@ describe('Service & Provider: Menu', function () {
                     'x-ng-href="#{{menuItem.link}}"' +
                     'x-ng-class="{active: menuItem.active}">{{menuItem.text}}</a>' +
                     '</div>');
+
             $httpBackend.whenGET('views/menu/secondaryNavigation.html').respond(
                 '<div class="list-group">' +
                     '<div x-ng-if="menuItem.items.length > 0" x-ng-repeat="menuItem in menu.items"><span class="menuItem" ng-class="{active: menuItem.active}">{{menuItem.text}}</span>'+
@@ -142,10 +142,12 @@ describe('Service & Provider: Menu', function () {
                 .when('/refdata/users', {
                     templateUrl: 'views/refdata/users.html',
                     controller: 'UsersCtrl',
+                    //user posesses this role
                     neededRoles: ['ADMIN']})
                 .when('/forbidden', {
                     templateUrl: 'forbidden.html',
                     controller: 'ForbiddenCtrl',
+                    //user does not posess this role
                     neededRoles: ['RESTRICTED']
                 }).otherwise({
                     redirectTo: '/'
@@ -191,20 +193,20 @@ describe('Service & Provider: Menu', function () {
                 .when('/import/claim', {
                     templateUrl: 'views/import/claim.html',
                     controller: 'UsersCtrl',
-                    neededRoles: ['RESTRICTED']})
+                    neededRoles: ['RESTRICTED']})  //user does not posess this role
                 .when('/import/damage', {
                     templateUrl: 'views/import/damage.html',
                     controller: 'ForbiddenCtrl',
-                    neededRoles: ['RESTRICTED']
+                    neededRoles: ['RESTRICTED']  //user does not posess this role
                 })
                 .when('/export/claim', {
                     templateUrl: 'views/export/claim.html',
                     controller: 'UsersCtrl',
-                    neededRoles: ['RESTRICTED']})
+                    neededRoles: ['RESTRICTED']})  //user does not posess this role
                 .when('/export/damage', {
                     templateUrl: 'views/export/damage.html',
                     controller: 'ForbiddenCtrl',
-                    neededRoles: ['ADMIN']
+                    neededRoles: ['ADMIN']  //user does posesses this role
                 }).otherwise({
                     redirectTo: '/'
                 });
@@ -226,6 +228,7 @@ describe('Service & Provider: Menu', function () {
             $rootScope.$apply();
         }
 
+        //checks if, when a child menu item is active due to the browsers current path and the menu items link, all parent items of the active child item are set active.
         it('sets menu tree active recursively depending on current route', function () {
             var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
             var dataImportMenu = tabMenu.createSubMenu('secondaryNavigation_dataImport', {pxRoute: '/import(/.*)?'})
