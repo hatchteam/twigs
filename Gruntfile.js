@@ -11,7 +11,8 @@ module.exports = function (grunt) {
     // configurable paths
     var yeomanConfig = {
         app: 'src',
-        dist: 'dist'
+        dist: 'dist',
+        demo: 'demo'
     };
 
     try {
@@ -32,10 +33,12 @@ module.exports = function (grunt) {
         watch: {
             livereload: {
                 files: [
-                    '<%= yeoman.app %>/{,*/}*.html',
-                    '{.tmp,<%= yeoman.app %>}/styles/{,*/}*.css',
-                    '{.tmp,<%= yeoman.app %>}/{,*/}*.js',
-                    '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+                    'components/{,*/}*.js',
+                    'dist/{,*/}*.js',
+                    '<%= yeoman.demo %>/{,*/}*.html',
+                    '{.tmp,<%= yeoman.demo %>}/styles/{,*/}*.css',
+                    '{.tmp,<%= yeoman.demo %>}/{,*/}*.js',
+                    '<%= yeoman.demo %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
                 ],
                 tasks: ['livereload']
             }
@@ -52,7 +55,9 @@ module.exports = function (grunt) {
                         return [
                             lrSnippet,
                             mountFolder(connect, '.tmp'),
-                            mountFolder(connect, yeomanConfig.app)
+                            mountFolder(connect, yeomanConfig.demo) ,
+                            mountFolder(connect, 'components'),
+                            mountFolder(connect, 'dist')
                         ];
                     }
                 }
@@ -206,15 +211,23 @@ module.exports = function (grunt) {
             }
         },
         ngtemplates: {
-            'twigs.templates':{
-               src: 'templates/*.html',
-               dest: '.tmp/templates.js'
+            'twigs.templates': {
+                src: 'templates/*.html',
+                dest: '.tmp/templates.js'
             }
         }
     });
 
     grunt.renameTask('regarde', 'watch');
 
+
+    grunt.registerTask('demo', [
+        'clean:server',
+        'livereload-start',
+        'connect:livereload',
+        'open',
+        'watch'
+    ]);
 
     grunt.registerTask('docu', [
         'ngdocs'
