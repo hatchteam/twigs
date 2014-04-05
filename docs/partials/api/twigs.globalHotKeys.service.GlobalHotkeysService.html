@@ -13,13 +13,13 @@ In order for it to work, add the &#39;twg-global-hotkeys&#39; directive to the t
 
 App.run(function ($location, GlobalHotkeysService) {
 
-   GlobalHotkeysService.registerGlobalHotkeys([&quot;alt+h&quot;, &quot;shift+h&quot;], function () {
+   GlobalHotkeysService.registerGlobalHotkeys([&quot;alt+h&quot;, &quot;shift+h&quot;], function (ev) {
        // go to home view
        $location.path(&#39;/#&#39;);
    });
 
 
-   GlobalHotkeysService.registerGlobalHotkeys([&quot;alt+a&quot;, &quot;shift+a&quot;], function () {
+   GlobalHotkeysService.registerGlobalHotkeys([&quot;alt+a&quot;, &quot;shift+a&quot;], function (ev) {
        // do something here
    });
 
