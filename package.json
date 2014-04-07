@@ -29,13 +29,16 @@
         "karma-junit-reporter": "0.2.1",
         "karma-coverage": "0.2.1",
         "grunt-karma": "~0.7.2",
+        "protractor": "~0.21.0",
+        "grunt-protractor-runner": "~0.2.4",
         "grunt-open": "~0.2.0",
         "matchdep": "~0.1.1",
         "grunt-google-cdn": "~0.1.1",
         "grunt-ngmin": "~0.0.2",
         "phantomjs": "~1.9.7",
         "grunt-ngdocs": "~0.2.1",
-        "grunt-angular-templates": "0.5.3"
+        "grunt-angular-templates": "0.5.3",
+        "scenarioo-js": "0.1.6"
     },
     "engines": {
         "node": ">=0.8.0"

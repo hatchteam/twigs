@@ -124,6 +124,23 @@ module.exports = function (grunt) {
                 autoWatch: true
             }
         },
+        protractor: {
+            options: {
+                configFile: "node_modules/protractor/referenceConf.js", // Default config file
+                keepAlive: false, // If false, the grunt process stops when the test fails.
+                noColor: false, // If true, protractor will not use colors in its output.
+                args: {
+                    // Arguments passed to the command
+                }
+            },
+            e2e: {
+                configFile: "protractor-e2e.conf.js",
+                options: {
+                    args: {
+                    } // Target-specific arguments
+                }
+            }
+        },
         concat: {
             dist: {
                 files: {
@@ -232,7 +249,7 @@ module.exports = function (grunt) {
     grunt.renameTask('regarde', 'watch');
 
 
-    grunt.registerTask('demo', [
+    grunt.registerTask('server', [
         'clean:server',
         'livereload-start',
         'configureRewriteRules',  // this is to enable grunt-connect-rewrite
@@ -244,7 +261,6 @@ module.exports = function (grunt) {
     grunt.registerTask('docu', [
         'ngdocs'
     ]);
-
 
     grunt.registerTask('test:unit', [
         'clean:server',
@@ -258,6 +274,11 @@ module.exports = function (grunt) {
         'ngtemplates',
         'connect:test',
         'karma:unitwatch'
+    ]);
+
+
+    grunt.registerTask('test:e2e', [
+        'protractor:e2e'
     ]);
 
     grunt.registerTask('build', [

@@ -27,7 +27,7 @@ angular.module('twigsDemo')
             $scope.selectedCountries = idObjectArray;
         };
 
-        $scope.setSelectedCountry(2);
-        $scope.setSelectedCountries([1, 3]);
+        $scope.setSelectedCountry(3);
+        $scope.setSelectedCountries([1,2]);
 
     });
