@@ -1,0 +1,16 @@
+
+.header-placeholder {
+    height: 50px;
+}
+
+.hotkey-area {
+    width: 100%;
+    height: 300px;
+    border: 1px solid #ccc;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.select2-container {
+    width: 100%;
+}

@@ -23,6 +23,24 @@ NG_DOCS={
     },
     {
       "section": "api",
+      "id": "twigs.choose.directive:twgChooseMultiple",
+      "shortName": "twgChooseMultiple",
+      "type": "directive",
+      "moduleName": "twigs.choose",
+      "shortDescription": "Creates a ui-select2 choose multi-select element.",
+      "keywords": "api array attribute attributes changed choice choices choose creates directive displayed dropdown element equal mapping model multi-select object properly selecting text twigs ui-select2 variable work"
+    },
+    {
+      "section": "api",
+      "id": "twigs.choose.directive:twgChooseSingle",
+      "shortName": "twgChooseSingle",
+      "type": "directive",
+      "moduleName": "twigs.choose",
+      "shortDescription": "Creates a ui-select2 choose dropdown element.",
+      "keywords": "api array attribute attributes changed choice choices choose creates directive displayed dropdown element equal mapping model object properly selecting text twigs ui-select2 variable work"
+    },
+    {
+      "section": "api",
       "id": "twigs.devel.controller:DevelopmentInfoCtrl",
       "shortName": "DevelopmentInfoCtrl",
       "type": "object",

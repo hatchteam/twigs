@@ -24,10 +24,18 @@ angular.module('twigs.devel', ['ngCookies']);
 angular.module('twigs.dynamicSize', []);
 angular.module('twigs.flow', []);
 angular.module('twigs.templates', []);
-angular.module('twigs.globalHotkeys', ['twigs.templates']);
+angular.module('twigs.choose', [
+  'ui.select2',
+  'twigs.templates'
+]);
+angular.module('twigs.globalHotkeys', []);
 angular.module('twigs.security', []);
 angular.module('twigs.sortable', []);
 angular.module('twigs.tableRowClick', ['twigs.security']);
+angular.module('twigs.globalPopups', [
+  'ui.bootstrap.modal',
+  'twigs.templates'
+]);
 angular.module('twigs.protectedRoutes', [
   'twigs.security',
   'ngRoute'
@@ -47,6 +55,7 @@ angular.module('twigs.protectedRoutes', [
 angular.module('twigs', [
   'twigs.activeRoute',
   'twigs.devel',
+  'twigs.choose',
   'twigs.flow',
   'twigs.globalHotkeys',
   'twigs.security',
@@ -160,6 +169,174 @@ angular.module('twigs.activeRoute').directive('twgActiveRoute', [
     };
   }
 ]);
+'use strict';
+/* twigs
+ * Copyright (C) 2014, Hatch Development Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+angular.module('twigs.choose').service('ChooseConfig', function ChooseConfig() {
+  var noResultMessage = 'No results';
+  function setNoResultMessage(message) {
+    noResultMessage = message;
+  }
+  function getNoResultMessage() {
+    return noResultMessage;
+  }
+  return {
+    setNoResultMessage: setNoResultMessage,
+    getNoResultMessage: getNoResultMessage
+  };
+}).service('ChooseHelper', [
+  'ChooseConfig',
+  function ChooseHelper(ChooseConfig) {
+    function convertExternToInternMultiple(externNgModel) {
+      if (angular.isUndefined(externNgModel)) {
+        return;
+      }
+      if (!angular.isArray(externNgModel)) {
+        throw 'With multiple selection, model is expected to be an array!';
+      }
+      if (externNgModel.length < 1) {
+        return;
+      }
+      var mappedArray = [];
+      externNgModel.forEach(function (element) {
+        if (angular.isDefined(element.id)) {
+          mappedArray.push(element.id);
+        } else {
+          mappedArray.push(element);
+        }
+      });
+      return mappedArray;
+    }
+    function convertExternToInternSingle(externNgModel) {
+      if (angular.isUndefined(externNgModel)) {
+        return externNgModel;
+      }
+      if (angular.isDefined(externNgModel.id)) {
+        return externNgModel.id;
+      } else {
+        return externNgModel;
+      }
+    }
+    function convertInternToExternMultiple(internBinding) {
+      if (!angular.isArray(internBinding)) {
+        throw 'With multiple selection, intern model is expected to be an array!';
+      }
+      var mappedArray = [];
+      internBinding.forEach(function (currentItem) {
+        mappedArray.push({ id: toInt(currentItem) });
+      });
+      return mappedArray;
+    }
+    function convertInternToExternSingle(internBinding) {
+      return { id: toInt(internBinding) };
+    }
+    function toInt(input) {
+      if (typeof input === 'number') {
+        return input;
+      }
+      return parseInt(input, 10);
+    }
+    function getChoiceLabel(choice, propertyName) {
+      if (angular.isUndefined(propertyName) || propertyName === '' || angular.isUndefined(choice[propertyName])) {
+        return choice;
+      } else {
+        return choice[propertyName];
+      }
+    }
+    function getDefaultSelect2Options(customNoResultMessage) {
+      var formatNoMatchesValue;
+      if (angular.isDefined(customNoResultMessage) && customNoResultMessage.length > 0) {
+        formatNoMatchesValue = customNoResultMessage;
+      } else {
+        formatNoMatchesValue = ChooseConfig.getNoResultMessage();
+      }
+      return {
+        'formatNoMatches': function () {
+          return formatNoMatchesValue;
+        }
+      };
+    }
+    return {
+      convertExternToInternMultiple: convertExternToInternMultiple,
+      convertExternToInternSingle: convertExternToInternSingle,
+      convertInternToExternMultiple: convertInternToExternMultiple,
+      convertInternToExternSingle: convertInternToExternSingle,
+      getChoiceLabel: getChoiceLabel,
+      getDefaultSelect2Options: getDefaultSelect2Options
+    };
+  }
+]).directive('twgChooseSingle', [
+  'ChooseHelper',
+  function (ChooseHelper) {
+    return {
+      templateUrl: 'templates/chooseSingle.html',
+      replace: true,
+      restrict: 'E',
+      require: '?ngModel',
+      scope: {
+        choices: '=',
+        ngModel: '=',
+        choiceDisplayname: '@',
+        noResultMessage: '@'
+      },
+      link: function (scope, element, attrs, ngModelController) {
+        ngModelController.$formatters.push(function (modelValue) {
+          return ChooseHelper.convertExternToInternSingle(modelValue);
+        });
+        ngModelController.$parsers.push(function (viewValue) {
+          return ChooseHelper.convertInternToExternSingle(viewValue);
+        });
+        scope.getLabel = function (choice) {
+          return ChooseHelper.getChoiceLabel(choice, scope.choiceDisplayname);
+        };
+        scope.select2Options = ChooseHelper.getDefaultSelect2Options(scope.noResultMessage);
+      }
+    };
+  }
+]).directive('twgChooseMultiple', [
+  'ChooseHelper',
+  function (ChooseHelper) {
+    return {
+      templateUrl: 'templates/chooseMultiple.html',
+      replace: true,
+      restrict: 'E',
+      require: '?ngModel',
+      scope: {
+        choices: '=',
+        ngModel: '=',
+        choiceDisplayname: '@',
+        noResultMessage: '@'
+      },
+      link: function (scope, element, attrs, ngModelController) {
+        ngModelController.$formatters.push(function (modelValue) {
+          return ChooseHelper.convertExternToInternMultiple(modelValue);
+        });
+        ngModelController.$parsers.push(function (viewValue) {
+          return ChooseHelper.convertInternToExternMultiple(viewValue);
+        });
+        scope.getLabel = function (choice) {
+          return ChooseHelper.getChoiceLabel(choice, scope.choiceDisplayname);
+        };
+        scope.select2Options = ChooseHelper.getDefaultSelect2Options(scope.noResultMessage);
+      }
+    };
+  }
+]);
+;
 'use strict';
 /* twigs
  * Copyright (C) 2014, Hatch Development Team
@@ -1126,7 +1303,7 @@ angular.module('twigs.globalHotkeys').factory('GlobalHotkeysService', [
  *           });
  * ```
  */
-angular.module('twigs.globalPopups', ['ui.bootstrap.modal']).provider('GlobalPopups', function GlobalPopupsProvider() {
+angular.module('twigs.globalPopups').provider('GlobalPopups', function GlobalPopupsProvider() {
   var serviceInstance = {};
   this.modals = {};
   this.toasts = {};
@@ -2517,6 +2694,8 @@ angular.module('twigs.templates').run([
   '$templateCache',
   function ($templateCache) {
     'use strict';
+    $templateCache.put('templates/chooseMultiple.html', '<select multiple="true" ui-select2="select2Options">\r' + '\n' + '    <option value="{{choice.id}}" ng-repeat="choice in choices">{{getLabel(choice)}}</option>\r' + '\n' + '</select>');
+    $templateCache.put('templates/chooseSingle.html', '<select ui-select2="select2Options">\r' + '\n' + '    <option value="{{choice.id}}" ng-repeat="choice in choices">{{getLabel(choice)}}</option>\r' + '\n' + '</select>\r' + '\n' + '\r' + '\n');
     $templateCache.put('templates/errorModal.html', '<div class="modal-header">\r' + '\n' + '    <button type="button" class="close" x-ng-click="$close()" aria-hidden="true">&times;</button>\r' + '\n' + '    <h3><i class="glyphicon glyphicon-exclamation-sign"></i>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <p>{{message}}</p>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{primaryButtonText}}</button>\r' + '\n' + '</div>');
     $templateCache.put('templates/fileModal.html', '<div class="modal-header">\r' + '\n' + '    <h3>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <iframe id="modal-fileframe" x-ng-src="{{message}}"></iframe>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{backButtonText}}</button>\r' + '\n' + '</div>');
     $templateCache.put('templates/infoModal.html', '<div class="modal-header">\r' + '\n' + '    <button type="button" class="close" x-ng-click="$close()">&times;</button>\r' + '\n' + '    <h3><i class="glyphicon glyphicon-info-sign"></i>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <p>{{message}}</p>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{primaryButtonText}}</button>\r' + '\n' + '</div>');

@@ -1,0 +1,44 @@
+<section id="choose" ng-controller="DemoChooseCtrl">
+    <div class="page-header">
+        <h1>Choose</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="form-group">
+                <p>Single choice</p>
+                <twg-choose-single choices="allCountries" ng-model="selectedCountry"
+                                   choice-displayname="name"></twg-choose-single>
+                <button class="btn btn-sm btn-success" ng-click="setSelectedCountry(2);">Manually set selected item to
+                    id 2.
+                </button>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="alert alert-info">
+                Selected value is an &quot;idified&quot; object.<br/> {{selectedCountry}}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="form-group">
+                <p>Multiple choice</p>
+                <twg-choose-multiple choices="allCountries" ng-model="selectedCountries"
+                                     choice-displayname="name"></twg-choose-multiple>
+                <button class="btn btn-sm btn-success" ng-click="setSelectedCountries([1,3]);">Manually set selected
+                    items to
+                    ids 1 and 3
+                </button>
+
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="alert alert-info">
+                Selected value is an array of &quot;idified&quot; objects.<br/> {{selectedCountries }}
+            </div>
+        </div>
+    </div>
+
+</section>

@@ -1,0 +1,40 @@
+<section id="hotkeys" ng-controller="DemoHotkeysCtrl" twg-global-hotkeys>
+    <div class="page-header">
+        <h1>GlobalHotkeys</h1>
+    </div>
+
+
+    <div class="row">
+
+        <div class="col-md-7">
+            <input type="text" placeholder="Will not trigger in input field..." class="form-control"/>
+            <textarea class="form-control">Will not trigger in textarea...</textarea>
+            <select class="form-control">
+                <option>Will not trigger on select...</option>
+                <option>Monday</option>
+                <option>Tuesday</option>
+            </select>
+            <button class="btn btn-sm">Will not trigger on button...</button>
+            <a href="#">Will not trigger on link (focus this with tabulator)...</a>
+        </div>
+
+        <div class="col-md-5">
+            <dl class="dl-horizontal">
+                <dt>a</dt>
+                <dd>Message</dd>
+                <dt>arrow down</dt>
+                <dd>Message (registered via keycode)</dd>
+
+            </dl>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <strong>Callback:</strong> {{message}}
+            </div>
+        </div>
+    </div>
+</section>

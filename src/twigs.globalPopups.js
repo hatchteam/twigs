@@ -144,7 +144,7 @@
  *           });
  * ```
  */
-angular.module('twigs.globalPopups', ['ui.bootstrap.modal'])
+angular.module('twigs.globalPopups')
 
     .provider('GlobalPopups', function GlobalPopupsProvider() {
         var serviceInstance = {};

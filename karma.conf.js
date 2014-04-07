@@ -20,8 +20,11 @@ module.exports = function (config) {
             'components/angular-mocks/angular-mocks.js',
             'components/angular-bootstrap/ui-bootstrap.min.js',
             'components/angular-route/angular-route.js',
+            'components/select2/select2.js',
+            'components/angular-ui-select2/src/select2.js',
             'src/*.js',
             'src/*.js',
+            '.tmp/templates.js',
             'test/spec/**/*.js'
         ],
 
@@ -31,7 +34,16 @@ module.exports = function (config) {
 
         ],
 
-        reporters: ['progress'],
+        preprocessors: {
+            'src/*.js': 'coverage'
+        },
+
+        reporters: ['progress', 'coverage'],
+
+        coverageReporter: {
+            type: 'html',
+            dir: 'coverage/'
+        },
 
         port: 9876,
 
