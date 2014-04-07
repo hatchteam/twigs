@@ -166,7 +166,7 @@
  *
  * See [MenuProvider](#/api/twigs.menu.provider:MenuProvider) for more information on how to set up Menus.
  */
-angular.module('twigs.menu', [])
+angular.module('twigs.menu')
     .provider('Menu', function Menu() {
         var menus = {}, userLoadedEventName;
 
