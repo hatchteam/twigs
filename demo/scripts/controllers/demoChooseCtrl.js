@@ -16,12 +16,9 @@ angular.module('twigsDemo')
             $scope.selectedCountry = {
                 id: id
             };
-
-            $scope.nSelectedCountry = id;
         };
 
         $scope.setSelectedCountries = function (idArray) {
-            $scope.nSelectedCountries = idArray;
             var idObjectArray = [];
 
             idArray.forEach(function (item) {

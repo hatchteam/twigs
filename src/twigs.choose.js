@@ -19,6 +19,7 @@
 
 angular.module('twigs.choose')
 
+
     .service('ChooseConfig', function ChooseConfig() {
         var noResultMessage = 'No results';
 
@@ -37,9 +38,14 @@ angular.module('twigs.choose')
     })
 
 
-    .service('ChooseHelper', function ChooseHelper() {
+    .service('ChooseHelper', function ChooseHelper(ChooseConfig) {
 
         function convertExternToInternMultiple(externNgModel) {
+
+            if (angular.isUndefined(externNgModel)) {
+                return externNgModel;
+            }
+
             if (!angular.isArray(externNgModel)) {
                 throw 'With multiple selection, model is expected to be an array!';
             }
@@ -61,6 +67,11 @@ angular.module('twigs.choose')
         }
 
         function convertExternToInternSingle(externNgModel) {
+
+            if (angular.isUndefined(externNgModel)) {
+                return externNgModel;
+            }
+
             if (angular.isDefined(externNgModel.id)) {
                 return externNgModel.id;
             } else {
@@ -91,111 +102,128 @@ angular.module('twigs.choose')
             return parseInt(input, 10);
         }
 
+        function getChoiceLabel(choice, propertyName) {
+            if (angular.isUndefined(propertyName) || propertyName === '' || angular.isUndefined(choice[propertyName])) {
+                return choice;
+            } else {
+                return choice[propertyName];
+            }
+        }
+
+        function getDefaultSelect2Options(customNoResultMessage) {
+            var formatNoMatchesValue;
+            if (angular.isDefined(customNoResultMessage) && customNoResultMessage.length > 0) {
+                formatNoMatchesValue = customNoResultMessage;
+            } else {
+                formatNoMatchesValue = ChooseConfig.getNoResultMessage();
+            }
+            return {
+                'formatNoMatches': function () {
+                    return formatNoMatchesValue;
+                }
+            };
+        }
+
         return {
             convertExternToInternMultiple: convertExternToInternMultiple,
             convertExternToInternSingle: convertExternToInternSingle,
             convertInternToExternMultiple: convertInternToExternMultiple,
-            convertInternToExternSingle: convertInternToExternSingle
+            convertInternToExternSingle: convertInternToExternSingle,
+            getChoiceLabel: getChoiceLabel,
+            getDefaultSelect2Options: getDefaultSelect2Options
+        };
+    }
+)
+
+
+/**
+ * @ngdoc directive
+ * @name twigs.choose.directive:twgChooseSingle
+ * @restrict E
+ *
+ * @description
+ * Creates a ui-select2 choose dropdown element.
+ *
+ * ### Attributes:
+ * -model -> model variable which should be changed by selecting a value in the dropdown
+ * -choices -> array of choices to be displayed in the dropdown (one object in the choices array needs to be equal to the object in model for the mapping between model and dropdown to work properly)
+ * -choiceDisplayname -> name of the attribute of a choice to be displayed as text in the choose element
+ */
+    .directive('twgChooseSingle', function (ChooseHelper) {
+        return {
+            templateUrl: 'templates/chooseSingle.html',
+            replace: true,
+            restrict: 'E',
+            require: '?ngModel',
+            scope: {
+                choices: '=',
+                ngModel: '=',
+                choiceDisplayname: '@',
+                noResultMessage: '@'
+            },
+            link: function (scope, element, attrs, ngModelController) {
+
+                ngModelController.$formatters.push(function (modelValue) {
+                    return ChooseHelper.convertExternToInternSingle(modelValue);
+                });
+
+                ngModelController.$parsers.push(function (viewValue) {
+                    return ChooseHelper.convertInternToExternSingle(viewValue);
+                });
+
+                scope.getLabel = function (choice) {
+                    return ChooseHelper.getChoiceLabel(choice, scope.choiceDisplayname);
+                };
+
+                scope.select2Options = ChooseHelper.getDefaultSelect2Options(scope.noResultMessage);
+
+            }
         };
     })
 
 
 /**
  * @ngdoc directive
- * @name twigs.choose.directive:twgChoose
+ * @name twigs.choose.directive:twgChooseMultiple
  * @restrict E
  *
  * @description
- * Creates a ui-select2 choose element. This can be single- or multi select.
+ * Creates a ui-select2 choose multi-select element.
  *
  * ### Attributes:
  * -model -> model variable which should be changed by selecting a value in the dropdown
  * -choices -> array of choices to be displayed in the dropdown (one object in the choices array needs to be equal to the object in model for the mapping between model and dropdown to work properly)
  * -choiceDisplayname -> name of the attribute of a choice to be displayed as text in the choose element
- * -onSelectionChanged -> callback function that is invoked when selection in dropdown changed. passed params are: the new selected value(s), the name of the element
  */
-    .directive('twgChoose', function (ChooseConfig, ChooseHelper) {
+    .directive('twgChooseMultiple', function (ChooseHelper) {
         return {
-            templateUrl: 'templates/choose.html',
+            templateUrl: 'templates/chooseMultiple.html',
             replace: true,
             restrict: 'E',
+            require: '?ngModel',
             scope: {
                 choices: '=',
-                name: '@',
-                twgModel: '=',
+                ngModel: '=',
                 choiceDisplayname: '@',
-                multiple: '=',
-                onSelectionChanged: '='
+                noResultMessage: '@'
             },
-            link: function (scope, element, attrs) {
+            link: function (scope, element, attrs, ngModelController) {
 
-                scope.renderDropdown = false;
+                ngModelController.$formatters.push(function (modelValue) {
+                    return ChooseHelper.convertExternToInternMultiple(modelValue);
+                });
 
-                /** -- watchers -- **/
-                scope.$watch('choices', onChoicesChanged);
-                scope.$watch('twgModel', onNgModelChanged);
+                ngModelController.$parsers.push(function (viewValue) {
+                    return ChooseHelper.convertInternToExternMultiple(viewValue);
+                });
 
-
-                /** -- watcher callbacks -- **/
-
-                function onChoicesChanged(newValue) {
-                    if (angular.isDefined(newValue) && newValue !== null) {
-                        // display the dropdown, only after choices are available
-                        scope.renderDropdown = true;
-                    }
-                }
-
-                function onNgModelChanged(newValue) {
-                    if (newValue == null) {
-                        return;
-                    }
-
-                    if (angular.isUndefined(newValue)) {
-                        scope.internalBinding = newValue;
-                        return;
-                    }
-
-                    if (scope.multiple) {
-                        scope.internalBinding = ChooseHelper.convertExternToInternMultiple(newValue);
-                    } else {
-                        scope.internalBinding = ChooseHelper.convertExternToInternSingle(newValue);
-                    }
-
-                    console.log('after all, ngModel and internalBinding:', scope.ngModel, scope.internalBinding);
-                }
-
-                /** -- scope functions -- **/
-
-                scope.onChange = function (newVal) {
-                    if (newVal === null) {
-                        return;
-                    }
-
-                    if (scope.multiple === true) {
-                        scope.twgModel = ChooseHelper.convertInternToExternMultiple(newVal);
-                    } else {
-                        scope.twgModel = ChooseHelper.convertInternToExternSingle(newVal);
-                    }
-
-                    if (angular.isDefined(scope.onSelectionChanged)) {
-                        scope.onSelectionChanged(newVal, scope.name);
-                    }
-                };
 
                 scope.getLabel = function (choice) {
-                    var displayName = scope.choiceDisplayname;
-                    if (angular.isUndefined(displayName) || displayName === '' || angular.isUndefined(choice[displayName])) {
-                        return choice;
-                    } else {
-                        return choice[displayName];
-                    }
+                    return ChooseHelper.getChoiceLabel(choice, scope.choiceDisplayname);
                 };
 
-                scope.select2Options = {
-                    'formatNoMatches': function () {
-                        return ChooseConfig.getNoResultMessage();
-                    }
-                };
+                scope.select2Options = ChooseHelper.getDefaultSelect2Options(scope.noResultMessage);
             }
         };
-    });
+    })
+;
