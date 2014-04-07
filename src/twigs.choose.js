@@ -19,6 +19,86 @@
 
 angular.module('twigs.choose')
 
+    .service('ChooseConfig', function ChooseConfig() {
+        var noResultMessage = 'No results';
+
+        function setNoResultMessage(message) {
+            noResultMessage = message;
+        }
+
+        function getNoResultMessage() {
+            return noResultMessage;
+        }
+
+        return {
+            setNoResultMessage: setNoResultMessage,
+            getNoResultMessage: getNoResultMessage
+        };
+    })
+
+
+    .service('ChooseHelper', function ChooseHelper() {
+
+        function convertExternToInternMultiple(externNgModel) {
+            if (!angular.isArray(externNgModel)) {
+                throw 'With multiple selection, model is expected to be an array!';
+            }
+            if (externNgModel.length < 1) {
+                return;
+            }
+
+            var mappedArray = [];
+            externNgModel.forEach(function (element) {
+                if (angular.isDefined(element.id)) {
+                    mappedArray.push(element.id);
+                }
+                else {
+                    mappedArray.push(element);
+                }
+            });
+
+            return mappedArray;
+        }
+
+        function convertExternToInternSingle(externNgModel) {
+            if (angular.isDefined(externNgModel.id)) {
+                return externNgModel.id;
+            } else {
+                return externNgModel;
+            }
+        }
+
+        function convertInternToExternMultiple(internBinding) {
+            if (!angular.isArray(internBinding)) {
+                throw 'With multiple selection, intern model is expected to be an array!';
+            }
+            var mappedArray = [];
+            internBinding.forEach(function (currentItem) {
+                mappedArray.push({id: toInt(currentItem)});
+            });
+            return mappedArray;
+        }
+
+        function convertInternToExternSingle(internBinding) {
+            return {id: toInt(internBinding)};
+        }
+
+        function toInt(input) {
+            if (typeof input === 'Number') {
+                return input;
+            }
+
+            return parseInt(input, 10);
+        }
+
+        return {
+            convertExternToInternMultiple: convertExternToInternMultiple,
+            convertExternToInternSingle: convertExternToInternSingle,
+            convertInternToExternMultiple: convertInternToExternMultiple,
+            convertInternToExternSingle: convertInternToExternSingle
+        };
+    })
+
 
 /**
  * @ngdoc directive
@@ -34,93 +114,77 @@ angular.module('twigs.choose')
  * -choiceDisplayname -> name of the attribute of a choice to be displayed as text in the choose element
  * -onSelectionChanged -> callback function that is invoked when selection in dropdown changed. passed params are: the new selected value(s), the name of the element
  */
-    .directive('twgChoose', function () {
+    .directive('twgChoose', function (ChooseConfig, ChooseHelper) {
         return {
             templateUrl: 'templates/choose.html',
             replace: true,
             restrict: 'E',
             scope: {
-                choices: '=choices',
-                name: '@name',
-                ngModel: '=ngModel',
-                choiceDisplayname: '@choiceDisplayname',
-                multiple: '=multiple',
+                choices: '=',
+                name: '@',
+                twgModel: '=',
+                choiceDisplayname: '@',
+                multiple: '=',
                 onSelectionChanged: '='
             },
-            link: function postLink(scope) {
+            link: function (scope, element, attrs) {
+
                 scope.renderDropdown = false;
 
-                function mapNgModelToArrayOfIds() {
-                    var mappedArray = [];
-                    angular.forEach(scope.ngModel, function (element) {
-                        mappedArray.push(element.id);
-                    });
-                    scope.ngModel = mappedArray;
-                }
+                /** -- watchers -- **/
+                scope.$watch('choices', onChoicesChanged);
+                scope.$watch('twgModel', onNgModelChanged);
 
-                function mapNgModelToArrayOfIdObjects() {
-                    var mappedArray = [];
-                    angular.forEach(scope.ngModel, function (element) {
-                        if (angular.isDefined(element.id)) {
-                            mappedArray.push({id: element.id});
-                        }
-                        else {
-                            mappedArray.push({id: element});
-                        }
-                    });
-                    scope.ngModel = mappedArray;
-                }
 
-                function mapSelectedItemsToIdArray() {
-                    var mappedArray = [];
-                    angular.forEach(scope.selectedItems, function (currentItem) {
-                        mappedArray.push({id: currentItem});
-                    });
-                    scope.ngModel = mappedArray;
-                }
+                /** -- watcher callbacks -- **/
 
-                var unregister = scope.$watch('ngModel', function () {
-                    if (angular.isDefined(scope.ngModel) && scope.ngModel !== null) {
-                        if (angular.isArray(scope.ngModel)) {
-                            if (scope.ngModel.length > 0) {
-                                mapNgModelToArrayOfIds();
-                                scope.selectedItems = scope.ngModel;
-                                unregister();
-                                mapNgModelToArrayOfIdObjects();
-                            }
-                        } else {
-                            scope.selectedItems = scope.ngModel.id;
-                            unregister();
-                            scope.ngModel = {id: scope.ngModel.id};
-                        }
-                    }
-                });
-
-                scope.$watch('choices', function () {
-                    if (angular.isDefined(scope.choices) && scope.choices !== null) {
+                function onChoicesChanged(newValue) {
+                    if (angular.isDefined(newValue) && newValue !== null) {
+                        // display the dropdown, only after choices are available
                         scope.renderDropdown = true;
                     }
-                });
+                }
+
+                function onNgModelChanged(newValue) {
+                    if (newValue == null) {
+                        return;
+                    }
+
+                    if (angular.isUndefined(newValue)) {
+                        scope.internalBinding = newValue;
+                        return;
+                    }
+
+                    if (scope.multiple) {
+                        scope.internalBinding = ChooseHelper.convertExternToInternMultiple(newValue);
+                    } else {
+                        scope.internalBinding = ChooseHelper.convertExternToInternSingle(newValue);
+                    }
+
+                    console.log('after all, ngModel and internalBinding:', scope.ngModel, scope.internalBinding);
+                }
+
+                /** -- scope functions -- **/
 
                 scope.onChange = function (newVal) {
-                    if (newVal !== null) {
-                        if (scope.multiple === true) {
-                            scope.selectedItems = newVal;
-                            mapSelectedItemsToIdArray();
-                        } else {
-                            scope.ngModel = {id: newVal};
-                        }
+                    if (newVal === null) {
+                        return;
+                    }
 
-                        if (angular.isDefined(scope.onSelectionChanged)) {
-                            scope.onSelectionChanged(newVal, scope.name);
-                        }
+                    if (scope.multiple === true) {
+                        scope.twgModel = ChooseHelper.convertInternToExternMultiple(newVal);
+                    } else {
+                        scope.twgModel = ChooseHelper.convertInternToExternSingle(newVal);
+                    }
+
+                    if (angular.isDefined(scope.onSelectionChanged)) {
+                        scope.onSelectionChanged(newVal, scope.name);
                     }
                 };
 
-
                 scope.getLabel = function (choice) {
                     var displayName = scope.choiceDisplayname;
-                    if (angular.isUndefined(displayName) || displayName === '') {
+                    if (angular.isUndefined(displayName) || displayName === '' || angular.isUndefined(choice[displayName])) {
                         return choice;
                     } else {
                         return choice[displayName];
@@ -129,7 +193,7 @@ angular.module('twigs.choose')
 
                 scope.select2Options = {
                     'formatNoMatches': function () {
-                        return '----nö----';
+                        return ChooseConfig.getNoResultMessage();
                     }
                 };
             }

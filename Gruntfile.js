@@ -1,7 +1,11 @@
 'use strict';
+var rewriteRulesSnippet = require('grunt-connect-rewrite/lib/utils').rewriteRequest;
 var lrSnippet = require('grunt-contrib-livereload/lib/utils').livereloadSnippet;
+var path = require('path');
 var mountFolder = function (connect, dir) {
-    return connect.static(require('path').resolve(dir));
+    var resolved = path.resolve(dir);
+    console.log('mounting folder ', resolved);
+    return connect.directory(resolved);
 };
 
 module.exports = function (grunt) {
@@ -27,6 +31,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-angular-templates');
+    grunt.loadNpmTasks('grunt-connect-rewrite');
 
     grunt.initConfig({
         yeoman: yeomanConfig,
@@ -49,16 +54,22 @@ module.exports = function (grunt) {
                 // Change this to '0.0.0.0' to access the server from outside.
                 hostname: 'localhost'
             },
+            rules: [
+                // Internal rewrite for templates, since our directives use a correct relative path to the templates
+                {from: '^/demo/templates/(.*)$', to: '/templates/$1'}
+            ],
             livereload: {
                 options: {
-                    middleware: function (connect) {
-                        return [
-                            lrSnippet,
-                            mountFolder(connect, '.tmp'),
-                            mountFolder(connect, yeomanConfig.demo) ,
-                            mountFolder(connect, 'components'),
-                            mountFolder(connect, 'dist')
-                        ];
+                    middleware: function (connect, options) {
+                        /**
+                         *  We want to serve our whole directory. We need twigs source-files, and also demo files.
+                         */
+                        var middlewares = [];
+                        middlewares.push(rewriteRulesSnippet);
+                        middlewares.push(lrSnippet);
+                        middlewares.push(connect.static(options.base));
+                        middlewares.push(connect.directory(options.base));
+                        return middlewares;
                     }
                 }
             },
@@ -75,7 +86,7 @@ module.exports = function (grunt) {
         },
         open: {
             server: {
-                url: 'http://localhost:<%= connect.options.port %>'
+                url: 'http://localhost:<%= connect.options.port %>/demo'
             }
         },
         clean: {
@@ -224,6 +235,7 @@ module.exports = function (grunt) {
     grunt.registerTask('demo', [
         'clean:server',
         'livereload-start',
+        'configureRewriteRules',  // this is to enable grunt-connect-rewrite
         'connect:livereload',
         'open',
         'watch'

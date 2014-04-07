@@ -46,7 +46,7 @@ describe("Directive: twgChoose", function () {
         return compiledElement;
     }
 
-    it('should render single choice', function () {
+    iit('should render single choice', function () {
         var el = angular.element('<twg-choose choices="countries" name="country" ng-model="selectedCountry" choice-displayname="name"> </twg-choose>');
         var element = whenCompiling(el);
         var selectElement = element.find('select[multiple=multiple]');
@@ -63,7 +63,7 @@ describe("Directive: twgChoose", function () {
     });
 
 
-    it('should render multiple choice', function () {
+    iit('should render multiple choice', function () {
         var el = angular.element('<twg-choose choices="countries" name="country" ng-model="selectedCountries" multiple="true" choice-displayname="name"> </twg-choose>');
         var element = whenCompiling(el);
         var selectElement = element.find('select[multiple=multiple]');

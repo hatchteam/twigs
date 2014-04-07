@@ -11,4 +11,6 @@
     border-radius: 5px;
 }
 
-
+.select2-container {
+    width: 100%;
+}

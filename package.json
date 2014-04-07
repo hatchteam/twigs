@@ -16,6 +16,7 @@
         "grunt-contrib-htmlmin": "~0.1.1",
         "grunt-contrib-imagemin": "~0.1.2",
         "grunt-contrib-livereload": "~0.1.2",
+        "grunt-connect-rewrite": "0.2.1",
         "grunt-contrib-less": "~0.10.0",
         "grunt-bower-requirejs": "~0.4.1",
         "grunt-usemin": "~0.1.10",
