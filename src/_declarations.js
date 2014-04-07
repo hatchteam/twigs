@@ -23,6 +23,8 @@
  *  If we don't do this, we get problems when concatenating all files into one (grunt concatenates in alphabetical order)
  */
 
+angular.module('twigs.menu', []);
+
 angular.module('twigs.activeRoute', []);
 
 angular.module('twigs.devel', ['ngCookies']);
@@ -57,6 +59,7 @@ angular.module('twigs.protectedRoutes', ['twigs.security', 'ngRoute']);
  * ```
  */
 angular.module('twigs', [
+    'twigs.menu',
     'twigs.activeRoute',
     'twigs.devel',
     'twigs.flow',

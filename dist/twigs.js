@@ -19,6 +19,7 @@
  *  define all modules here!
  *  If we don't do this, we get problems when concatenating all files into one (grunt concatenates in alphabetical order)
  */
+angular.module('twigs.menu', []);
 angular.module('twigs.activeRoute', []);
 angular.module('twigs.devel', ['ngCookies']);
 angular.module('twigs.dynamicSize', []);
@@ -45,6 +46,7 @@ angular.module('twigs.protectedRoutes', [
  * ```
  */
 angular.module('twigs', [
+  'twigs.menu',
   'twigs.activeRoute',
   'twigs.devel',
   'twigs.flow',
@@ -1617,7 +1619,7 @@ angular.module('twigs.globalPopups', ['ui.bootstrap.modal']).provider('GlobalPop
  *
  * See [MenuProvider](#/api/twigs.menu.provider:MenuProvider) for more information on how to set up Menus.
  */
-angular.module('twigs.menu', []).provider('Menu', function Menu() {
+angular.module('twigs.menu').provider('Menu', function Menu() {
   var menus = {}, userLoadedEventName;
   var serviceInstance = {
       createMenu: function (menuName, templateUrl) {
