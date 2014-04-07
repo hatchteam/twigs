@@ -490,7 +490,11 @@ angular.module('twigs.devel').constant('ERROR_REPORTED_EVENT', 'twigs.devel.erro
         return promise.then(success, error);
       };
     }
-    $httpProvider.responseInterceptors.push(interceptor);
+    $httpProvider.responseInterceptors.push([
+      '$q',
+      'DevelopmentInfoService',
+      interceptor
+    ]);
   }
 ]);
 'use strict';

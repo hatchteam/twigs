@@ -264,5 +264,6 @@ angular.module('twigs.devel')
             };
         }
 
-        $httpProvider.responseInterceptors.push(interceptor);
+        /** manually specify collaborator names to fix uglifying **/
+        $httpProvider.responseInterceptors.push(['$q', 'DevelopmentInfoService', interceptor]);
     }]);

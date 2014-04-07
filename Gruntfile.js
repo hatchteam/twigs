@@ -195,6 +195,10 @@ module.exports = function (grunt) {
         },
 
         uglify: {
+            options: {
+                beautify: false,
+                mangle: true
+            },
             dist: {
                 files: [
                     {
