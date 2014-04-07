@@ -34,7 +34,16 @@ module.exports = function (config) {
 
         ],
 
-        reporters: ['progress'],
+        preprocessors: {
+            'src/*.js': 'coverage'
+        },
+
+        reporters: ['progress', 'coverage'],
+
+        coverageReporter: {
+            type: 'html',
+            dir: 'coverage/'
+        },
 
         port: 9876,
 

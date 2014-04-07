@@ -2,6 +2,7 @@ node_modules
 .tmp
 .sass-cache
 components
+coverage
 .idea/
 *.orig
 test-results.xml

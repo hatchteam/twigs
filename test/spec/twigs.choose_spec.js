@@ -48,16 +48,25 @@ describe('Service: ChooseHelper', function () {
 
 
     describe('convertExternToInternMultiple', function () {
-        it('should correctly convert', function () {
+        it('should correctly convert with id-object array', function () {
             var externModel = [
                 {id: 1, name: 'one'},
                 {id: 2, name: 'two'}
             ];
             expect(ChooseHelper.convertExternToInternMultiple(externModel)).toEqual([1, 2]);
         });
+        it('should correctly convert with id array', function () {
+            var externModel = [1, 2];
+            expect(ChooseHelper.convertExternToInternMultiple(externModel)).toEqual([1, 2]);
+        });
 
         it('should return undefined on undefined input', function () {
             var externModel;
+            expect(ChooseHelper.convertExternToInternMultiple(externModel)).toBeUndefined();
+        });
+
+        it('should return undefined on empty input', function () {
+            var externModel = [];
             expect(ChooseHelper.convertExternToInternMultiple(externModel)).toBeUndefined();
         });
 
@@ -72,7 +81,75 @@ describe('Service: ChooseHelper', function () {
         });
     });
 
+    describe('convertExternToInternSingle', function () {
+        it('should correctly convert with id-object', function () {
+            var externModel = {id: 1, name: 'one'};
+            expect(ChooseHelper.convertExternToInternSingle(externModel)).toEqual(1);
+        });
 
+        it('should correctly convert with id ', function () {
+            var externModel = 1;
+            expect(ChooseHelper.convertExternToInternSingle(externModel)).toEqual(1);
+        });
+
+        it('should return undefined on undefined input', function () {
+            var externModel;
+            expect(ChooseHelper.convertExternToInternSingle(externModel)).toBeUndefined();
+        });
+    });
+
+
+    describe('convertInternToExternMultiple', function () {
+        it('should correctly convert', function () {
+            var internModel = [1, 4];
+            expect(ChooseHelper.convertInternToExternMultiple(internModel)).toEqual([
+                {id: 1},
+                {id: 4}
+            ]);
+        });
+
+        it('should throw on invalid input', function () {
+            var externModel = 'This is not an array';
+
+            function wrap() {
+                ChooseHelper.convertInternToExternMultiple(externModel)
+            }
+
+            expect(wrap).toThrow();
+        });
+    });
+
+    describe('convertInternToExternSingle', function () {
+        it('should correctly convert', function () {
+            var internModel = 8;
+            expect(ChooseHelper.convertInternToExternSingle(internModel)).toEqual({id: 8});
+        });
+        it('should correctly convert (string input)', function () {
+            var internModel = '8';
+            expect(ChooseHelper.convertInternToExternSingle(internModel)).toEqual({id: 8});
+        });
+    });
+
+
+    describe('getChoiceLabel', function () {
+        it('should return whole object on invalid propertyName ', function () {
+            var choice = {
+                label: 'some'
+            };
+
+            expect(ChooseHelper.getChoiceLabel(choice, undefined)).toEqual(choice);
+            expect(ChooseHelper.getChoiceLabel(choice, '')).toEqual(choice);
+            expect(ChooseHelper.getChoiceLabel(choice, 'nothing')).toEqual(choice);
+        });
+
+        it('should return value on valid propertyName ', function () {
+            var choice = {
+                label: 'some'
+            };
+
+            expect(ChooseHelper.getChoiceLabel(choice, 'label')).toEqual('some');
+        });
+    });
 });
 
 describe('Directive: twgChoose', function () {
@@ -115,7 +192,6 @@ describe('Directive: twgChoose', function () {
         expect(optionThree.eq(0).text()).toBe('France');
     });
 
-
     it('should render multiple choice', function () {
         var el = angular.element('<twg-choose-multiple choices="countries" name="country" ng-model="selectedCountries" multiple="true" choice-displayname="name"> </twg-choose-multiple>');
         var element = whenCompiling(el);
@@ -127,8 +203,6 @@ describe('Directive: twgChoose', function () {
         expect(optionTwo.eq(0).text()).toBe('Austria');
         expect(optionThree.eq(0).text()).toBe('France');
     });
-
-
 });
 
 

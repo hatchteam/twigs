@@ -43,12 +43,13 @@ angular.module('twigs.choose')
         function convertExternToInternMultiple(externNgModel) {
 
             if (angular.isUndefined(externNgModel)) {
-                return externNgModel;
+                return;
             }
 
             if (!angular.isArray(externNgModel)) {
                 throw 'With multiple selection, model is expected to be an array!';
             }
+
             if (externNgModel.length < 1) {
                 return;
             }
@@ -95,7 +96,7 @@ angular.module('twigs.choose')
         }
 
         function toInt(input) {
-            if (typeof input === 'Number') {
+            if (typeof input === 'number') {
                 return input;
             }
 
