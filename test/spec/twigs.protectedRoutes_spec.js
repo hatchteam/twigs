@@ -87,6 +87,40 @@ describe('Service & Provider: ProtectedRoutes', function () {
             expect(configViaService.templateUrl).toBe('views/main.html');
         });
 
+        it('allows to setup a protected Route with "authenticated")', function () {
+            ProtectedRouteProvider.when('/main', {
+                templateUrl: 'views/main.html',
+                controller: 'MainCtrl',
+                authenticated: true
+            });
+            var configViaService = $route.routes['/main'];
+            expect(configViaService.resolve).toBeDefined();
+            expect(configViaService.resolve.hasPermission).toBeDefined();
+            expect(configViaService.templateUrl).toBe('views/main.html');
+        });
+
+        it('does not mark a route as proteced, if "authenticated" is not set to true)', function () {
+            // test with something other than 'true'
+            ProtectedRouteProvider.when('/main', {
+                templateUrl: 'views/main.html',
+                controller: 'MainCtrl',
+                authenticated: 'somethingElse'
+            });
+            var configViaService = $route.routes['/main'];
+            expect(configViaService.resolve).toBeUndefined();
+            expect(configViaService.templateUrl).toBe('views/main.html');
+
+            // and again with 'false'
+            ProtectedRouteProvider.when('/main2', {
+                templateUrl: 'views/main2.html',
+                controller: 'MainCtrl2',
+                authenticated: false
+            });
+            var configViaService = $route.routes['/main'];
+            expect(configViaService.resolve).toBeUndefined();
+            expect(configViaService.templateUrl).toBe('views/main.html');
+        });
+
         it('allows to setup multiple protected Routes', function () {
             ProtectedRouteProvider
                 .when('/main', {
@@ -172,7 +206,6 @@ describe('Service & Provider: ProtectedRoutes', function () {
             }, '', 1000);
 
         });
-
 
 
     });

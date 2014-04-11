@@ -35,6 +35,8 @@ angular.module('twigs.protectedRoutes')
  * If not, the route-change is prevented and a _$routeChangeError_ event is thrown, which can be handled by your application to e.g. forward to the main view or to display an
  * appropriate message.
  *
+ * If you don't want to check for a specific role, but only check if a user is logged in, set the property _authenticated_ to true.
+ *
  * ### How to configure protected routes
  * ```javascript
  * var App = angular.module('Main',['twigs.protectedRoutes']);
@@ -50,6 +52,11 @@ angular.module('twigs.protectedRoutes')
  *         templateUrl: '/views/settings.html',
  *         controller: 'SettingsCtrl',
  *         neededRoles:['ADMIN']
+ *     }),
+ *     .when('/profile', {
+ *         templateUrl: '/views/settings.html',
+ *         controller: 'SettingsCtrl',
+ *         authenticated: true
  *     });
  * ```
  *
@@ -91,6 +98,8 @@ angular.module('twigs.protectedRoutes')
                 } else {
                     throw 'Invalid protected route config: neededRoles must be an array';
                 }
+            } else if (angular.isDefined(route.authenticated)) {
+                return route.authenticated === true;
             }
             return false;
         }
@@ -130,6 +139,5 @@ angular.module('twigs.protectedRoutes')
         };
 
     }
-
 );
 
