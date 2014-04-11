@@ -163,7 +163,7 @@ NG_DOCS={
       "type": "object",
       "moduleName": "twigs.protectedRoutes",
       "shortDescription": "In an application that uses a permission model, we&#39;d like to protect some views from",
-      "keywords": "$routeprovider _neededroles_ access additionally admin allows angular api app application appropriate changes config configure controller define depends display evaluate event forward function handled homectrl html javascript loader location main message model module needed neededroles note object permission prevented property protect protected protectedroute protectedrouteprovider protectedroutes provider registered required roles route route-change routechangestart routes security settingsctrl standard templateurl thrown twigs unauthorized user user-roles var view views"
+      "keywords": "$routeprovider _authenticated_ _neededroles_ access additionally admin allows angular api app application appropriate authenticated changes check config configure controller define depends display don evaluate event forward function handled homectrl html javascript loader location logged main message model module needed neededroles note object permission prevented property protect protected protectedroute protectedrouteprovider protectedroutes provider registered required role roles route route-change routechangestart routes security set settingsctrl specific standard templateurl thrown true twigs unauthorized user user-roles var view views"
     },
     {
       "section": "api",

@@ -2155,6 +2155,8 @@ angular.module('twigs.protectedRoutes').provider('ProtectedRoute', [
         } else {
           throw 'Invalid protected route config: neededRoles must be an array';
         }
+      } else if (angular.isDefined(route.authenticated)) {
+        return route.authenticated === true;
       }
       return false;
     }
