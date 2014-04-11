@@ -97,7 +97,7 @@ describe('Service & Provider: Menu', function () {
             $document = _$document_;
 
             $httpBackend.whenGET('views/menu/mainMenuTemplate.html').respond(
-                '<div class="list-group">' +
+                    '<div class="list-group">' +
                     '<a x-ng-repeat="menuItem in menu.items" ' +
                     'class="list-group-item" ' +
                     'x-ng-href="#{{menuItem.link}}"' +
@@ -105,15 +105,15 @@ describe('Service & Provider: Menu', function () {
                     '</div>');
 
             $httpBackend.whenGET('views/menu/secondaryNavigation.html').respond(
-                '<div class="list-group">' +
-                    '<div x-ng-if="menuItem.items.length > 0" x-ng-repeat="menuItem in menu.items"><span class="menuItem" ng-class="{active: menuItem.active}">{{menuItem.text}}</span>'+
-                        '<ul class="submenu">'+
-                            '<li x-ng-repeat="subMenuItem in menuItem.items">'+
-                                '<a href="#{{subMenuItem.link}}" class="list-group-item" ng-class="{active: subMenuItem.active}">{{subMenuItem.text}}</a>'+
-                            '</li>'+
-                        '</ul>'+
-                    '</div>'+
-                '</div>');
+                    '<div class="list-group">' +
+                    '<div x-ng-if="menuItem.items.length > 0" x-ng-repeat="menuItem in menu.items"><span class="menuItem" ng-class="{active: menuItem.active}">{{menuItem.text}}</span>' +
+                    '<ul class="submenu">' +
+                    '<li x-ng-repeat="subMenuItem in menuItem.items">' +
+                    '<a href="#{{subMenuItem.link}}" class="list-group-item" ng-class="{active: subMenuItem.active}">{{subMenuItem.text}}</a>' +
+                    '</li>' +
+                    '</ul>' +
+                    '</div>' +
+                    '</div>');
         }));
 
         function whenCompiling(element) {
@@ -262,13 +262,13 @@ describe('Service & Provider: Menu', function () {
             var submenuElements = element.find('a.list-group-item');
 
             //test if active is added to selected route tree
-            expect(menuElements[0].classList.contains('active')).toBeTruthy("expected element to be active: "+menuElements[0].innerText);
-            expect(submenuElements[1].classList.contains('active')).toBeTruthy("expected element to be active: "+submenuElements[1].innerText);
+            expect(menuElements[0].classList.contains('active')).toBeTruthy("expected element to be active: " + menuElements[0].innerText);
+            expect(submenuElements[1].classList.contains('active')).toBeTruthy("expected element to be active: " + submenuElements[1].innerText);
 
             //test if active is removed on route change
             simulateRouteChange('/export/claim');
-            expect(menuElements[0].classList.contains('active')).toBeFalsy("expected element to be active: "+menuElements[0].innerText);
-            expect(submenuElements[1].classList.contains('active')).toBeFalsy("expected element to be active: "+submenuElements[1].innerText);
+            expect(menuElements[0].classList.contains('active')).toBeFalsy("expected element to be active: " + menuElements[0].innerText);
+            expect(submenuElements[1].classList.contains('active')).toBeFalsy("expected element to be active: " + submenuElements[1].innerText);
         });
     });
 

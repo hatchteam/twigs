@@ -521,7 +521,6 @@ angular.module('twigs.dynamicSize').service('DynamicSizeHelper', function () {
   function isNumber(n) {
     return !isNaN(parseInt(n, 10)) && isFinite(n);
   }
-  // TODO: parse into whole numbers, no fractions
   function parseDynamicSizeAttribute(attributeValue) {
     if (attributeValue.length === 0) {
       throw 'Please specify a dynamic size attribute!';
@@ -541,13 +540,12 @@ angular.module('twigs.dynamicSize').service('DynamicSizeHelper', function () {
   function ($window, DynamicSizeHelper) {
     return {
       restrict: 'A',
-      link: function (scope, element, attrs) {
+      scope: { 'twgDynamicHeight': '=' },
+      link: function (scope, element) {
         var theWindow = angular.element($window);
-        var heightDelta = DynamicSizeHelper.parseDynamicSizeAttribute(attrs.twgDynamicHeight);
+        var heightDelta = DynamicSizeHelper.parseDynamicSizeAttribute(scope.twgDynamicHeight);
         function dynamicResize() {
-          var newHeight = heightDelta + theWindow.height();
-          console.log('setting height of ', element, ' to ' + newHeight);
-          element.css('height', newHeight);
+          element.css('height', heightDelta + theWindow.height());
         }
         theWindow.resize(function () {
           dynamicResize();
@@ -562,9 +560,10 @@ angular.module('twigs.dynamicSize').service('DynamicSizeHelper', function () {
   function ($window, DynamicSizeHelper) {
     return {
       restrict: 'A',
-      link: function (scope, element, attrs) {
+      scope: { 'twgDynamicWidth': '=' },
+      link: function (scope, element) {
         var theWindow = angular.element($window);
-        var widthDelta = DynamicSizeHelper.parseDynamicSizeAttribute(attrs.twgDynamicWidth);
+        var widthDelta = DynamicSizeHelper.parseDynamicSizeAttribute(scope.twgDynamicWidth);
         function dynamicResize() {
           element.css('width', widthDelta + theWindow.width());
         }
