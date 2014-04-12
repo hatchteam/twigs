@@ -48,7 +48,7 @@
   height: 100%;
 }
 #twigs-toast {
-  position: absolute;
+  position: fixed;
   top: 24px;
   overflow: auto;
   z-index: 1040;
