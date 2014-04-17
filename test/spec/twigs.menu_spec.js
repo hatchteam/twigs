@@ -126,7 +126,6 @@ describe('Service & Provider: Menu', function () {
             var mainMenu = MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html")
                 .addItem('refdata', {
                     link: '/refdata/users',
-                    pxRoute: '/users(/.*)?',
                     iconClass: 'glyphicon glyphicon-person'
                 })
                 .addItem('logout', {
@@ -168,20 +167,18 @@ describe('Service & Provider: Menu', function () {
 
         it('filters menuItems recursively depending on users role', function () {
             var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
-            var dataImportMenu = tabMenu.createSubMenu('secondaryNavigation_dataImport', {pxRoute: '/import(/.*)?'})
+            tabMenu.createSubMenu('secondaryNavigation_dataImport')
                 .addItem('secondaryNavigation_dataImport_claim', {
                     link: '/import/claim',
-                    pxRoute: '/import/claimrecords(/.*)?',
                     iconClass: 'glyphicon glyphicon-file'
                 })
                 .addItem('secondaryNavigation_dataImport_damage', {
                     link: '/import/damage',
                     iconClass: 'glyphicon glyphicon-file'
                 });
-            var dataExportMenu = tabMenu.createSubMenu('secondaryNavigation_dataExport', {pxRoute: '/export(/.*)?'})
+           tabMenu.createSubMenu('secondaryNavigation_dataExport')
                 .addItem('secondaryNavigation_dataExport_claim', {
                     link: '/export/claim',
-                    pxRoute: '/import/claimrecords(/.*)?',
                     iconClass: 'glyphicon glyphicon-file'
                 })
                 .addItem('secondaryNavigation_dataExport_damage', {
@@ -231,20 +228,18 @@ describe('Service & Provider: Menu', function () {
         //checks if, when a child menu item is active due to the browsers current path and the menu items link, all parent items of the active child item are set active.
         it('sets menu tree active recursively depending on current route', function () {
             var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
-            var dataImportMenu = tabMenu.createSubMenu('secondaryNavigation_dataImport', {pxRoute: '/import(/.*)?'})
+            tabMenu.createSubMenu('secondaryNavigation_dataImport')
                 .addItem('secondaryNavigation_dataImport_claim', {
                     link: '/import/claim',
-                    pxRoute: '/import/claimrecords(/.*)?',
                     iconClass: 'glyphicon glyphicon-file'
                 })
                 .addItem('secondaryNavigation_dataImport_damage', {
                     link: '/import/damage',
                     iconClass: 'glyphicon glyphicon-file'
                 });
-            var dataExportMenu = tabMenu.createSubMenu('secondaryNavigation_dataExport', {pxRoute: '/export(/.*)?'})
+            tabMenu.createSubMenu('secondaryNavigation_dataExport')
                 .addItem('secondaryNavigation_dataExport_claim', {
                     link: '/export/claim',
-                    pxRoute: '/import/claimrecords(/.*)?',
                     iconClass: 'glyphicon glyphicon-file'
                 })
                 .addItem('secondaryNavigation_dataExport_damage', {
@@ -269,6 +264,54 @@ describe('Service & Provider: Menu', function () {
             simulateRouteChange('/export/claim');
             expect(menuElements[0].classList.contains('active')).toBeFalsy("expected element to be active: "+menuElements[0].innerText);
             expect(submenuElements[1].classList.contains('active')).toBeFalsy("expected element to be active: "+submenuElements[1].innerText);
+        });
+    });
+
+    describe('Menu Service', function () {
+        var MenuPermissionService;
+        beforeEach(inject(function (_MenuPermissionService_) {
+            MenuPermissionService = _MenuPermissionService_;
+        }));
+
+        it('should setActiveMenuEntryRecursively', function () {
+            var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
+            tabMenu.createSubMenu('secondaryNavigation_dataImport')
+                .addItem('secondaryNavigation_dataImport_claim', {
+                    link: '/import/claim',
+                    iconClass: 'glyphicon glyphicon-file'
+                })
+                .addItem('secondaryNavigation_dataImport_damage', {
+                    link: '/import/damage',
+                    iconClass: 'glyphicon glyphicon-file'
+                });
+
+            MenuPermissionService.setActiveMenuEntryRecursively('/import/claim', tabMenu);
+
+            expect(tabMenu.active).toBeTruthy();
+            expect(tabMenu.items[0].active).toBeTruthy();
+            expect(tabMenu.items[0].items[0].active).toBeTruthy();
+
+            expect(tabMenu.items[0].items[1].active).toBeFalsy();
+        });
+
+        it('should setActiveMenuEntryRecursively root item', function () {
+            var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
+            tabMenu.createSubMenu('secondaryNavigation_dataImport', {link:'/import'})
+                .addItem('secondaryNavigation_dataImport_claim', {
+                    link: '/import/claim',
+                    iconClass: 'glyphicon glyphicon-file'
+                })
+                .addItem('secondaryNavigation_dataImport_damage', {
+                    link: '/import/damage',
+                    iconClass: 'glyphicon glyphicon-file'
+                });
+
+            MenuPermissionService.setActiveMenuEntryRecursively('/import', tabMenu);
+            expect(tabMenu.active).toBeTruthy();
+            expect(tabMenu.items[0].active).toBeTruthy();
+
+            expect(tabMenu.items[0].items[1].active).toBeFalsy();
+            expect(tabMenu.items[0].items[0].active).toBeFalsy();
         });
     });
 

@@ -1818,7 +1818,7 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
   '$injector',
   '$log',
   function ($route, $injector, $log) {
-    var isSubMenuItemAllowed, filterMenuForRouteRestrictions, filterMenuRecursively, Permissions;
+    var isSubMenuItemAllowed, filterMenuForRouteRestrictions, filterMenuRecursively, setActiveMenuEntryRecursively, Permissions;
     try {
       //inject permissions if module exists, otherwise all SubMenuItems are allowed
       Permissions = $injector.get('Permissions');
@@ -1867,9 +1867,31 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
       }
       return filterMenuRecursively(menu, Permissions);
     };
+    setActiveMenuEntryRecursively = function (path, menu) {
+      var subItemFound = false;
+      if (angular.isDefined(menu.items) && menu.items.length > 0) {
+        angular.forEach(menu.items, function (item) {
+          item.active = false;
+          if (setActiveMenuEntryRecursively(path, item) === true) {
+            subItemFound = true;
+            item.active = true;
+            return false;
+          }
+        });
+        menu.active = subItemFound;
+        if (subItemFound === false) {
+          //check if this menu item should be active itself
+          menu.active = menu.link === path;
+        }
+        return menu.active;
+      } else {
+        return menu.link === path;
+      }
+    };
     return {
       isSubMenuItemAllowed: isSubMenuItemAllowed,
-      filterMenuForRouteRestrictions: filterMenuForRouteRestrictions
+      filterMenuForRouteRestrictions: filterMenuForRouteRestrictions,
+      setActiveMenuEntryRecursively: setActiveMenuEntryRecursively
     };
   }
 ]).directive('twgMenu', [
@@ -1882,26 +1904,6 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
     return {
       restrict: 'E',
       link: function (scope, element, attrs) {
-        function setActiveMenuEntryRecursively(path, menu) {
-          var subItemFound;
-          if (angular.isDefined(menu.items) && menu.items.length > 0) {
-            angular.forEach(menu.items, function (item) {
-              item.active = false;
-              if (setActiveMenuEntryRecursively(path, item) === true) {
-                subItemFound = true;
-                item.active = true;
-                return false;
-              }
-            });
-            menu.active = subItemFound;
-            if (subItemFound === false) {
-              //check if root menu item should be active
-              menu.active = menu.link === path;
-            }
-          } else {
-            return menu.link === path;
-          }
-        }
         var menu = angular.copy(Menu.menu(attrs.menuName));
         scope.menu = MenuPermissionService.filterMenuForRouteRestrictions(menu);
         //refilter menu on userInit if menu filtering is required
@@ -1913,9 +1915,9 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
         } else {
           $log.debug('twigs.menu has no user initialized event registered. This may cause problems when using twigs.menu permission filtering');
         }
-        setActiveMenuEntryRecursively($location.path(), scope.menu);
+        MenuPermissionService.setActiveMenuEntryRecursively($location.path(), scope.menu);
         $rootScope.$on('$routeChangeSuccess', function () {
-          setActiveMenuEntryRecursively($location.path(), scope.menu);
+          MenuPermissionService.setActiveMenuEntryRecursively($location.path(), scope.menu);
         });
       },
       templateUrl: function (element, attrs) {
