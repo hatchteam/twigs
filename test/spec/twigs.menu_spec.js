@@ -313,6 +313,27 @@ describe('Service & Provider: Menu', function () {
             expect(tabMenu.items[0].items[1].active).toBeFalsy();
             expect(tabMenu.items[0].items[0].active).toBeFalsy();
         });
+
+        it('should setActiveMenuEntryRecursively nested page', function () {
+            var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
+            tabMenu.createSubMenu('secondaryNavigation_dataImport', {link:'/import'})
+                .addItem('secondaryNavigation_dataImport_claim', {
+                    link: '/import/claim',
+                    iconClass: 'glyphicon glyphicon-file',
+                    activeRoute: '/import/claim(/.*)?'
+                })
+                .addItem('secondaryNavigation_dataImport_damage', {
+                    link: '/import/damage',
+                    iconClass: 'glyphicon glyphicon-file'
+                });
+
+            MenuPermissionService.setActiveMenuEntryRecursively('/import/claim/new', tabMenu);
+            expect(tabMenu.active).toBeTruthy();
+            expect(tabMenu.items[0].active).toBeTruthy();
+
+            expect(tabMenu.items[0].items[0].active).toBeTruthy();
+            expect(tabMenu.items[0].items[1].active).toBeFalsy();
+        });
     });
 
 });

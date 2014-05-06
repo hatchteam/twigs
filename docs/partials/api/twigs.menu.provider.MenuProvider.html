@@ -67,7 +67,10 @@ var settingsMenu = mainMenu.createSubMenu(&#39;main_menu_settings&#39;,
 
 settingsMenu.addItem(&#39;main_menu_settings_users&#39;, {
      text : &#39;Users&#39;,
-      link: &#39;/settings/ac/users&#39;
+     link: &#39;/settings/ac/users&#39;,
+     activeRoute: &#39;/settings/ac/users(/.*)?&#39; // for example navigating to
+                                             // #/settings/ac/users/new also marks this
+                                             // menu item active
   }).addItem(&#39;main_menu_settings_roles&#39;, {
       text : &#39;Roles&#39;,
       link: &#39;/settings/ac/roles&#39;
@@ -110,7 +113,7 @@ ordersMenu.addItem(&#39;main_menu_orders_new_order&#39;, {
 <p>See <a href="#/api/twigs.menu.directive:twgMenu">twgMenu</a> for more information on how to use the twgMenu directive in your views.</p>
 </div></div>
 <div class="member method"><h2 id="methods">Methods</h2>
-<ul class="methods"><li><h3 id="methods_additem">addItem(itemName, itemOptions)</h3>
+<ul class="methods"><li><h3 id="methods_additem">addItem(itemName, itemOptions, (optional))</h3>
 <div class="additem"><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-additem-page"><p>Adds new item with the specified itemName to the list of the child items of a menu item.</p>
 </div><h5 id="methods_additem_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>itemName</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-additem-page"><p>name of the menu item. Name should be unique in the context of
 the whole menu (not just among direct siblings). This restriction is not strictly
@@ -120,6 +123,7 @@ Can contain any attribute which may by referenced in the html template of your m
 are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)</p>
 </div></td></tr><tr><td>itemOptions.text</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-additem-page"><p>The display text or translation key of the item</p>
 </div></td></tr><tr><td>itemOptions.link</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-additem-page"><p>The link which should be opened when the item is clicked</p>
+</div></td></tr><tr><td>(optional)</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-additem-page"><p>itemOptions.activeRoute The link regex used to mark this menu item active if nested pages are under itemOptions.link</p>
 </div></td></tr></tbody></table><h5 id="methods_additem_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-submenuitem">SubMenuItem</a></td><td><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-additem-page"><p>current instance</p>
 </div></td></tr></table></div>
 </li>

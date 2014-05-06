@@ -1734,7 +1734,10 @@ angular.module('twigs.globalPopups').provider('GlobalPopups', function GlobalPop
  *
  * settingsMenu.addItem('main_menu_settings_users', {
  *      text : 'Users',
- *       link: '/settings/ac/users'
+ *      link: '/settings/ac/users',
+ *      activeRoute: '/settings/ac/users(/.*)?' // for example navigating to
+ *                                              // #/settings/ac/users/new also marks this
+ *                                              // menu item active
  *   }).addItem('main_menu_settings_roles', {
  *       text : 'Roles',
  *       link: '/settings/ac/roles'
@@ -1939,6 +1942,7 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
     var _options = options || {};
     this.text = _options.text || name;
     this.link = validateMenuLink(_options.link);
+    this.activeRoute = _options.activeRoute;
     this.options = _options;
   }
   //inherit methods of MenuItem
@@ -1960,6 +1964,7 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
          * are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)
          * @param {string} itemOptions.text The display text or translation key of the item
          * @param {string} itemOptions.link The link which should be opened when the item is clicked
+         * @param {string} (optional) itemOptions.activeRoute The link regex used to mark this menu item active if nested pages are under itemOptions.link
          * @returns {SubMenuItem} current instance
          *
          */
@@ -1999,7 +2004,7 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
   '$injector',
   '$log',
   function ($route, $injector, $log) {
-    var isSubMenuItemAllowed, filterMenuForRouteRestrictions, filterMenuRecursively, setActiveMenuEntryRecursively, Permissions;
+    var isSubMenuItemAllowed, filterMenuForRouteRestrictions, filterMenuRecursively, setActiveMenuEntryRecursively, Permissions, activeRouteRegex;
     try {
       //inject permissions if module exists, otherwise all SubMenuItems are allowed
       Permissions = $injector.get('Permissions');
@@ -2048,6 +2053,15 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
       }
       return filterMenuRecursively(menu, Permissions);
     };
+    activeRouteRegex = function (menu, path) {
+      if (angular.isDefined(menu.activeRoute) && menu.activeRoute.length > 0) {
+        var regexp = new RegExp('^' + menu.activeRoute + '$', 'i');
+        if (regexp.test(path)) {
+          return true;
+        }
+      }
+      return false;
+    };
     setActiveMenuEntryRecursively = function (path, menu) {
       var subItemFound = false;
       if (angular.isDefined(menu.items) && menu.items.length > 0) {
@@ -2062,11 +2076,11 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
         menu.active = subItemFound;
         if (subItemFound === false) {
           //check if this menu item should be active itself
-          menu.active = menu.link === path;
+          menu.active = menu.link === path || activeRouteRegex(menu, path) === true;
         }
         return menu.active;
       } else {
-        return menu.link === path;
+        return menu.link === path || activeRouteRegex(menu, path) === true;
       }
     };
     return {
