@@ -35,8 +35,11 @@
  *
  * In Addition, marker css classes are added the column headers, which enables specific styling (e.g. arrows).
  *
+ * Make sure to add the twg-sortable directive to the table tag. This ensures a separate scope and
+ * allows you to use multiple sortable tables within your same Controller/ View.
+ *
  * ```html
- * <table>
+ * <table twg-sortableTable>
  *  <thead>
  *   <tr>
  *     <th twg-sortable="name">Name</th>
@@ -54,6 +57,16 @@
  */
 angular.module('twigs.sortable')
 
+/**
+ * is placed on the table tag and creates a child scope.
+ */
+    .directive('twgSortableTable', function () {
+        return {
+            restrict: 'A',
+            scope: true
+        };
+    })
+
     .directive('twgSortable', function () {
 
         var CLASS_SORT_ASC = "column-sort-asc";
@@ -64,7 +77,6 @@ angular.module('twigs.sortable')
             restrict: 'A',
             link: function (scope, element, attrs) {
                 var _getClass;
-
                 var propertyName = attrs.twgSortable;
 
                 _getClass = function (prop) {
