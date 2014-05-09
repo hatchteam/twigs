@@ -14,3 +14,23 @@
 .select2-container {
     width: 100%;
 }
+
+
+.column-sort-asc, .column-sort-desc, .column-sort-none {
+    cursor: pointer;
+    padding-right: 30px !important;
+    background-repeat: no-repeat;
+    background-position: center right;
+}
+
+.column-sort-none {
+    background-image: none;
+}
+
+.column-sort-desc {
+    background-image: url(../img/sort_arrow_desc.gif);
+}
+
+.column-sort-asc {
+    background-image: url(../img/sort_arrow_asc.gif);
+}
