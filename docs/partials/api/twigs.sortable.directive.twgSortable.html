@@ -12,7 +12,9 @@ in the usual way in ngRepeat.</p>
 <p>On the first click, the rows are sorted ascending, on a second click to the same column header, the rows are
 sorted descending.</p>
 <p>In Addition, marker css classes are added the column headers, which enables specific styling (e.g. arrows).</p>
-<pre><code class="lang-html">&lt;table&gt;
+<p>Make sure to add the twg-sortable directive to the table tag. This ensures a separate scope and
+allows you to use multiple sortable tables within your same Controller/ View.</p>
+<pre><code class="lang-html">&lt;table twg-sortableTable&gt;
  &lt;thead&gt;
   &lt;tr&gt;
     &lt;th twg-sortable=&quot;name&quot;&gt;Name&lt;/th&gt;

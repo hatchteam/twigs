@@ -216,7 +216,7 @@ NG_DOCS={
       "type": "directive",
       "moduleName": "twigs.sortable",
       "shortDescription": "In a modern user interface, we expect tables to be sortable.",
-      "keywords": "addition api arrows ascending attribute classes click column css data define descending directive dummydata easy enables example expect header headers html interface marker modern ng-repeat ngrepeat number orderby rows scope second set sort sortable sorted specific styling tables td twg-sortable twgsortable twigs user usual variables"
+      "keywords": "add addition allows api arrows ascending attribute classes click column controller css data define descending directive dummydata easy enables ensures example expect header headers html interface marker modern multiple ng-repeat ngrepeat number orderby rows scope second separate set sort sortable sorted specific styling table tables tag td twg-sortable twg-sortabletable twgsortable twigs user usual variables view"
     },
     {
       "section": "api",

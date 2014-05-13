@@ -2545,8 +2545,11 @@ angular.module('twigs.security').service('UserObjectSanityChecker', function () 
  *
  * In Addition, marker css classes are added the column headers, which enables specific styling (e.g. arrows).
  *
+ * Make sure to add the twg-sortable directive to the table tag. This ensures a separate scope and
+ * allows you to use multiple sortable tables within your same Controller/ View.
+ *
  * ```html
- * <table>
+ * <table twg-sortableTable>
  *  <thead>
  *   <tr>
  *     <th twg-sortable="name">Name</th>
@@ -2562,7 +2565,12 @@ angular.module('twigs.security').service('UserObjectSanityChecker', function () 
  * </table>
  * ```
  */
-angular.module('twigs.sortable').directive('twgSortable', function () {
+angular.module('twigs.sortable').directive('twgSortableTable', function () {
+  return {
+    restrict: 'A',
+    scope: true
+  };
+}).directive('twgSortable', function () {
   var CLASS_SORT_ASC = 'column-sort-asc';
   var CLASS_SORT_DESC = 'column-sort-desc';
   var CLASS_SORT_NONE = 'column-sort-none';
