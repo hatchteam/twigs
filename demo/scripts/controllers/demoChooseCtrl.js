@@ -2,7 +2,25 @@
 
 
 angular.module('twigsDemo')
-    .controller('DemoChooseCtrl', function ($scope) {
+    .controller('DemoChooseCtrl', function ($filter, $scope) {
+
+        function toInt(input) {
+            if (typeof input === 'number') {
+                return input;
+            }
+            return parseInt(input, 10);
+        }
+
+        function getObjectByIdFromArray(array, id) {
+            var matches = $filter('filter')(array, {id: toInt(id)});
+            if (matches.length < 1) {
+                throw 'Sorry, no object with id ' + id + ' found in given choices!';
+            } else if (matches.length > 1) {
+                throw 'Sorry, multiple objects with id ' + id + ' found in given choices!';
+            } else {
+                return matches[0];
+            }
+        }
 
 
         $scope.allCountries = [
@@ -13,9 +31,11 @@ angular.module('twigsDemo')
 
 
         $scope.setSelectedCountry = function (id) {
-            $scope.selectedCountry = {
-                id: id
-            };
+            $scope.selectedCountry = id;
+        };
+
+        $scope.setSelectedCountryFull = function (id) {
+            $scope.selectedCountryFull = getObjectByIdFromArray($scope.allCountries, id);
         };
 
         $scope.setSelectedCountries = function (idArray) {
@@ -26,8 +46,14 @@ angular.module('twigsDemo')
             });
             $scope.selectedCountries = idObjectArray;
         };
+        $scope.setSelectedCountriesFull = function (idArray) {
+            var idObjectArray = [];
 
-        $scope.setSelectedCountry(3);
-        $scope.setSelectedCountries([1,2]);
+            idArray.forEach(function (item) {
+                idObjectArray.push({id: item});
+            });
+            $scope.selectedCountriesFull = idObjectArray;
+        };
+
 
     });
