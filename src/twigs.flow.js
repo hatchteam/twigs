@@ -298,7 +298,7 @@ angular.module('twigs.flow')
 
                 finish: function () {
                     this.currentFlowId = undefined;
-                    this.currentFlowModel = undefined;
+                    this.currentFlowModel = {};
                 }
 
             };
