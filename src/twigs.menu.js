@@ -488,11 +488,12 @@ angular.module('twigs.menu')
                 var menu = angular.copy(Menu.menu(attrs.menuName));
                 scope.menu = MenuPermissionService.filterMenuForRouteRestrictions(menu);
 
-                //refilter menu on userInit if menu filtering is required
+                //refilter menu on userInit if menu filtering is required and re-evaluate the active menu entry if menu filtering was applied
                 if(angular.isDefined(Menu.getUserLoadedEventName())){
                     scope.$on(Menu.getUserLoadedEventName(), function(){
                         var menu = angular.copy(Menu.menu(attrs.menuName));
                         scope.menu = MenuPermissionService.filterMenuForRouteRestrictions(menu);
+                        MenuPermissionService.setActiveMenuEntryRecursively($location.path(), scope.menu);
                     });
                 }else{
                     $log.debug("twigs.menu has no user initialized event registered. This may cause problems when using twigs.menu permission filtering");
