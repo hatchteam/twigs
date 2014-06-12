@@ -320,7 +320,7 @@ describe('Service & Provider: Menu', function () {
                 .addItem('secondaryNavigation_dataImport_claim', {
                     link: '/import/claim',
                     iconClass: 'glyphicon glyphicon-file',
-                    activeRoute: '/import/claim(/.*)?'
+                    activeRoute: '/import/claim/.*'
                 })
                 .addItem('secondaryNavigation_dataImport_damage', {
                     link: '/import/damage',
