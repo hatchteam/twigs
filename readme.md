@@ -60,3 +60,23 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
  1. check out the code
  2. run **npm install**
  3. run **grunt test:unit**
+
+ ## Create a new twigs release
+ (this tutorial is only relevant for twigs core developers)
+
+ 1. merge your changes into master and push master
+ 2. change version number in bower.json {
+     "name": "twigs",
+     "version": "0.1.4.1",
+     ...
+ 3. grunt build
+ 4. comit the version number and dist folder
+
+ 4.1 run grunt docu if the docu changed
+ 4.2 comit the new docu to master and "gh-pages" branch
+ 4.3 push gh-pages branch
+
+ 5. push master
+ 6. create new release on github
+
+ 6.1 make sure that all branches (i.e. hotfix and develop) have at least the version of your new release
