@@ -107,6 +107,9 @@
  * @methodOf twigs.globalPopups.provider:GlobalPopups
  *
  * @param {String} successMessage The message displayed as content of the toast.
+ * @returns {Object} an object with the following properties:
+ * 
+ * * close() - a method that can be used to close the toast
  */
 
 /**
@@ -117,6 +120,10 @@
  * @param {String} message The message displayed as content of the modal.
  * @param {String} popupTitle The title of the Modal.
  * @param {String} okButtonText The text of the ok button in the modal footer.
+ * @returns {modalInstance} an object with the following properties:
+ *
+ * * close(result) - a method that can be used to close the modal, passing a result
+ * * opened - a promise that is resolved when the modal gets opened after downloading content's template and resolving all variables
  */
 
 /**
@@ -128,7 +135,12 @@
  * @param {String} popupTitle The title of the Modal.
  * @param {String} noButtonText The text of the left button, interpreted as cancel.
  * @param {String} yesButtonText The text of the right button, interpreted as ok or yes.
- * @returns {Promise} Promise resolved with true or false once the user clicks the yes or no button. (yes -> true, no -> false)
+ * @returns {modalInstance} an object with the following properties:
+ *
+ *  *     close(result) - a method that can be used to close the modal, passing a result,
+ *  *     dismiss(reason) - a method that can be used to dismiss the modal, passing a reason,
+ *  *     result - Promise resolved with true or false once the user clicks the yes or no button. (yes -> true, no -> false),
+ *  *     opened - a promise that is resolved when the modal gets opened after downloading content's template and resolving all variables
  *
  * @example
  * ```javascript
@@ -152,7 +164,7 @@ angular.module('twigs.globalPopups')
         this.toasts = {};
         this.fileModals = {};
 
-        this.$get = function ($rootScope, $modal, $timeout, $templateCache, $http, $compile, $document, $sce) {
+        this.$get = function ($rootScope, $modal, $timeout, $templateCache, $http, $compile, $document, $sce, $q) {
             var toastStack;
 
             /**
@@ -175,7 +187,7 @@ angular.module('twigs.globalPopups')
                         return secondaryButtonText;
                     }
                 };
-                return $modal.open(modalOptions).result;
+                return $modal.open(modalOptions);
             };
             /**
              * Display File Modals using angular bootstrap $modal
@@ -195,7 +207,7 @@ angular.module('twigs.globalPopups')
                         return backButtonText;
                     }
                 };
-                return $modal.open(modalOptions).result;
+                return $modal.open(modalOptions);
             };
             /**
              * Controller for angular bootstrap $modals used for basic Modals
@@ -236,6 +248,7 @@ angular.module('twigs.globalPopups')
              */
             toastStack = { };
             var displayToast = function (toast, messageText) {
+                var deferred = $q.defer();
                 getTemplatePromise(toast.options.templateUrl).then(function (content) {
                     var body = $document.find('body');
                     var scope = $rootScope.$new(true);
@@ -281,7 +294,9 @@ angular.module('twigs.globalPopups')
                             scope.close();
                         }, toast.options.displayDuration);
                     }
+                    deferred.resolve({close: scope.close});
                 });
+                return deferred.promise;
             };
 
             /**
@@ -382,7 +397,7 @@ angular.module('twigs.globalPopups')
                 if (angular.isUndefined(messageText)) {
                     throw "GlobalPupupService." + messageName + " must be called with a message";
                 }
-                serviceInstance.displayToast(toast, messageText);
+                return serviceInstance.displayToast(toast, messageText);
             };
         };
         /**

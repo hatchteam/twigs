@@ -41,18 +41,33 @@
 <div class="infodialog"><h5 id="methods_infodialog_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>message</td><td><a href="" class="label type-hint type-hint-string">String</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-infodialog-page"><p>The message displayed as content of the modal.</p>
 </div></td></tr><tr><td>popupTitle</td><td><a href="" class="label type-hint type-hint-string">String</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-infodialog-page"><p>The title of the Modal.</p>
 </div></td></tr><tr><td>okButtonText</td><td><a href="" class="label type-hint type-hint-string">String</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-infodialog-page"><p>The text of the ok button in the modal footer.</p>
-</div></td></tr></tbody></table></div>
+</div></td></tr></tbody></table><h5 id="methods_infodialog_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-modalinstance">modalInstance</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-infodialog-page"><p>an object with the following properties:</p>
+<ul>
+<li>close(result) - a method that can be used to close the modal, passing a result</li>
+<li>opened - a promise that is resolved when the modal gets opened after downloading content&#39;s template and resolving all variables</li>
+</ul>
+</div></td></tr></table></div>
 </li>
 <li><h3 id="methods_successtoast">successToast(successMessage)</h3>
 <div class="successtoast"><h5 id="methods_successtoast_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>successMessage</td><td><a href="" class="label type-hint type-hint-string">String</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-successtoast-page"><p>The message displayed as content of the toast.</p>
-</div></td></tr></tbody></table></div>
+</div></td></tr></tbody></table><h5 id="methods_successtoast_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">Object</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-successtoast-page"><p>an object with the following properties:</p>
+<ul>
+<li>close() - a method that can be used to close the toast</li>
+</ul>
+</div></td></tr></table></div>
 </li>
 <li><h3 id="methods_yesnodialog">yesnoDialog(message, popupTitle, noButtonText, yesButtonText)</h3>
 <div class="yesnodialog"><h5 id="methods_yesnodialog_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>message</td><td><a href="" class="label type-hint type-hint-string">String</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-yesnodialog-page"><p>The message displayed as content of the modal.</p>
 </div></td></tr><tr><td>popupTitle</td><td><a href="" class="label type-hint type-hint-string">String</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-yesnodialog-page"><p>The title of the Modal.</p>
 </div></td></tr><tr><td>noButtonText</td><td><a href="" class="label type-hint type-hint-string">String</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-yesnodialog-page"><p>The text of the left button, interpreted as cancel.</p>
 </div></td></tr><tr><td>yesButtonText</td><td><a href="" class="label type-hint type-hint-string">String</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-yesnodialog-page"><p>The text of the right button, interpreted as ok or yes.</p>
-</div></td></tr></tbody></table><h5 id="methods_yesnodialog_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-promise">Promise</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-yesnodialog-page"><p>Promise resolved with true or false once the user clicks the yes or no button. (yes -&gt; true, no -&gt; false)</p>
+</div></td></tr></tbody></table><h5 id="methods_yesnodialog_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-modalinstance">modalInstance</a></td><td><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-yesnodialog-page"><p>an object with the following properties:</p>
+<ul>
+<li>close(result) - a method that can be used to close the modal, passing a result,</li>
+<li>dismiss(reason) - a method that can be used to dismiss the modal, passing a reason,</li>
+<li>result - Promise resolved with true or false once the user clicks the yes or no button. (yes -&gt; true, no -&gt; false),</li>
+<li>opened - a promise that is resolved when the modal gets opened after downloading content&#39;s template and resolving all variables</li>
+</ul>
 </div></td></tr></table><h4 id="methods_yesnodialog_example">Example</h4>
 <div class="example"><div class="twigs-globalpopups-provider-page twigs-globalpopups-provider-globalpopups-yesnodialog-page"><pre><code class="lang-javascript">angular.module(&#39;awesome.admin&#39;)
       .controller(&#39;UserCtrl&#39;, function ($scope, GlobalPopups) {

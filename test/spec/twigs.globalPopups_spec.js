@@ -1,19 +1,19 @@
 /* twigs
- * Copyright (C) 2014, Hatch Development Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2014, Hatch Development Team
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 'use strict';
 
@@ -206,6 +206,20 @@ describe('Service & Provider: GlobalPopups', function () {
             expect(capturedModalOptions.templateUrl).toBe('views/globalMsg/fileModal.html');
             expect(capturedModalOptions.backdrop).toBeFalsy();
             expect(capturedModalOptions.keyboard).toBeTruthy();
+        });
+
+        it('should return modal instance', function () {
+            expect(GlobalPopupsProvider).toBeDefined();
+
+            var modal = GlobalPopupsProvider.createModal('infoDialog', {
+                modalOptions: {
+                    templateUrl: 'views/globalMsg/infoModal.html',
+                    backdrop: false,
+                    keyboard: true
+                }
+            });
+            var modal = GlobalPopups.infoDialog('my info message');
+            expect(modal).toBeDefined();
         });
     });
 
