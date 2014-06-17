@@ -1605,11 +1605,11 @@ angular.module('twigs.globalPopups').provider('GlobalPopups', function GlobalPop
   function (GlobalPopupsProvider) {
     GlobalPopupsProvider.createToast('successToast', {
       templateUrl: 'templates/successToast.html',
-      displayDuration: 50000
+      displayDuration: 7000
     });
     GlobalPopupsProvider.createToast('warningToast', {
       templateUrl: 'templates/warningToast.html',
-      displayDuration: 50000
+      displayDuration: 7000
     });
     GlobalPopupsProvider.createModal('infoDialog', {
       modalOptions: {
