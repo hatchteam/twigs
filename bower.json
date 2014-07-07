@@ -1,7 +1,10 @@
 {
     "name": "twigs",
     "version": "0.1.4.2",
-    "main": "./dist/twigs.js",
+    "main": [
+        "./dist/twigs.js",
+        "./dist/styles/twigs.css"
+    ],
     "ignore": [
         "test",
         "demo",
