@@ -1,6 +1,6 @@
 {
     "name": "twigs",
-    "version": "0.1.4.2",
+    "version": "0.1.4.3",
     "main": [
         "./dist/twigs.js",
         "./dist/styles/twigs.css"
