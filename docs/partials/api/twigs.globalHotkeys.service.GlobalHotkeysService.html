@@ -1,0 +1,89 @@
+<h1><code ng:non-bindable="">GlobalHotkeysService</code>
+<div><span class="hint">service in module <code ng:non-bindable="">twigs.globalHotkeys</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-page"><p>GlobalHotkeys allows you to assign actions to specific keyboard key combinations.
+In order for it to work, add the &#39;twg-global-hotkeys&#39; directive to the top-element of your angular application (e.g. the html-element in a single page application).</p>
+<p><strong>Note:</strong> All keydown events within input fields (input/textarea/select), links and buttons do not trigger the hotkey callback.</p>
+<h5 id="description_globally-defined-hotkeys">Globally defined hotkeys</h5>
+<p>Globally defined hotkeys are available on all pages (except if explicitly overridden by path-specific hotkeys). You can define them in the <strong>run</strong> function of your Application&#39;s main module.</p>
+<pre><code class="lang-javascript">var App = angular.module(&#39;Main&#39;,[&#39;twigs.globalHotkeys&#39;]);
+
+App.run(function ($location, GlobalHotkeysService) {
+
+   GlobalHotkeysService.registerGlobalHotkeys([&quot;alt+h&quot;, &quot;shift+h&quot;], function (ev) {
+       // go to home view
+       $location.path(&#39;/#&#39;);
+   });
+
+
+   GlobalHotkeysService.registerGlobalHotkeys([&quot;alt+a&quot;, &quot;shift+a&quot;], function (ev) {
+       // do something here
+   });
+
+});</code></pre>
+<h5 id="description_path-specific-hotkeys">Path-specific hotkeys</h5>
+<p>You can define path-specific hotkeys which can override globally defined hotkeys. These will only be active for the current page.</p>
+<pre><code class="lang-javascript">
+App.controller(&#39;SomeController&#39;, function (GlobalHotkeysService) {
+
+   GlobalHotkeysService.registerPageHotkey(&quot;alt+i&quot;, function () {
+       // do something here
+   });
+
+});</code></pre>
+</div></div>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_registerglobalhotkey">registerGlobalHotkey(The, actionFunction)</h3>
+<div class="registerglobalhotkey"><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkey-page"><p>call this function to register a global (application-wide) hotkey.</p>
+</div><h5 id="methods_registerglobalhotkey_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>The</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkey-page"><p>hotkey as string (e.g.  &#39;n&#39;  or &#39;alt+n&#39; )</p>
+</div></td></tr><tr><td>actionFunction</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkey-page"><p>The callback function that is invoked when a hotkey (-combination) is pressed</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_registerglobalhotkeycode">registerGlobalHotkeyCode(The, actionFunction)</h3>
+<div class="registerglobalhotkeycode"><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkeycode-page"><p>call this function to register a global (application-wide) hotkey with keycode (for special keys like arrows).</p>
+</div><h5 id="methods_registerglobalhotkeycode_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>The</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkeycode-page"><p>hotkey as string (e.g.  &#39;40&#39;  or &#39;alt+40&#39; )</p>
+</div></td></tr><tr><td>actionFunction</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkeycode-page"><p>The callback function that is invoked when a hotkey (-combination) is pressed</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_registerglobalhotkeycodes">registerGlobalHotkeyCodes(hotkey, actionFunction)</h3>
+<div class="registerglobalhotkeycodes"><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkeycodes-page"><p>call this function to register global (application-wide) hotkeys with keycodes (for special keys like arrows).</p>
+</div><h5 id="methods_registerglobalhotkeycodes_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>hotkey</td><td><a href="" class="label type-hint type-hint-string">string[]</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkeycodes-page"><p>An array of hotkeys where each key is a string (e.g.  &#39;33&#39;  or &#39;alt+33&#39; )</p>
+</div></td></tr><tr><td>actionFunction</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkeycodes-page"><p>The callback function that is invoked when a hotkey (-combination) is pressed</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_registerglobalhotkeys">registerGlobalHotkeys(hotkey, actionFunction)</h3>
+<div class="registerglobalhotkeys"><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkeys-page"><p>call this function to register global (application-wide) hotkeys.</p>
+</div><h5 id="methods_registerglobalhotkeys_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>hotkey</td><td><a href="" class="label type-hint type-hint-string">string[]</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkeys-page"><p>An array of hotkeys where each key is a string (e.g.  &#39;n&#39;  or &#39;alt+n&#39; )</p>
+</div></td></tr><tr><td>actionFunction</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerglobalhotkeys-page"><p>The callback function that is invoked when a hotkey (-combination) is pressed</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_registerpagehotkey">registerPageHotkey(hotkey, actionFunction)</h3>
+<div class="registerpagehotkey"><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkey-page"><p>Controllers can call this function to register a route-/path-specific hotkey.</p>
+</div><h5 id="methods_registerpagehotkey_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>hotkey</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkey-page"><p>The hotkey as string (e.g.  &#39;n&#39;  or &#39;alt+n&#39; )</p>
+</div></td></tr><tr><td>actionFunction</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkey-page"><p>The callback function that is invoked when a hotkey (-combination) is pressed</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_registerpagehotkeycode">registerPageHotkeyCode(hotkey, actionFunction)</h3>
+<div class="registerpagehotkeycode"><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkeycode-page"><p>Controllers can call this function to register a route-/path-specific hotkey. Use this when using special keys, e.g. arrows.</p>
+</div><h5 id="methods_registerpagehotkeycode_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>hotkey</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkeycode-page"><p>The hotkey as string (e.g.  &#39;37&#39;  or &#39;alt+37&#39; )</p>
+</div></td></tr><tr><td>actionFunction</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkeycode-page"><p>The callback function that is invoked when a hotkey (-combination) is pressed</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_registerpagehotkeycodes">registerPageHotkeyCodes(hotkey, actionFunction)</h3>
+<div class="registerpagehotkeycodes"><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkeycodes-page"><p>Controllers can call this function to register route-/path-specific hotkeys  with keycode (for special keys like arrows)</p>
+</div><h5 id="methods_registerpagehotkeycodes_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>hotkey</td><td><a href="" class="label type-hint type-hint-string">string[]</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkeycodes-page"><p>An array of hotkeys where each key is a string (e.g.  &#39;39&#39;  or &#39;shift+39&#39; )</p>
+</div></td></tr><tr><td>actionFunction</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkeycodes-page"><p>The callback function that is invoked when a hotkey (-combination) is pressed</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_registerpagehotkeys">registerPageHotkeys(hotkey, actionFunction)</h3>
+<div class="registerpagehotkeys"><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkeys-page"><p>Controllers can call this function to register route-/path-specific hotkeys.</p>
+</div><h5 id="methods_registerpagehotkeys_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>hotkey</td><td><a href="" class="label type-hint type-hint-string">string[]</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkeys-page"><p>An array of hotkeys where each key is a string (e.g.  &#39;n&#39;  or &#39;alt+n&#39; )</p>
+</div></td></tr><tr><td>actionFunction</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-globalhotkeys-service-page twigs-globalhotkeys-service-globalhotkeysservice-registerpagehotkeys-page"><p>The callback function that is invoked when a hotkey (-combination) is pressed</p>
+</div></td></tr></tbody></table></div>
+</li>
+</ul>
+</div>
+</div>

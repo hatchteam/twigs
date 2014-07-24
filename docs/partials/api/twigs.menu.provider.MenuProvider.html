@@ -1,5 +1,5 @@
 <h1><code ng:non-bindable="">MenuProvider</code>
-<div><span class="hint">provider in module <code ng:non-bindable="">twigs.menu</code>
+<div><span class="hint">object in module <code ng:non-bindable="">twigs.menu</code>
 </span>
 </div>
 </h1>
@@ -147,6 +147,14 @@ are predefined and will be mapped to the menuItem directly (i.e. accessible over
 </div></td></tr><tr><td>menuOptions.text</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-createsubmenu-page"><p>The display text or translation key of the item</p>
 </div></td></tr><tr><td>menuOptions.link</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-createsubmenu-page"><p>The link which should be opened when the item is clicked</p>
 </div></td></tr></tbody></table><h5 id="methods_createsubmenu_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-submenuitem">SubMenuItem</a></td><td><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-createsubmenu-page"><p>instance for the new submenu</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_getmenuiteminmenu">getMenuItemInMenu(menuName, itemName)</h3>
+<div class="getmenuiteminmenu"><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-getmenuiteminmenu-page"><p>Searches for a menu item with the specified name in the specified menu.
+Returns the first result, if multiple items with that name exist.</p>
+</div><h5 id="methods_getmenuiteminmenu_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>menuName</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-getmenuiteminmenu-page"><p>name of the menu to search in</p>
+</div></td></tr><tr><td>itemName</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-getmenuiteminmenu-page"><p>name of the menu item to find</p>
+</div></td></tr></tbody></table><h5 id="methods_getmenuiteminmenu_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="twigs-menu-provider-page twigs-menu-provider-menuprovider-getmenuiteminmenu-page"><p>menu item if exists, undefined otherwise</p>
 </div></td></tr></table></div>
 </li>
 <li><h3 id="methods_menu">menu(menuName)</h3>

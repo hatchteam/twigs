@@ -18,322 +18,456 @@
 'use strict';
 
 describe('Service & Provider: Menu', function () {
-    var MenuProvider, Menu, ProtectedRouteProvider;
+  var MenuProvider, Menu, ProtectedRouteProvider;
 
-    beforeEach(function () {
-        // Initialize the service provider by injecting it to a fake module's config block
-        var fakeModule = angular.module('testApp', function () {
-        });
-
-        fakeModule.config(function (_MenuProvider_, _ProtectedRouteProvider_) {
-            MenuProvider = _MenuProvider_;
-            ProtectedRouteProvider = _ProtectedRouteProvider_;
-        });
-
-        angular.mock.module('twigs.menu', 'twigs.protectedRoutes', 'testApp');
+  beforeEach(function () {
+    // Initialize the service provider by injecting it to a fake module's config block
+    var fakeModule = angular.module('testApp', function () {
     });
 
-    describe('Menu Provider', function () {
-
-        beforeEach(inject(function (_Menu_) {
-            Menu = _Menu_;
-        }));
-
-        it('allows to register new main menu', function () {
-            expect(MenuProvider).toBeDefined();
-
-            var mainMenu = MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html")
-                .addItem('main_menu_refdata', {
-                    link: '/refdata/users',
-                    text: 'Reference Data',
-                    iconClass: 'glyphicon glyphicon-person'
-                })
-                .addItem('main_menu_logout', {
-                    link: '/dologout',
-                    text: 'Logout',
-                    iconClass: 'glyphicon glyphicon-logout'
-                });
-
-            expect(mainMenu).toBeDefined();
-            expect(mainMenu.name).toBe('main_menu');
-            expect(mainMenu.templateUrl).toBe('views/menu/mainMenuTemplate.html');
-            expect(mainMenu.items.length).toBe(2);
-
-            expect(mainMenu.items[0].name).toBe('main_menu_refdata');
-            expect(mainMenu.items[0].text).toBe('Reference Data');
-            expect(mainMenu.items[0].link).toBe('/refdata/users');
-            expect(mainMenu.items[0].options.iconClass).toBe('glyphicon glyphicon-person');
-            expect(mainMenu.items[0].items.length).toBe(0);
-
-            expect(mainMenu.items[1].name).toBe('main_menu_logout');
-            expect(mainMenu.items[1].text).toBe('Logout');
-            expect(mainMenu.items[1].link).toBe('/dologout');
-            expect(mainMenu.items[1].options.iconClass).toBe('glyphicon glyphicon-logout');
-            expect(mainMenu.items[1].items.length).toBe(0);
-        });
+    fakeModule.config(function (_MenuProvider_, _ProtectedRouteProvider_) {
+      MenuProvider = _MenuProvider_;
+      ProtectedRouteProvider = _ProtectedRouteProvider_;
     });
 
-    describe('Menu Directive', function () {
-        var $compile, $scope, $httpBackend, $rootScope, $location, $document;
+    angular.mock.module('twigs.menu', 'twigs.protectedRoutes', 'testApp');
+  });
 
-        beforeEach(module(function ($provide) {
-            $provide.value('Permissions', {
-                hasRole: function (role) {
-                    if (role === 'ADMIN') {
-                        return true;
-                    }
-                    return false;
-                }
-            });
-        }));
+  describe('Menu Provider', function () {
 
-        beforeEach(inject(function (_Menu_, _$httpBackend_, _$rootScope_, _$compile_, _$location_, _$document_) {
-            Menu = _Menu_;
-            $scope = _$rootScope_.$new();
-            $rootScope = _$rootScope_;
-            $httpBackend = _$httpBackend_;
-            $compile = _$compile_;
-            $location = _$location_;
-            $document = _$document_;
+    beforeEach(inject(function (_Menu_) {
+      Menu = _Menu_;
+    }));
 
-            $httpBackend.whenGET('views/menu/mainMenuTemplate.html').respond(
-                    '<div class="list-group">' +
-                    '<a x-ng-repeat="menuItem in menu.items" ' +
-                    'class="list-group-item" ' +
-                    'x-ng-href="#{{menuItem.link}}"' +
-                    'x-ng-class="{active: menuItem.active}">{{menuItem.text}}</a>' +
-                    '</div>');
+    it('allows to register new main menu', function () {
+      expect(MenuProvider).toBeDefined();
 
-            $httpBackend.whenGET('views/menu/secondaryNavigation.html').respond(
-                    '<div class="list-group">' +
-                    '<div x-ng-if="menuItem.items.length > 0" x-ng-repeat="menuItem in menu.items"><span class="menuItem" ng-class="{active: menuItem.active}">{{menuItem.text}}</span>' +
-                    '<ul class="submenu">' +
-                    '<li x-ng-repeat="subMenuItem in menuItem.items">' +
-                    '<a href="#{{subMenuItem.link}}" class="list-group-item" ng-class="{active: subMenuItem.active}">{{subMenuItem.text}}</a>' +
-                    '</li>' +
-                    '</ul>' +
-                    '</div>' +
-                    '</div>');
-        }));
+      var mainMenu = MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html")
+        .addItem('main_menu_refdata', {
+          link: '/refdata/users',
+          text: 'Reference Data',
+          iconClass: 'glyphicon glyphicon-person'
+        })
+        .addItem('main_menu_logout', {
+          link: '/dologout',
+          text: 'Logout',
+          iconClass: 'glyphicon glyphicon-logout'
+        });
 
-        function whenCompiling(element) {
-            var compiledElement = $compile(element)($scope);
-            $scope.$digest();
-            return compiledElement;
+      expect(mainMenu).toBeDefined();
+      expect(mainMenu.name).toBe('main_menu');
+      expect(mainMenu.templateUrl).toBe('views/menu/mainMenuTemplate.html');
+      expect(mainMenu.items.length).toBe(2);
+
+      expect(mainMenu.items[0].name).toBe('main_menu_refdata');
+      expect(mainMenu.items[0].text).toBe('Reference Data');
+      expect(mainMenu.items[0].link).toBe('/refdata/users');
+      expect(mainMenu.items[0].options.iconClass).toBe('glyphicon glyphicon-person');
+      expect(mainMenu.items[0].items.length).toBe(0);
+
+      expect(mainMenu.items[1].name).toBe('main_menu_logout');
+      expect(mainMenu.items[1].text).toBe('Logout');
+      expect(mainMenu.items[1].link).toBe('/dologout');
+      expect(mainMenu.items[1].options.iconClass).toBe('glyphicon glyphicon-logout');
+      expect(mainMenu.items[1].items.length).toBe(0);
+    });
+
+    describe('#getMenuItemInMenu', function () {
+
+      it('should find item on top level', function () {
+        MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html")
+          .addItem('main_menu_refdata', {
+            link: '/refdata/users',
+            text: 'Reference Data',
+            iconClass: 'glyphicon glyphicon-person'
+          })
+          .addItem('main_menu_logout', {
+            link: '/dologout',
+            text: 'Logout',
+            iconClass: 'glyphicon glyphicon-logout'
+          });
+
+        var item = MenuProvider.getMenuItemInMenu('main_menu', 'main_menu_logout');
+        expect(item).toBeDefined();
+        expect(item.name).toBe('main_menu_logout');
+      });
+
+      it('should find nested item', function () {
+        MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html")
+          .addItem('main_menu_refdata', {
+            link: '/refdata/users',
+            text: 'Reference Data',
+            iconClass: 'glyphicon glyphicon-person'
+          })
+          .createSubMenu('main_menu_settings', {
+            link: '/settings',
+            text: 'Settings',
+            iconClass: 'glyphicon glyphicon-logout'
+          })
+          .addItem('main_menu_settings_users', {
+            link: '/settings/users',
+            text: 'Users',
+            iconClass: 'glyphicon glyphicon-person'
+          })
+          .addItem('main_menu_settings_roles', {
+            link: '/settings/roles',
+            text: 'Roles',
+            iconClass: 'glyphicon glyphicon-person'
+          });
+
+        var item = MenuProvider.getMenuItemInMenu('main_menu', 'main_menu_settings_users');
+        expect(item).toBeDefined();
+        expect(item.name).toBe('main_menu_settings_users');
+      });
+
+      it('should return first result and break', function () {
+        MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html")
+          .addItem('main_menu_refdata', {
+            link: '/refdata/users',
+            text: 'Reference Data',
+            iconClass: 'glyphicon glyphicon-person'
+          })
+          .createSubMenu('main_menu_settings', {
+            link: '/settings',
+            text: 'Settings',
+            iconClass: 'glyphicon glyphicon-logout'
+          })
+          .addItem('main_menu_settings_users', {
+            link: '/settings/usersFirst',
+            text: 'Users First',
+            iconClass: 'glyphicon glyphicon-person'
+          })
+          .addItem('main_menu_settings_users', {
+            link: '/settings/usersSecond',
+            text: 'Users Second',
+            iconClass: 'glyphicon glyphicon-person'
+          });
+
+        var item = MenuProvider.getMenuItemInMenu('main_menu', 'main_menu_settings_users');
+        expect(item).toBeDefined();
+        expect(item.name).toBe('main_menu_settings_users');
+        expect(item.text).toBe('Users First');
+      });
+
+      it('should return undefined if menuName does not exist', function () {
+        MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html")
+          .addItem('main_menu_refdata', {
+            link: '/refdata/users',
+            text: 'Reference Data',
+            iconClass: 'glyphicon glyphicon-person'
+          })
+          .addItem('main_menu_logout', {
+            link: '/dologout',
+            text: 'Logout',
+            iconClass: 'glyphicon glyphicon-logout'
+          });
+
+        var item = MenuProvider.getMenuItemInMenu('not_existent', 'main_menu_refdata');
+        expect(item).toBeUndefined();
+      });
+
+      it('should return undefined if menuItem does not exist', function () {
+        MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html")
+          .addItem('main_menu_refdata', {
+            link: '/refdata/users',
+            text: 'Reference Data',
+            iconClass: 'glyphicon glyphicon-person'
+          })
+          .addItem('main_menu_logout', {
+            link: '/dologout',
+            text: 'Logout',
+            iconClass: 'glyphicon glyphicon-logout'
+          });
+
+        var item = MenuProvider.getMenuItemInMenu('main_menu', 'not_existent');
+        expect(item).toBeUndefined();
+      });
+    });
+  });
+
+  describe('Menu Directive', function () {
+    var $compile, $scope, $httpBackend, $rootScope, $location, $document;
+
+    beforeEach(module(function ($provide) {
+      $provide.value('Permissions', {
+        hasRole: function (role) {
+          if (role === 'ADMIN') {
+            return true;
+          }
+          return false;
         }
+      });
+    }));
 
-        it('displays main menu and filters menuItems depending on users role', function () {
-            var mainMenu = MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html")
-                .addItem('refdata', {
-                    link: '/refdata/users',
-                    iconClass: 'glyphicon glyphicon-person'
-                })
-                .addItem('logout', {
-                    link: '/dologout',
-                    iconClass: 'glyphicon glyphicon-logout'
-                })
-                .addItem('forbidden', {
-                    link: '/forbidden',
-                    iconClass: 'glyphicon glyphicon-logout'
-                });
+    beforeEach(inject(function (_Menu_, _$httpBackend_, _$rootScope_, _$compile_, _$location_, _$document_) {
+      Menu = _Menu_;
+      $scope = _$rootScope_.$new();
+      $rootScope = _$rootScope_;
+      $httpBackend = _$httpBackend_;
+      $compile = _$compile_;
+      $location = _$location_;
+      $document = _$document_;
 
-            ProtectedRouteProvider
-                .when('/refdata/users', {
-                    templateUrl: 'views/refdata/users.html',
-                    controller: 'UsersCtrl',
-                    //user posesses this role
-                    neededRoles: ['ADMIN']})
-                .when('/forbidden', {
-                    templateUrl: 'forbidden.html',
-                    controller: 'ForbiddenCtrl',
-                    //user does not posess this role
-                    neededRoles: ['RESTRICTED']
-                }).otherwise({
-                    redirectTo: '/'
-                });
+      $httpBackend.whenGET('views/menu/mainMenuTemplate.html').respond(
+          '<div class="list-group">' +
+          '<a x-ng-repeat="menuItem in menu.items" ' +
+          'class="list-group-item" ' +
+          'x-ng-href="#{{menuItem.link}}"' +
+          'x-ng-class="{active: menuItem.active}">{{menuItem.text}}</a>' +
+          '</div>');
 
-            var el = angular.element('<div><twg-menu menu-name="main_menu"></twigs-menu></div>');
-            var element = whenCompiling(el);
+      $httpBackend.whenGET('views/menu/secondaryNavigation.html').respond(
+          '<div class="list-group">' +
+          '<div x-ng-if="menuItem.items.length > 0" x-ng-repeat="menuItem in menu.items"><span class="menuItem" ng-class="{active: menuItem.active}">{{menuItem.text}}</span>' +
+          '<ul class="submenu">' +
+          '<li x-ng-repeat="subMenuItem in menuItem.items">' +
+          '<a href="#{{subMenuItem.link}}" class="list-group-item" ng-class="{active: subMenuItem.active}">{{subMenuItem.text}}</a>' +
+          '</li>' +
+          '</ul>' +
+          '</div>' +
+          '</div>');
 
-            $httpBackend.flush();
+      $httpBackend.whenGET('overrideTemplate.html').respond('<div>overridden</div>');
+    }));
 
-            var linkElements = element.find('a.list-group-item');
-            expect(linkElements.length).toBe(2);
-            expect(linkElements[0].hash).toBe('#/refdata/users');
-            expect(linkElements[1].hash).toBe('#/dologout');
-            expect(linkElements[0].innerText).toBe('refdata');
-            expect(linkElements[1].innerText).toBe('logout');
+    function whenCompiling(element) {
+      var compiledElement = $compile(element)($scope);
+      $scope.$digest();
+      return compiledElement;
+    }
+
+    it('displays main menu and filters menuItems depending on users role', function () {
+      var mainMenu = MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html")
+        .addItem('refdata', {
+          link: '/refdata/users',
+          iconClass: 'glyphicon glyphicon-person'
+        })
+        .addItem('logout', {
+          link: '/dologout',
+          iconClass: 'glyphicon glyphicon-logout'
+        })
+        .addItem('forbidden', {
+          link: '/forbidden',
+          iconClass: 'glyphicon glyphicon-logout'
         });
 
-        it('filters menuItems recursively depending on users role', function () {
-            var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
-            tabMenu.createSubMenu('secondaryNavigation_dataImport')
-                .addItem('secondaryNavigation_dataImport_claim', {
-                    link: '/import/claim',
-                    iconClass: 'glyphicon glyphicon-file'
-                })
-                .addItem('secondaryNavigation_dataImport_damage', {
-                    link: '/import/damage',
-                    iconClass: 'glyphicon glyphicon-file'
-                });
-           tabMenu.createSubMenu('secondaryNavigation_dataExport')
-                .addItem('secondaryNavigation_dataExport_claim', {
-                    link: '/export/claim',
-                    iconClass: 'glyphicon glyphicon-file'
-                })
-                .addItem('secondaryNavigation_dataExport_damage', {
-                    link: '/export/damage',
-                    iconClass: 'glyphicon glyphicon-file'
-                });
-
-            ProtectedRouteProvider
-                .when('/import/claim', {
-                    templateUrl: 'views/import/claim.html',
-                    controller: 'UsersCtrl',
-                    neededRoles: ['RESTRICTED']})  //user does not posess this role
-                .when('/import/damage', {
-                    templateUrl: 'views/import/damage.html',
-                    controller: 'ForbiddenCtrl',
-                    neededRoles: ['RESTRICTED']  //user does not posess this role
-                })
-                .when('/export/claim', {
-                    templateUrl: 'views/export/claim.html',
-                    controller: 'UsersCtrl',
-                    neededRoles: ['RESTRICTED']})  //user does not posess this role
-                .when('/export/damage', {
-                    templateUrl: 'views/export/damage.html',
-                    controller: 'ForbiddenCtrl',
-                    neededRoles: ['ADMIN']  //user does posesses this role
-                }).otherwise({
-                    redirectTo: '/'
-                });
-
-            var el = angular.element('<div><twg-menu menu-name="secondaryNavigation"></twigs-menu></div>');
-            var element = whenCompiling(el);
-
-            $httpBackend.flush();
-
-            var linkElements = element.find('a.list-group-item');
-            expect(linkElements.length).toBe(1);
-            expect(linkElements[0].hash).toBe('#/export/damage');
-            expect(linkElements[0].innerText).toBe('secondaryNavigation_dataExport_damage');
+      ProtectedRouteProvider
+        .when('/refdata/users', {
+          templateUrl: 'views/refdata/users.html',
+          controller: 'UsersCtrl',
+          //user posesses this role
+          neededRoles: ['ADMIN']})
+        .when('/forbidden', {
+          templateUrl: 'forbidden.html',
+          controller: 'ForbiddenCtrl',
+          //user does not posess this role
+          neededRoles: ['RESTRICTED']
+        }).otherwise({
+          redirectTo: '/'
         });
 
-        function simulateRouteChange(path) {
-            $location.path(path);
-            $rootScope.$broadcast('$routeChangeSuccess');
-            $rootScope.$apply();
-        }
+      var el = angular.element('<div><twg-menu menu-name="main_menu"></twigs-menu></div>');
+      var element = whenCompiling(el);
 
-        //checks if, when a child menu item is active due to the browsers current path and the menu items link, all parent items of the active child item are set active.
-        it('sets menu tree active recursively depending on current route', function () {
-            var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
-            tabMenu.createSubMenu('secondaryNavigation_dataImport')
-                .addItem('secondaryNavigation_dataImport_claim', {
-                    link: '/import/claim',
-                    iconClass: 'glyphicon glyphicon-file'
-                })
-                .addItem('secondaryNavigation_dataImport_damage', {
-                    link: '/import/damage',
-                    iconClass: 'glyphicon glyphicon-file'
-                });
-            tabMenu.createSubMenu('secondaryNavigation_dataExport')
-                .addItem('secondaryNavigation_dataExport_claim', {
-                    link: '/export/claim',
-                    iconClass: 'glyphicon glyphicon-file'
-                })
-                .addItem('secondaryNavigation_dataExport_damage', {
-                    link: '/export/damage',
-                    iconClass: 'glyphicon glyphicon-file'
-                });
+      $httpBackend.flush();
 
-            var el = angular.element('<div><twg-menu menu-name="secondaryNavigation"></twigs-menu></div>');
-            var element = whenCompiling(el);
-            $httpBackend.flush();
-
-            simulateRouteChange('/import/damage');
-
-            var menuElements = element.find('span.menuItem');
-            var submenuElements = element.find('a.list-group-item');
-
-            //test if active is added to selected route tree
-            expect(menuElements[0].classList.contains('active')).toBeTruthy("expected element to be active: " + menuElements[0].innerText);
-            expect(submenuElements[1].classList.contains('active')).toBeTruthy("expected element to be active: " + submenuElements[1].innerText);
-
-            //test if active is removed on route change
-            simulateRouteChange('/export/claim');
-            expect(menuElements[0].classList.contains('active')).toBeFalsy("expected element to be active: " + menuElements[0].innerText);
-            expect(submenuElements[1].classList.contains('active')).toBeFalsy("expected element to be active: " + submenuElements[1].innerText);
-        });
+      var linkElements = element.find('a.list-group-item');
+      expect(linkElements.length).toBe(2);
+      expect(linkElements[0].hash).toBe('#/refdata/users');
+      expect(linkElements[1].hash).toBe('#/dologout');
+      expect(linkElements[0].innerText).toBe('refdata');
+      expect(linkElements[1].innerText).toBe('logout');
     });
 
-    describe('Menu Service', function () {
-        var MenuPermissionService;
-        beforeEach(inject(function (_MenuPermissionService_) {
-            MenuPermissionService = _MenuPermissionService_;
-        }));
-
-        it('should setActiveMenuEntryRecursively', function () {
-            var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
-            tabMenu.createSubMenu('secondaryNavigation_dataImport')
-                .addItem('secondaryNavigation_dataImport_claim', {
-                    link: '/import/claim',
-                    iconClass: 'glyphicon glyphicon-file'
-                })
-                .addItem('secondaryNavigation_dataImport_damage', {
-                    link: '/import/damage',
-                    iconClass: 'glyphicon glyphicon-file'
-                });
-
-            MenuPermissionService.setActiveMenuEntryRecursively('/import/claim', tabMenu);
-
-            expect(tabMenu.active).toBeTruthy();
-            expect(tabMenu.items[0].active).toBeTruthy();
-            expect(tabMenu.items[0].items[0].active).toBeTruthy();
-
-            expect(tabMenu.items[0].items[1].active).toBeFalsy();
+    it('filters menuItems recursively depending on users role', function () {
+      var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
+      tabMenu.createSubMenu('secondaryNavigation_dataImport')
+        .addItem('secondaryNavigation_dataImport_claim', {
+          link: '/import/claim',
+          iconClass: 'glyphicon glyphicon-file'
+        })
+        .addItem('secondaryNavigation_dataImport_damage', {
+          link: '/import/damage',
+          iconClass: 'glyphicon glyphicon-file'
+        });
+      tabMenu.createSubMenu('secondaryNavigation_dataExport')
+        .addItem('secondaryNavigation_dataExport_claim', {
+          link: '/export/claim',
+          iconClass: 'glyphicon glyphicon-file'
+        })
+        .addItem('secondaryNavigation_dataExport_damage', {
+          link: '/export/damage',
+          iconClass: 'glyphicon glyphicon-file'
         });
 
-        it('should setActiveMenuEntryRecursively root item', function () {
-            var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
-            tabMenu.createSubMenu('secondaryNavigation_dataImport', {link:'/import'})
-                .addItem('secondaryNavigation_dataImport_claim', {
-                    link: '/import/claim',
-                    iconClass: 'glyphicon glyphicon-file'
-                })
-                .addItem('secondaryNavigation_dataImport_damage', {
-                    link: '/import/damage',
-                    iconClass: 'glyphicon glyphicon-file'
-                });
-
-            MenuPermissionService.setActiveMenuEntryRecursively('/import', tabMenu);
-            expect(tabMenu.active).toBeTruthy();
-            expect(tabMenu.items[0].active).toBeTruthy();
-
-            expect(tabMenu.items[0].items[1].active).toBeFalsy();
-            expect(tabMenu.items[0].items[0].active).toBeFalsy();
+      ProtectedRouteProvider
+        .when('/import/claim', {
+          templateUrl: 'views/import/claim.html',
+          controller: 'UsersCtrl',
+          neededRoles: ['RESTRICTED']})  //user does not posess this role
+        .when('/import/damage', {
+          templateUrl: 'views/import/damage.html',
+          controller: 'ForbiddenCtrl',
+          neededRoles: ['RESTRICTED']  //user does not posess this role
+        })
+        .when('/export/claim', {
+          templateUrl: 'views/export/claim.html',
+          controller: 'UsersCtrl',
+          neededRoles: ['RESTRICTED']})  //user does not posess this role
+        .when('/export/damage', {
+          templateUrl: 'views/export/damage.html',
+          controller: 'ForbiddenCtrl',
+          neededRoles: ['ADMIN']  //user does posesses this role
+        }).otherwise({
+          redirectTo: '/'
         });
 
-        it('should setActiveMenuEntryRecursively nested page', function () {
-            var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
-            tabMenu.createSubMenu('secondaryNavigation_dataImport', {link:'/import'})
-                .addItem('secondaryNavigation_dataImport_claim', {
-                    link: '/import/claim',
-                    iconClass: 'glyphicon glyphicon-file',
-                    activeRoute: '/import/claim/.*'
-                })
-                .addItem('secondaryNavigation_dataImport_damage', {
-                    link: '/import/damage',
-                    iconClass: 'glyphicon glyphicon-file'
-                });
+      var el = angular.element('<div><twg-menu menu-name="secondaryNavigation"></twigs-menu></div>');
+      var element = whenCompiling(el);
 
-            MenuPermissionService.setActiveMenuEntryRecursively('/import/claim/new', tabMenu);
-            expect(tabMenu.active).toBeTruthy();
-            expect(tabMenu.items[0].active).toBeTruthy();
+      $httpBackend.flush();
 
-            expect(tabMenu.items[0].items[0].active).toBeTruthy();
-            expect(tabMenu.items[0].items[1].active).toBeFalsy();
-        });
+      var linkElements = element.find('a.list-group-item');
+      expect(linkElements.length).toBe(1);
+      expect(linkElements[0].hash).toBe('#/export/damage');
+      expect(linkElements[0].innerText).toBe('secondaryNavigation_dataExport_damage');
     });
+
+    function simulateRouteChange(path) {
+      $location.path(path);
+      $rootScope.$broadcast('$routeChangeSuccess');
+      $rootScope.$apply();
+    }
+
+    //checks if, when a child menu item is active due to the browsers current path and the menu items link, all parent items of the active child item are set active.
+    it('sets menu tree active recursively depending on current route', function () {
+      var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
+      tabMenu.createSubMenu('secondaryNavigation_dataImport')
+        .addItem('secondaryNavigation_dataImport_claim', {
+          link: '/import/claim',
+          iconClass: 'glyphicon glyphicon-file'
+        })
+        .addItem('secondaryNavigation_dataImport_damage', {
+          link: '/import/damage',
+          iconClass: 'glyphicon glyphicon-file'
+        });
+      tabMenu.createSubMenu('secondaryNavigation_dataExport')
+        .addItem('secondaryNavigation_dataExport_claim', {
+          link: '/export/claim',
+          iconClass: 'glyphicon glyphicon-file'
+        })
+        .addItem('secondaryNavigation_dataExport_damage', {
+          link: '/export/damage',
+          iconClass: 'glyphicon glyphicon-file'
+        });
+
+      var el = angular.element('<div><twg-menu menu-name="secondaryNavigation"></twigs-menu></div>');
+      var element = whenCompiling(el);
+      $httpBackend.flush();
+
+      simulateRouteChange('/import/damage');
+
+      var menuElements = element.find('span.menuItem');
+      var submenuElements = element.find('a.list-group-item');
+
+      //test if active is added to selected route tree
+      expect(menuElements[0].classList.contains('active')).toBeTruthy("expected element to be active: " + menuElements[0].innerText);
+      expect(submenuElements[1].classList.contains('active')).toBeTruthy("expected element to be active: " + submenuElements[1].innerText);
+
+      //test if active is removed on route change
+      simulateRouteChange('/export/claim');
+      expect(menuElements[0].classList.contains('active')).toBeFalsy("expected element to be active: " + menuElements[0].innerText);
+      expect(submenuElements[1].classList.contains('active')).toBeFalsy("expected element to be active: " + submenuElements[1].innerText);
+    });
+
+    it('should override provider template with template in directive template-url', function () {
+      MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html')
+        .addItem('secondaryNavigation_dataImport_claim', {
+          link: '/import/claim',
+          iconClass: 'glyphicon glyphicon-file'
+        })
+        .addItem('secondaryNavigation_dataImport_damage', {
+          link: '/import/damage',
+          iconClass: 'glyphicon glyphicon-file'
+        });
+
+      var el = angular.element('<div><twg-menu menu-name="secondaryNavigation" template-url="overrideTemplate.html"></twigs-menu></div>');
+      var element = whenCompiling(el);
+
+      $httpBackend.flush();
+
+      var div = element.find('div');
+      expect(div[0].innerText).toBe('overridden');
+    });
+  });
+
+  describe('Menu Service', function () {
+    var MenuPermissionService;
+    beforeEach(inject(function (_MenuPermissionService_) {
+      MenuPermissionService = _MenuPermissionService_;
+    }));
+
+    it('should setActiveMenuEntryRecursively', function () {
+      var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
+      tabMenu.createSubMenu('secondaryNavigation_dataImport')
+        .addItem('secondaryNavigation_dataImport_claim', {
+          link: '/import/claim',
+          iconClass: 'glyphicon glyphicon-file'
+        })
+        .addItem('secondaryNavigation_dataImport_damage', {
+          link: '/import/damage',
+          iconClass: 'glyphicon glyphicon-file'
+        });
+
+      MenuPermissionService.setActiveMenuEntryRecursively('/import/claim', tabMenu);
+
+      expect(tabMenu.active).toBeTruthy();
+      expect(tabMenu.items[0].active).toBeTruthy();
+      expect(tabMenu.items[0].items[0].active).toBeTruthy();
+
+      expect(tabMenu.items[0].items[1].active).toBeFalsy();
+    });
+
+    it('should setActiveMenuEntryRecursively root item', function () {
+      var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
+      tabMenu.createSubMenu('secondaryNavigation_dataImport', {link: '/import'})
+        .addItem('secondaryNavigation_dataImport_claim', {
+          link: '/import/claim',
+          iconClass: 'glyphicon glyphicon-file'
+        })
+        .addItem('secondaryNavigation_dataImport_damage', {
+          link: '/import/damage',
+          iconClass: 'glyphicon glyphicon-file'
+        });
+
+      MenuPermissionService.setActiveMenuEntryRecursively('/import', tabMenu);
+      expect(tabMenu.active).toBeTruthy();
+      expect(tabMenu.items[0].active).toBeTruthy();
+
+      expect(tabMenu.items[0].items[1].active).toBeFalsy();
+      expect(tabMenu.items[0].items[0].active).toBeFalsy();
+    });
+
+    it('should setActiveMenuEntryRecursively nested page', function () {
+      var tabMenu = MenuProvider.createMenu('secondaryNavigation', 'views/menu/secondaryNavigation.html');
+      tabMenu.createSubMenu('secondaryNavigation_dataImport', {link: '/import'})
+        .addItem('secondaryNavigation_dataImport_claim', {
+          link: '/import/claim',
+          iconClass: 'glyphicon glyphicon-file',
+          activeRoute: '/import/claim/.*'
+        })
+        .addItem('secondaryNavigation_dataImport_damage', {
+          link: '/import/damage',
+          iconClass: 'glyphicon glyphicon-file'
+        });
+
+      MenuPermissionService.setActiveMenuEntryRecursively('/import/claim/new', tabMenu);
+      expect(tabMenu.active).toBeTruthy();
+      expect(tabMenu.items[0].active).toBeTruthy();
+
+      expect(tabMenu.items[0].items[0].active).toBeTruthy();
+      expect(tabMenu.items[0].items[1].active).toBeFalsy();
+    });
+  });
 
 });

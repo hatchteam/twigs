@@ -201,8 +201,9 @@ angular.module('twigs.choose').service('ChooseConfig', function ChooseConfig() {
     getNoResultMessage: getNoResultMessage
   };
 }).service('ChooseHelper', [
+  '$filter',
   'ChooseConfig',
-  function ChooseHelper(ChooseConfig) {
+  function ChooseHelper($filter, ChooseConfig) {
     function convertExternToInternMultiple(externNgModel) {
       if (angular.isUndefined(externNgModel)) {
         return;
@@ -243,8 +244,17 @@ angular.module('twigs.choose').service('ChooseConfig', function ChooseConfig() {
       });
       return mappedArray;
     }
+    function convertInternToExternMultipleFull(internBinding, choices) {
+      if (!angular.isArray(internBinding)) {
+        throw 'With multiple selection, intern model is expected to be an array!';
+      }
+      return getObjectsByIdFromArray(choices, internBinding);
+    }
     function convertInternToExternSingle(internBinding) {
       return { id: toInt(internBinding) };
+    }
+    function convertInternToExternSingleFull(internBinding, choices) {
+      return getObjectByIdFromArray(choices, internBinding);
     }
     function toInt(input) {
       if (typeof input === 'number') {
@@ -252,11 +262,15 @@ angular.module('twigs.choose').service('ChooseConfig', function ChooseConfig() {
       }
       return parseInt(input, 10);
     }
-    function getChoiceLabel(choice, propertyName) {
-      if (angular.isUndefined(propertyName) || propertyName === '' || angular.isUndefined(choice[propertyName])) {
+    function getChoiceLabel(scope, choice, propertyName) {
+      if (angular.isUndefined(propertyName) || propertyName === '') {
         return choice;
-      } else {
+      } else if (angular.isDefined(scope.$parent[propertyName]) && typeof scope.$parent[propertyName] === 'function') {
+        return scope.$parent[propertyName](choice);
+      } else if (angular.isDefined(choice[propertyName])) {
         return choice[propertyName];
+      } else {
+        return choice;
       }
     }
     function getDefaultSelect2Options(customNoResultMessage) {
@@ -272,11 +286,33 @@ angular.module('twigs.choose').service('ChooseConfig', function ChooseConfig() {
         }
       };
     }
+    function getObjectByIdFromArray(array, id) {
+      var matches = $filter('filter')(array, { id: toInt(id) });
+      if (matches.length < 1) {
+        throw 'Sorry, no object with id ' + id + ' found in given choices!';
+      } else if (matches.length > 1) {
+        throw 'Sorry, multiple objects with id ' + id + ' found in given choices!';
+      } else {
+        return matches[0];
+      }
+    }
+    function getObjectsByIdFromArray(array, idsArray) {
+      var matches = $filter('filter')(array, function (element) {
+          return $filter('filter')(idsArray, element.id.toString()).length > 0;
+        });
+      if (matches.length < 1) {
+        throw 'Sorry, no object with ids ' + idsArray + ' found in given choices!';
+      } else {
+        return matches;
+      }
+    }
     return {
       convertExternToInternMultiple: convertExternToInternMultiple,
       convertExternToInternSingle: convertExternToInternSingle,
       convertInternToExternMultiple: convertInternToExternMultiple,
+      convertInternToExternMultipleFull: convertInternToExternMultipleFull,
       convertInternToExternSingle: convertInternToExternSingle,
+      convertInternToExternSingleFull: convertInternToExternSingleFull,
       getChoiceLabel: getChoiceLabel,
       getDefaultSelect2Options: getDefaultSelect2Options
     };
@@ -292,6 +328,7 @@ angular.module('twigs.choose').service('ChooseConfig', function ChooseConfig() {
       scope: {
         choices: '=',
         ngModel: '=',
+        twgChooseFullObject: '@',
         choiceDisplayname: '@',
         noResultMessage: '@'
       },
@@ -300,10 +337,14 @@ angular.module('twigs.choose').service('ChooseConfig', function ChooseConfig() {
           return ChooseHelper.convertExternToInternSingle(modelValue);
         });
         ngModelController.$parsers.push(function (viewValue) {
-          return ChooseHelper.convertInternToExternSingle(viewValue);
+          if (scope.twgChooseFullObject) {
+            return ChooseHelper.convertInternToExternSingleFull(viewValue, scope.choices);
+          } else {
+            return ChooseHelper.convertInternToExternSingle(viewValue);
+          }
         });
         scope.getLabel = function (choice) {
-          return ChooseHelper.getChoiceLabel(choice, scope.choiceDisplayname);
+          return ChooseHelper.getChoiceLabel(scope, choice, scope.choiceDisplayname);
         };
         scope.select2Options = ChooseHelper.getDefaultSelect2Options(scope.noResultMessage);
       }
@@ -320,6 +361,7 @@ angular.module('twigs.choose').service('ChooseConfig', function ChooseConfig() {
       scope: {
         choices: '=',
         ngModel: '=',
+        twgChooseFullObject: '@',
         choiceDisplayname: '@',
         noResultMessage: '@'
       },
@@ -328,10 +370,14 @@ angular.module('twigs.choose').service('ChooseConfig', function ChooseConfig() {
           return ChooseHelper.convertExternToInternMultiple(modelValue);
         });
         ngModelController.$parsers.push(function (viewValue) {
-          return ChooseHelper.convertInternToExternMultiple(viewValue);
+          if (scope.twgChooseFullObject) {
+            return ChooseHelper.convertInternToExternMultipleFull(viewValue, scope.choices);
+          } else {
+            return ChooseHelper.convertInternToExternMultiple(viewValue);
+          }
         });
         scope.getLabel = function (choice) {
-          return ChooseHelper.getChoiceLabel(choice, scope.choiceDisplayname);
+          return ChooseHelper.getChoiceLabel(scope, choice, scope.choiceDisplayname);
         };
         scope.select2Options = ChooseHelper.getDefaultSelect2Options(scope.noResultMessage);
       }
@@ -792,7 +838,7 @@ angular.module('twigs.flow').provider('Flow', function () {
           },
           finish: function () {
             this.currentFlowId = undefined;
-            this.currentFlowModel = undefined;
+            this.currentFlowModel = {};
           }
         };
       return FlowService;
@@ -1605,11 +1651,11 @@ angular.module('twigs.globalPopups').provider('GlobalPopups', function GlobalPop
   function (GlobalPopupsProvider) {
     GlobalPopupsProvider.createToast('successToast', {
       templateUrl: 'templates/successToast.html',
-      displayDuration: 50000
+      displayDuration: 7000
     });
     GlobalPopupsProvider.createToast('warningToast', {
       templateUrl: 'templates/warningToast.html',
-      displayDuration: 50000
+      displayDuration: 7000
     });
     GlobalPopupsProvider.createModal('infoDialog', {
       modalOptions: {
@@ -1803,6 +1849,8 @@ angular.module('twigs.globalPopups').provider('GlobalPopups', function GlobalPop
  * @ngdoc directive
  * @name twigs.menu.directive:twgMenu
  * @element ANY
+ * @attribute menu-name the name of the menu to be rendered (defined on the MenuProvider.createMenu(...  )
+ * @attribute template-url (optional) the template to be used when rendering the menu
  *
  * @description
  * In many web applications you will need navigations or menus which are present on all or multiple html pages. TwgMenu allows you
@@ -1817,10 +1865,52 @@ angular.module('twigs.globalPopups').provider('GlobalPopups', function GlobalPop
  *<twigs-menu menu-name="main_menu"></twigs-menu>
  * ```
  *
+ * Normally, twigs-menu renders the menu with the html template specified on the MenuProvider.createMenu(...
+ * Alternatively a different template may be specified directly on the directive as follows:
+ *
+ *```html
+ *<twigs-menu menu-name="main_menu" template-url="navigation/mySpecialTemplate.html">
+ *</twigs-menu>
+ * ```
+ *
  * See [MenuProvider](#/api/twigs.menu.provider:MenuProvider) for more information on how to set up Menus.
  */
 angular.module('twigs.menu').provider('Menu', function Menu() {
   var menus = {}, userLoadedEventName;
+  function searchItemRecursively(item, itemName) {
+    //the recursion
+    if (item.items.length > 0) {
+      var foundItem;
+      item.items.every(function (subItem) {
+        foundItem = searchItemRecursively(subItem, itemName);
+        return !foundItem;  //break if foundItem is defined -> item was found
+      });
+      if (foundItem) {
+        return foundItem;
+      }
+    }
+    //the actual check
+    if (item.name === itemName) {
+      return item;
+    }
+  }
+  function findMenuItemInMenu(menuName, itemName) {
+    if (!menus[menuName]) {
+      return undefined;
+    }
+    return searchItemRecursively(menus[menuName], itemName);
+  }
+  //    function findMenuItemInMenu(menuName, itemName) {
+  //      if (!menus[menuName]) {
+  //        return undefined;
+  //      }
+  //      var foundItem;
+  //      menus[menuName].items.every(function (item) {
+  //        foundItem =  searchItemRecursively(item, itemName);
+  //        return !foundItem; //break if foundItem is defined -> item was found
+  //      });
+  //      return foundItem;
+  //    }
   var serviceInstance = {
       createMenu: function (menuName, templateUrl) {
         var menu = new RootMenuItem(menuName, templateUrl);
@@ -1832,6 +1922,9 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
       },
       menu: function (menuName) {
         return menus[menuName];
+      },
+      getMenuItemInMenu: function (menuName, itemName) {
+        return findMenuItemInMenu(menuName, itemName);
       },
       removeMenu: function (menuName) {
         delete menus[menuName];
@@ -1847,72 +1940,88 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
     return serviceInstance;
   };
   /**
-         * @ngdoc function
-         * @name twigs.menu.provider:MenuProvider#createMenu
-         * @methodOf twigs.menu.provider:MenuProvider
-         *
-         * @description
-         * Defines a new Menu.
-         *
-         * @param {String} menuName The name of the menu
-         * @param {String} templateUrl The template used to render this menu
-         * @returns {RootMenuItem} root instance for the new menu.
-         *
-         * Example:
-         * ```javascript
-         * var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html');
-         * ```
-         */
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#createMenu
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Defines a new Menu.
+     *
+     * @param {String} menuName The name of the menu
+     * @param {String} templateUrl The template used to render this menu
+     * @returns {RootMenuItem} root instance for the new menu.
+     *
+     * Example:
+     * ```javascript
+     * var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html');
+     * ```
+     */
   this.createMenu = function (menuName, templateUrl) {
     return serviceInstance.createMenu(menuName, templateUrl);
   };
   /**
-         * @ngdoc function
-         * @name twigs.menu.provider:MenuProvider#menu
-         * @methodOf twigs.menu.provider:MenuProvider
-         *
-         * @description
-         * Returns the root menu item instance for the menu with the specified menuName if it exists;
-         * otherwise, returns undefined.
-         *
-         * @param {string} menuName name of the menu
-         * @returns {SubMenuItem} root instance for the menu.
-         */
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#menu
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Returns the root menu item instance for the menu with the specified menuName if it exists;
+     * otherwise, returns undefined.
+     *
+     * @param {string} menuName name of the menu
+     * @returns {SubMenuItem} root instance for the menu.
+     */
   this.menu = function (menuName) {
     return serviceInstance.menu(menuName);
   };
   /**
-         * @ngdoc function
-         * @name twigs.menu.provider:MenuProvider#removeMenu
-         * @methodOf twigs.menu.provider:MenuProvider
-         *
-         * @description
-         * Removes menu with the specified menuName
-         *
-         * @param {string} menuName name of the menu
-         */
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#getMenuItemInMenu
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Searches for a menu item with the specified name in the specified menu.
+     * Returns the first result, if multiple items with that name exist.
+     *
+     * @param {string} menuName name of the menu to search in
+     * @param {string} itemName name of the menu item to find
+     * @returns {object} menu item if exists, undefined otherwise
+     */
+  this.getMenuItemInMenu = function (menuName, itemName) {
+    return serviceInstance.getMenuItemInMenu(menuName, itemName);
+  };
+  /**
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#removeMenu
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Removes menu with the specified menuName
+     *
+     * @param {string} menuName name of the menu
+     */
   this.removeMenu = function (menuName) {
     serviceInstance.removeMenu(menuName);
   };
   /**
-         * @ngdoc function
-         * @name twigs.menu.provider:MenuProvider#setUserLoadedEventName
-         * @methodOf twigs.menu.provider:MenuProvider
-         *
-         * @description
-         * If the menuitems should be filtered by the current users role, a event which signals
-         * successfull loading of the user and his role needs to be specified. This event triggers
-         * a re-filtering of the menu after successful login. Otherwise the menu is always filtered
-         * pre login which means the user has no role yet.
-         * If you use twigs.security the default event name is 'userInitialized'
-         *
-         * @param {String} userLoadedEventName The name of the user successfully loaded event
-         *
-         * Example:
-         * ```javascript
-         * MenuProvider.setUserLoadedEventName('userInitialized');
-         * ```
-         */
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#setUserLoadedEventName
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * If the menuitems should be filtered by the current users role, a event which signals
+     * successfull loading of the user and his role needs to be specified. This event triggers
+     * a re-filtering of the menu after successful login. Otherwise the menu is always filtered
+     * pre login which means the user has no role yet.
+     * If you use twigs.security the default event name is 'userInitialized'
+     *
+     * @param {String} userLoadedEventName The name of the user successfully loaded event
+     *
+     * Example:
+     * ```javascript
+     * MenuProvider.setUserLoadedEventName('userInitialized');
+     * ```
+     */
   this.setUserLoadedEventName = function (userLoadedEventName) {
     serviceInstance.setUserLoadedEventName(userLoadedEventName);
   };
@@ -1936,22 +2045,22 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
     this.name = name;
   }
   /**
-         * Creates new RootMenuItem instance.
-         * @param name name of the Menu
-         * @constructor
-         * @param templateUrl the html template used by the twigs-menu directive
-         */
+     * Creates new RootMenuItem instance.
+     * @param name name of the Menu
+     * @constructor
+     * @param templateUrl the html template used by the twigs-menu directive
+     */
   function RootMenuItem(name, templateUrl) {
     this.constructor(name);
     this.templateUrl = templateUrl;
     this.items = [];
   }
   /**
-         * Creates new SubMenuItem instance.
-         * @param name name of the item
-         * @constructor
-         * @param options item options
-         */
+     * Creates new SubMenuItem instance.
+     * @param name name of the item
+     * @constructor
+     * @param options item options
+     */
   function SubMenuItem(name, options) {
     this.constructor(name);
     this.items = [];
@@ -1965,48 +2074,48 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
   RootMenuItem.prototype = new MenuItem(name);
   SubMenuItem.prototype = new MenuItem(name);
   /**
-         * @ngdoc function
-         * @name twigs.menu.provider:MenuProvider#addItem
-         * @methodOf twigs.menu.provider:MenuProvider
-         *
-         * @description
-         * Adds new item with the specified itemName to the list of the child items of a menu item.
-         *
-         * @param {string} itemName name of the menu item. Name should be unique in the context of
-         * the whole menu (not just among direct siblings). This restriction is not strictly
-         * enforced, but functionality of some of the SubMenuItem methods depend on it.
-         * @param {object} itemOptions used for the configuration of the menu item.
-         * Can contain any attribute which may by referenced in the html template of your menu. itemOptions.text and itemOptions.link
-         * are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)
-         * @param {string} itemOptions.text The display text or translation key of the item
-         * @param {string} itemOptions.link The link which should be opened when the item is clicked
-         * @param {string} (optional) itemOptions.activeRoute The link regex used to mark this menu item active if nested pages are under itemOptions.link
-         * @returns {SubMenuItem} current instance
-         *
-         */
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#addItem
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Adds new item with the specified itemName to the list of the child items of a menu item.
+     *
+     * @param {string} itemName name of the menu item. Name should be unique in the context of
+     * the whole menu (not just among direct siblings). This restriction is not strictly
+     * enforced, but functionality of some of the SubMenuItem methods depend on it.
+     * @param {object} itemOptions used for the configuration of the menu item.
+     * Can contain any attribute which may by referenced in the html template of your menu. itemOptions.text and itemOptions.link
+     * are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)
+     * @param {string} itemOptions.text The display text or translation key of the item
+     * @param {string} itemOptions.link The link which should be opened when the item is clicked
+     * @param {string} (optional) itemOptions.activeRoute The link regex used to mark this menu item active if nested pages are under itemOptions.link
+     * @returns {SubMenuItem} current instance
+     *
+     */
   MenuItem.prototype.addItem = function (itemName, itemOptions) {
     this._createAndAddItem(itemName, itemOptions);
     return this;
   };
   /**
-         * @ngdoc function
-         * @name twigs.menu.provider:MenuProvider#createSubMenu
-         * @methodOf twigs.menu.provider:MenuProvider
-         *
-         * @description
-         * Adds a new submenu with the specified menuName to the list of the child items of a menu item.
-         *
-         * @param {string} menuName name of the submenu. Name should be unique in the context of
-         * the whole menu (not just among direct siblings). This restriction is not strictly
-         * enforced, but functionality of some of the SubMenuItem methods depend on it.
-         * * @param {object} menuOptions used for the configuration of the menu item.
-         * Can contain any attribute which may by referenced in the html template of your menu. itemOptions.text and itemOptions.link
-         * are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)
-         * @param {string} menuOptions.text The display text or translation key of the item
-         * @param {string} menuOptions.link The link which should be opened when the item is clicked
-         * @returns {SubMenuItem} instance for the new submenu
-         *
-         */
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#createSubMenu
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Adds a new submenu with the specified menuName to the list of the child items of a menu item.
+     *
+     * @param {string} menuName name of the submenu. Name should be unique in the context of
+     * the whole menu (not just among direct siblings). This restriction is not strictly
+     * enforced, but functionality of some of the SubMenuItem methods depend on it.
+     * * @param {object} menuOptions used for the configuration of the menu item.
+     * Can contain any attribute which may by referenced in the html template of your menu. itemOptions.text and itemOptions.link
+     * are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)
+     * @param {string} menuOptions.text The display text or translation key of the item
+     * @param {string} menuOptions.link The link which should be opened when the item is clicked
+     * @returns {SubMenuItem} instance for the new submenu
+     *
+     */
   MenuItem.prototype.createSubMenu = function (menuName, menuOptions) {
     return this._createAndAddItem(menuName, menuOptions);
   };
@@ -2133,7 +2242,11 @@ angular.module('twigs.menu').provider('Menu', function Menu() {
         });
       },
       templateUrl: function (element, attrs) {
-        return Menu.menu(attrs.menuName).templateUrl;
+        if (angular.isDefined(attrs.templateUrl)) {
+          return attrs.templateUrl;
+        } else {
+          return Menu.menu(attrs.menuName).templateUrl;
+        }
       }
     };
   }
@@ -2743,14 +2856,14 @@ angular.module('twigs.templates').run([
   '$templateCache',
   function ($templateCache) {
     'use strict';
-    $templateCache.put('templates/chooseMultiple.html', '<select multiple="true" ui-select2="select2Options">\r' + '\n' + '    <option value="{{choice.id}}" ng-repeat="choice in choices">{{getLabel(choice)}}</option>\r' + '\n' + '</select>');
-    $templateCache.put('templates/chooseSingle.html', '<select ui-select2="select2Options">\r' + '\n' + '    <option value="{{choice.id}}" ng-repeat="choice in choices">{{getLabel(choice)}}</option>\r' + '\n' + '</select>\r' + '\n' + '\r' + '\n');
-    $templateCache.put('templates/errorModal.html', '<div class="modal-header">\r' + '\n' + '    <button type="button" class="close" x-ng-click="$close()" aria-hidden="true">&times;</button>\r' + '\n' + '    <h3><i class="glyphicon glyphicon-exclamation-sign"></i>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <p>{{message}}</p>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{primaryButtonText}}</button>\r' + '\n' + '</div>');
-    $templateCache.put('templates/fileModal.html', '<div class="modal-header">\r' + '\n' + '    <h3>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <iframe id="modal-fileframe" x-ng-src="{{message}}"></iframe>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{backButtonText}}</button>\r' + '\n' + '</div>');
-    $templateCache.put('templates/infoModal.html', '<div class="modal-header">\r' + '\n' + '    <button type="button" class="close" x-ng-click="$close()">&times;</button>\r' + '\n' + '    <h3><i class="glyphicon glyphicon-info-sign"></i>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <p>{{message}}</p>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{primaryButtonText}}</button>\r' + '\n' + '</div>');
-    $templateCache.put('templates/successToast.html', '<!-- for success messages, centered on top of browser window (aka "Toast")-->\r' + '\n' + '<div class="alert alert-success fade-in" x-ng-click="close()">\r' + '\n' + '    <button type="button" class="close" x-ng-click="close()">&times;</button>\r' + '\n' + '    <div id="successMessage"> <i class="pull-left glyphicon glyphicon-check"></i>\r' + '\n' + '        <div style="margin-left: 25px;">{{message}}</div>\r' + '\n' + '    </div>\r' + '\n' + '</div>\r' + '\n');
-    $templateCache.put('templates/warningModal.html', '<div class="modal-header">\r' + '\n' + '    <button type="button" class="close" x-ng-click="$close()" aria-hidden="true">&times;</button>\r' + '\n' + '    <h3><i class="glyphicon glyphicon-exclamation-sign"></i>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <p><translate>{{message}}</translate></p>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{primaryButtonText}}</button>\r' + '\n' + '</div>');
-    $templateCache.put('templates/warningToast.html', '<!-- for success messages, centered on top of browser window (aka "Toast")-->\r' + '\n' + '<div class="alert alert-warning fade-in" x-ng-click="close()">\r' + '\n' + '    <button type="button" class="close" x-ng-click="close()">&times;</button>\r' + '\n' + '    <div id="successMessage"> <i class="pull-left glyphicon glyphicon-check"></i>\r' + '\n' + '        <div style="margin-left: 25px;">{{message}}</div>\r' + '\n' + '    </div>\r' + '\n' + '</div>\r' + '\n');
-    $templateCache.put('templates/yesnoModal.html', '<div class="modal-header">\r' + '\n' + '    <h3>{{title}}</h3>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-body">\r' + '\n' + '    <p>{{message}}</p>\r' + '\n' + '</div>\r' + '\n' + '<div class="modal-footer">\r' + '\n' + '    <button class="btn btn-danger" x-ng-click="$close(false)">{{primaryButtonText}}</button>\r' + '\n' + '    <button class="btn btn-yes {{message.yesButtonCls}} btn-success" x-ng-click="$close(true)">{{secondaryButtonText}}</button>\r' + '\n' + '</div>');
+    $templateCache.put('templates/chooseMultiple.html', '<select multiple="true" ui-select2="select2Options">\n' + '    <option value="{{choice.id}}" ng-repeat="choice in choices">{{getLabel(choice)}}</option>\n' + '</select>');
+    $templateCache.put('templates/chooseSingle.html', '<select ui-select2="select2Options">\n' + '    <option value="{{choice.id}}" ng-repeat="choice in choices">{{getLabel(choice)}}</option>\n' + '</select>\n' + '\n');
+    $templateCache.put('templates/errorModal.html', '<div class="modal-header">\n' + '    <button type="button" class="close" x-ng-click="$close()" aria-hidden="true">&times;</button>\n' + '    <h3><i class="glyphicon glyphicon-exclamation-sign"></i>{{title}}</h3>\n' + '</div>\n' + '<div class="modal-body">\n' + '    <p>{{message}}</p>\n' + '</div>\n' + '<div class="modal-footer">\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{primaryButtonText}}</button>\n' + '</div>');
+    $templateCache.put('templates/fileModal.html', '<div class="modal-header">\n' + '    <h3>{{title}}</h3>\n' + '</div>\n' + '<div class="modal-body">\n' + '    <iframe id="modal-fileframe" x-ng-src="{{message}}"></iframe>\n' + '</div>\n' + '<div class="modal-footer">\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{backButtonText}}</button>\n' + '</div>');
+    $templateCache.put('templates/infoModal.html', '<div class="modal-header">\n' + '    <button type="button" class="close" x-ng-click="$close()">&times;</button>\n' + '    <h3><i class="glyphicon glyphicon-info-sign"></i>{{title}}</h3>\n' + '</div>\n' + '<div class="modal-body">\n' + '    <p>{{message}}</p>\n' + '</div>\n' + '<div class="modal-footer">\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{primaryButtonText}}</button>\n' + '</div>');
+    $templateCache.put('templates/successToast.html', '<!-- for success messages, centered on top of browser window (aka "Toast")-->\n' + '<div class="alert alert-success fade-in" x-ng-click="close()">\n' + '    <button type="button" class="close" x-ng-click="close()">&times;</button>\n' + '    <div id="successMessage"> <i class="pull-left glyphicon glyphicon-check"></i>\n' + '        <div style="margin-left: 25px;">{{message}}</div>\n' + '    </div>\n' + '</div>\n');
+    $templateCache.put('templates/warningModal.html', '<div class="modal-header">\n' + '    <button type="button" class="close" x-ng-click="$close()" aria-hidden="true">&times;</button>\n' + '    <h3><i class="glyphicon glyphicon-exclamation-sign"></i>{{title}}</h3>\n' + '</div>\n' + '<div class="modal-body">\n' + '    <p><translate>{{message}}</translate></p>\n' + '</div>\n' + '<div class="modal-footer">\n' + '    <button class="btn btn-default" x-ng-click="$close()">{{primaryButtonText}}</button>\n' + '</div>');
+    $templateCache.put('templates/warningToast.html', '<!-- for success messages, centered on top of browser window (aka "Toast")-->\n' + '<div class="alert alert-warning fade-in" x-ng-click="close()">\n' + '    <button type="button" class="close" x-ng-click="close()">&times;</button>\n' + '    <div id="successMessage"> <i class="pull-left glyphicon glyphicon-check"></i>\n' + '        <div style="margin-left: 25px;">{{message}}</div>\n' + '    </div>\n' + '</div>\n');
+    $templateCache.put('templates/yesnoModal.html', '<div class="modal-header">\n' + '    <h3>{{title}}</h3>\n' + '</div>\n' + '<div class="modal-body">\n' + '    <p>{{message}}</p>\n' + '</div>\n' + '<div class="modal-footer">\n' + '    <button class="btn btn-danger" x-ng-click="$close(false)">{{primaryButtonText}}</button>\n' + '    <button class="btn btn-yes {{message.yesButtonCls}} btn-success" x-ng-click="$close(true)">{{secondaryButtonText}}</button>\n' + '</div>');
   }
 ]);
