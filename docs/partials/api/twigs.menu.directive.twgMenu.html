@@ -10,6 +10,10 @@ to define those menues globally so that you only need to include a directive ref
 <p>TwgMenu can filter menu items with links referencing restricted routes (using twg.protectedRoutes) so that only users with the necessary access roles see those menu items.
 In order to use menu filtering, twg.protectedRoutes needs to be included in your app and properly configured. See <a href="#/api/twigs.menu.provider:ProtectedRouteProvider">ProtectedRouteProvider</a></p>
 <pre><code class="lang-html">&lt;twigs-menu menu-name=&quot;main_menu&quot;&gt;&lt;/twigs-menu&gt;</code></pre>
+<p>Normally, twigs-menu renders the menu with the html template specified on the MenuProvider.createMenu(...
+Alternatively a different template may be specified directly on the directive as follows:</p>
+<pre><code class="lang-html">&lt;twigs-menu menu-name=&quot;main_menu&quot; template-url=&quot;navigation/mySpecialTemplate.html&quot;&gt;
+&lt;/twigs-menu&gt;</code></pre>
 <p>See <a href="#/api/twigs.menu.provider:MenuProvider">MenuProvider</a> for more information on how to set up Menus.</p>
 </div></div>
 <h2 id="usage">Usage</h2>

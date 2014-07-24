@@ -132,14 +132,19 @@ describe('Service: ChooseHelper', function () {
 
 
     describe('getChoiceLabel', function () {
+
+        var dummyScope = {
+            $parent: {}
+        };
+
         it('should return whole object on invalid propertyName ', function () {
             var choice = {
                 label: 'some'
             };
 
-            expect(ChooseHelper.getChoiceLabel(choice, undefined)).toEqual(choice);
-            expect(ChooseHelper.getChoiceLabel(choice, '')).toEqual(choice);
-            expect(ChooseHelper.getChoiceLabel(choice, 'nothing')).toEqual(choice);
+            expect(ChooseHelper.getChoiceLabel(dummyScope, choice, undefined)).toEqual(choice);
+            expect(ChooseHelper.getChoiceLabel(dummyScope, choice, '')).toEqual(choice);
+            expect(ChooseHelper.getChoiceLabel(dummyScope, choice, 'nothing')).toEqual(choice);
         });
 
         it('should return value on valid propertyName ', function () {
@@ -147,7 +152,20 @@ describe('Service: ChooseHelper', function () {
                 label: 'some'
             };
 
-            expect(ChooseHelper.getChoiceLabel(choice, 'label')).toEqual('some');
+            expect(ChooseHelper.getChoiceLabel(dummyScope, choice, 'label')).toEqual('some');
+        });
+
+        it('should return custom value on function', function () {
+            var choice = {
+                label: 'some'
+            };
+
+            dummyScope.$parent.customLabelFunction = function (choice) {
+                return 'custom_' + choice.label;
+            };
+
+
+            expect(ChooseHelper.getChoiceLabel(dummyScope, choice, 'customLabelFunction')).toEqual('custom_some');
         });
     });
 });

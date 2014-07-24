@@ -17,8 +17,28 @@
         </div>
         <div class="col-md-5">
             <div class="alert alert-info">
-                Selected value is an &quot;idified&quot; object.<br/> <span
+                After manual selection, bound value in scope is an &quot;idified&quot; object.<br/> <span
                     class="selected-country">{{selectedCountry}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="form-group">
+                <p>Single choice with "FullObject"</p>
+                <twg-choose-single choices="allCountries" ng-model="selectedCountryFull" id="singleCountry"
+                                   choice-displayname="name" twg-choose-full-object="true" ></twg-choose-single>
+                <button class="btn btn-sm btn-success set-single" ng-click="setSelectedCountryFull(2);">Manually set
+                    selected item to
+                    id 2.
+                </button>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="alert alert-info">
+                After manual selection, bound value in scope is the full choice object.<br/> <span
+                    class="selected-country">{{selectedCountryFull}}</span>
             </div>
         </div>
     </div>
@@ -39,7 +59,29 @@
         </div>
         <div class="col-md-5">
             <div class="alert alert-info">
-                Selected value is an array of &quot;idified&quot; objects.<br/> <span class="selected-countries">{{selectedCountries }}</span>
+                After manual selection, bound value in scope is an array of &quot;idified&quot; objects.<br/> <span class="selected-countries">{{selectedCountries }}</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="form-group">
+                <p>Multiple choice with "FullObject"</p>
+                <twg-choose-multiple choices="allCountries" ng-model="selectedCountriesFull" id="multipleCountries"
+                                     choice-displayname="name" twg-choose-full-object="true"></twg-choose-multiple>
+                <button class="btn btn-sm btn-success set-multiple" ng-click="setSelectedCountriesFull([1,3]);">Manually set
+                    selected
+                    items to
+                    ids 1 and 3
+                </button>
+
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="alert alert-info">
+                After manual selection, bound value in scope is an array of full choice objects.<br/> <span class="selected-countries">{{selectedCountriesFull }}</span>
             </div>
         </div>
     </div>

@@ -38,7 +38,7 @@ angular.module('twigs.choose')
     })
 
 
-    .service('ChooseHelper', function ChooseHelper(ChooseConfig) {
+    .service('ChooseHelper', function ChooseHelper($filter, ChooseConfig) {
 
         function convertExternToInternMultiple(externNgModel) {
 
@@ -91,23 +91,37 @@ angular.module('twigs.choose')
             return mappedArray;
         }
 
+        function convertInternToExternMultipleFull(internBinding, choices) {
+            if (!angular.isArray(internBinding)) {
+                throw 'With multiple selection, intern model is expected to be an array!';
+            }
+            return getObjectsByIdFromArray(choices, internBinding);
+        }
+
         function convertInternToExternSingle(internBinding) {
             return {id: toInt(internBinding)};
+        }
+
+        function convertInternToExternSingleFull(internBinding, choices) {
+            return getObjectByIdFromArray(choices, internBinding);
         }
 
         function toInt(input) {
             if (typeof input === 'number') {
                 return input;
             }
-
             return parseInt(input, 10);
         }
 
-        function getChoiceLabel(choice, propertyName) {
-            if (angular.isUndefined(propertyName) || propertyName === '' || angular.isUndefined(choice[propertyName])) {
+        function getChoiceLabel(scope, choice, propertyName) {
+            if (angular.isUndefined(propertyName) || propertyName === '') {
                 return choice;
-            } else {
+            } else if (angular.isDefined(scope.$parent[propertyName]) && typeof scope.$parent[propertyName] === 'function') {
+                return scope.$parent[propertyName](choice);
+            } else if (angular.isDefined(choice[propertyName])) {
                 return choice[propertyName];
+            } else {
+                return choice;
             }
         }
 
@@ -125,11 +139,36 @@ angular.module('twigs.choose')
             };
         }
 
+        function getObjectByIdFromArray(array, id) {
+            var matches = $filter('filter')(array, {id: toInt(id)});
+            if (matches.length < 1) {
+                throw 'Sorry, no object with id ' + id + ' found in given choices!';
+            } else if (matches.length > 1) {
+                throw 'Sorry, multiple objects with id ' + id + ' found in given choices!';
+            } else {
+                return matches[0];
+            }
+        }
+
+        function getObjectsByIdFromArray(array, idsArray) {
+            var matches = $filter('filter')(array, function (element) {
+                return ($filter('filter')(idsArray, element.id.toString()).length > 0);
+            });
+
+            if (matches.length < 1) {
+                throw 'Sorry, no object with ids ' + idsArray + ' found in given choices!';
+            } else {
+                return matches;
+            }
+        }
+
         return {
             convertExternToInternMultiple: convertExternToInternMultiple,
             convertExternToInternSingle: convertExternToInternSingle,
             convertInternToExternMultiple: convertInternToExternMultiple,
+            convertInternToExternMultipleFull: convertInternToExternMultipleFull,
             convertInternToExternSingle: convertInternToExternSingle,
+            convertInternToExternSingleFull: convertInternToExternSingleFull,
             getChoiceLabel: getChoiceLabel,
             getDefaultSelect2Options: getDefaultSelect2Options
         };
@@ -159,6 +198,7 @@ angular.module('twigs.choose')
             scope: {
                 choices: '=',
                 ngModel: '=',
+                twgChooseFullObject: '@',
                 choiceDisplayname: '@',
                 noResultMessage: '@'
             },
@@ -169,11 +209,15 @@ angular.module('twigs.choose')
                 });
 
                 ngModelController.$parsers.push(function (viewValue) {
-                    return ChooseHelper.convertInternToExternSingle(viewValue);
+                    if (scope.twgChooseFullObject) {
+                        return ChooseHelper.convertInternToExternSingleFull(viewValue, scope.choices);
+                    } else {
+                        return ChooseHelper.convertInternToExternSingle(viewValue);
+                    }
                 });
 
                 scope.getLabel = function (choice) {
-                    return ChooseHelper.getChoiceLabel(choice, scope.choiceDisplayname);
+                    return ChooseHelper.getChoiceLabel(scope, choice, scope.choiceDisplayname);
                 };
 
                 scope.select2Options = ChooseHelper.getDefaultSelect2Options(scope.noResultMessage);
@@ -205,6 +249,7 @@ angular.module('twigs.choose')
             scope: {
                 choices: '=',
                 ngModel: '=',
+                twgChooseFullObject: '@',
                 choiceDisplayname: '@',
                 noResultMessage: '@'
             },
@@ -215,12 +260,16 @@ angular.module('twigs.choose')
                 });
 
                 ngModelController.$parsers.push(function (viewValue) {
-                    return ChooseHelper.convertInternToExternMultiple(viewValue);
+                    if (scope.twgChooseFullObject) {
+                        return ChooseHelper.convertInternToExternMultipleFull(viewValue, scope.choices);
+                    } else {
+                        return ChooseHelper.convertInternToExternMultiple(viewValue);
+                    }
                 });
 
 
                 scope.getLabel = function (choice) {
-                    return ChooseHelper.getChoiceLabel(choice, scope.choiceDisplayname);
+                    return ChooseHelper.getChoiceLabel(scope, choice, scope.choiceDisplayname);
                 };
 
                 scope.select2Options = ChooseHelper.getDefaultSelect2Options(scope.noResultMessage);
