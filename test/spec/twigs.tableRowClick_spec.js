@@ -97,6 +97,22 @@ describe("Directive: twgTableRowClick", function () {
         whenClickingChildElement(tableElement, '#someSpan');
         expect($location.path()).toBe('/home');
     });
+  
+    it("should not change $location.path on click. when clicking element with href", function () {
+        var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123"><td><span id="someSpan" href="some/path">some content</span></td></tr></table>');
+        $scope.modelValue = false;
+        whenCompiling(tableElement);
+        whenClickingChildElement(tableElement, '#someSpan');
+        expect($location.path()).toBe('/home');
+    });
+
+    it("should not change $location.path on click. when clicking element that has a parent  with href", function () {
+        var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123"><td><span href="some/path""><span id="someSpan">some content</span></span></td></tr></table>');
+        $scope.modelValue = false;
+        whenCompiling(tableElement);
+        whenClickingChildElement(tableElement, '#someSpan');
+        expect($location.path()).toBe('/home');
+    });
 
 
 });
