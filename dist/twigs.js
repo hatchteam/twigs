@@ -2784,14 +2784,15 @@ angular.module('twigs.sortable').directive('twgSortableTable', function () {
  * </tr>
  * ```
  *
- * Additionally it can handle events that bubble up from other elements with ng-click handlers within the row (and thus correctly ignoring these).
+ * Additionally it can handle events that bubble up from other elements with ng-click handlers or links within the row (and thus correctly ignoring these).
  *
- * Example: a Click on the button in the first row will not trigger a location change, but only invoke the 'doSomething()' method. A click on the second cell (the text) will trigger the url to change.
+ * Example: a Click on the button in the first row will not trigger a location change, but only invoke the 'doSomething()' method. A click on the second cell (the text) will trigger the url to change. Also a click on the third cell (link) will cause routing to /some/path and not /users/.... 
  *
  * ```html
  * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}" >
  *  <td><button ng-click="doSomething()">do it</button></td>
  *  <td>Some text</td>
+ *  <td><a href="some/path">do it</a></td>
  * </tr>
  * ```
  *
@@ -2825,15 +2826,15 @@ angular.module('twigs.tableRowClick').directive('twgTableRowClick', [
           return ExpressionEvaluator.evaluate(permissionExpression);
         }
         /**
-                 * if an element is clicked that has a 'ng-click' attribute on it's own, do not reacte to this click.
-                 * also, if the clicked element has a parent somewhere with a 'ng-click' attribute on its own, do not react to this click.
+                 * if an element is clicked that has a 'ng-click' or 'href' attribute on it's own, do not reacte to this click.
+                 * also, if the clicked element has a parent somewhere with a 'ng-click' or 'href' attribute on its own, do not react to this click.
                  */
         function isNgClickWrappedElement(domElement) {
           var element = $(domElement);
-          if (angular.isDefined(element.attr('ng-click')) || angular.isDefined(element.attr('x-ng-click'))) {
+          if (angular.isDefined(element.attr('ng-click')) || angular.isDefined(element.attr('x-ng-click')) || angular.isDefined(element.attr('href'))) {
             return true;
           }
-          var matchingParent = element.closest('[ng-click],[x-ng-click]');
+          var matchingParent = element.closest('[ng-click],[x-ng-click],[href]');
           if (matchingParent.length > 0) {
             return true;
           }

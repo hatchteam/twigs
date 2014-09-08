@@ -225,7 +225,7 @@ NG_DOCS={
       "type": "directive",
       "moduleName": "twigs.tableRowClick",
       "shortDescription": "For a better user experience, we want to be able to react to mouseclicks anywhere on a table row, not just one link in a cell.",
-      "keywords": "additionally adds admin angular api app better bubble button cell change click clicks correctly directive dosomething elements events example experience expressions guard handle handlers hasrole html ignoring invoke javascript link listener location main method module mouse mouseclicks ng-click react row rows second secure security switches table table-row tablerowclick text tr trigger twg-table-row-click twg-table-row-click-secure twigs url user users var x-ng-repeat"
+      "keywords": "additionally adds admin angular api app better bubble button cell change click clicks correctly directive dosomething elements events example experience expressions guard handle handlers hasrole href html ignoring invoke javascript link links listener location main method module mouse mouseclicks ng-click react routing row rows second secure security switches table table-row tablerowclick text third tr trigger twg-table-row-click twg-table-row-click-secure twigs url user users var x-ng-repeat"
     }
   ],
   "apis": {
