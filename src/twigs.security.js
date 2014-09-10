@@ -222,6 +222,8 @@ angular.module('twigs.security')
                 var deferred = $q.defer();
                 if (angular.isDefined(user.username)) {
                     deferred.resolve(user);
+                   // when requesting the current user multiple times simultaneously, it can happen that at this point, "userLoadingPromise" is not set!
+                   userLoadingPromise = deferred.promise;
                 } else {
                     if (angular.isUndefined(userLoadingPromise)) {
                         _loadUser()
