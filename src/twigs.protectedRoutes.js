@@ -63,81 +63,79 @@ angular.module('twigs.protectedRoutes')
  * Note: ProtectedRoute depends on the twigs.security module. Make sure you registered a user loader function (see [PermissionsProvider](#/api/twigs.security.provider:PermissionsProvider))
  *
  */
-    .provider('ProtectedRoute', function ($routeProvider) {
+  .provider('ProtectedRoute', function ($routeProvider) {
 
-        var neededRolesForRoutes = { };
+    var neededRolesForRoutes = {};
 
-        /**
-         * needed to mirror the angular's RouteProvider api !
-         */
-        this.otherwise = $routeProvider.otherwise;
+    /**
+     * needed to mirror the angular's RouteProvider api !
+     */
+    this.otherwise = $routeProvider.otherwise;
 
-        /**
-         * the when function delegates to the angular routeProvider "when".
-         */
-        this.when = function (path, route) {
-            if (isProtectedRouteConfig(route)) {
-                route.resolve = angular.extend(route.resolve || {}, {
-                    'CurrentUser': function (Permissions) {
-                        return Permissions.getUser();
-                    },
-                    'hasPermission': function ($q, Permissions) {
-                        return isUserAllowedToAccessRoute($q, Permissions, route.neededRoles);
-                    }
-                });
-                neededRolesForRoutes[path] = route.neededRoles;
-            }
-            $routeProvider.when(path, route);
-            return this;
-        };
+    /**
+     * the when function delegates to the angular routeProvider "when".
+     */
+    this.when = function (path, route) {
+      if (isProtectedRouteConfig(route)) {
+        route.resolve = angular.extend(route.resolve || {}, {
+          'CurrentUser': function (Permissions) {
+            return Permissions.getUser();
+          },
+          'hasPermission': function ($q, Permissions) {
+            return isUserAllowedToAccessRoute($q, Permissions, route.neededRoles);
+          }
+        });
+        neededRolesForRoutes[path] = route.neededRoles;
+      }
+      $routeProvider.when(path, route);
+      return this;
+    };
 
-        function isProtectedRouteConfig(route) {
-            if (angular.isDefined(route.neededRoles)) {
-                if (typeof route.neededRoles === 'object') {
-                    return true;
-                } else {
-                    throw 'Invalid protected route config: neededRoles must be an array';
-                }
-            } else if (angular.isDefined(route.authenticated)) {
-                return route.authenticated === true;
-            }
-            return false;
+    function isProtectedRouteConfig(route) {
+      if (angular.isDefined(route.neededRoles)) {
+        if (typeof route.neededRoles === 'object') {
+          return true;
+        } else {
+          throw 'Invalid protected route config: neededRoles must be an array';
         }
-
-        function isUserAllowedToAccessRoute($q, Permissions, neededRoles) {
-            var deferred = $q.defer();
-            Permissions.getUser()
-                .then(function () {
-                    if (userHasAllRoles(neededRoles, Permissions)) {
-                        deferred.resolve({});
-                    } else {
-                        deferred.reject(new Error('missing_roles'));
-                    }
-                }, function (err) {
-                    deferred.reject(err);
-                });
-
-            return deferred.promise;
-        }
-
-        function userHasAllRoles(neededRoles, Permissions) {
-            var allRoles = true;
-            angular.forEach(neededRoles, function (neededRole) {
-                if (!allRoles) {
-                    return;
-                }
-                if (!Permissions.hasRole(neededRole)) {
-                    allRoles = false;
-                }
-            });
-            return allRoles;
-        }
-
-        this.$get = function () {
-            return {
-            };
-        };
-
+      } else if (angular.isDefined(route.authenticated)) {
+        return route.authenticated === true;
+      }
+      return false;
     }
-);
 
+    function isUserAllowedToAccessRoute($q, Permissions, neededRoles) {
+      var deferred = $q.defer();
+      Permissions.getUser()
+        .then(function () {
+          if (userHasAllRoles(neededRoles, Permissions)) {
+            deferred.resolve({});
+          } else {
+            deferred.reject(new Error('missing_roles'));
+          }
+        }, function (err) {
+          deferred.reject(err);
+        });
+
+      return deferred.promise;
+    }
+
+    function userHasAllRoles(neededRoles, Permissions) {
+      var allRoles = true;
+      angular.forEach(neededRoles, function (neededRole) {
+        if (!allRoles) {
+          return;
+        }
+        if (!Permissions.hasRole(neededRole)) {
+          allRoles = false;
+        }
+      });
+      return allRoles;
+    }
+
+    this.$get = function () {
+      return {};
+    };
+
+  }
+);

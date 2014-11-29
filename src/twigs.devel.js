@@ -19,8 +19,8 @@
 
 angular.module('twigs.devel')
 
-    .constant('ERROR_REPORTED_EVENT', 'twigs.devel.errorReported')
-    .constant('SERVER_REQUEST_REPORTED_EVENT', 'twigs.devel.serverRequestReported')
+  .constant('ERROR_REPORTED_EVENT', 'twigs.devel.errorReported')
+  .constant('SERVER_REQUEST_REPORTED_EVENT', 'twigs.devel.serverRequestReported')
 
 /**
  * @ngdoc object
@@ -35,120 +35,118 @@ angular.module('twigs.devel')
  * });
  * ```
  */
-    .provider('DevelopmentInfoService', function () {
-        var urlFilterPattern = /.*/;
+  .provider('DevelopmentInfoService', function () {
+    var urlFilterPattern = /.*/;
+
+    /**
+     * @ngdoc function
+     * @name  twigs.devel.service:DevelopmentInfoServiceProvider#setUrlFilterPattern
+     * @methodOf twigs.devel.service:DevelopmentInfoServiceProvider
+     *
+     * @description
+     * Pass in a regex pattern (e.g. `/\/ws\/rest\//`) to filter XHTTP request urls. Most of the time,
+     * you only want to include REST request and exclude angular's request to templates etc.
+     *
+     * @param {string} pattern A regex pattern to filter XHTTP Request urls
+     */
+    this.setUrlFilterPattern = function (pattern) {
+      urlFilterPattern = pattern;
+    };
+
+    /**
+     * @ngdoc service
+     * @name twigs.devel.service:DevelopmentInfoService
+     *
+     * @description
+     * Provides functionality for gathering and displaying devel/debug information.
+     *
+     * Use in your services to report errors.
+     *
+     * ```javascript
+     *   function(DevelopmentInfoService){
+         *       DevelopmentInfoService.reportError('some name', {some:'payload data'});
+         *   }
+     * ```
+     */
+    this.$get = function ($rootScope, ERROR_REPORTED_EVENT, SERVER_REQUEST_REPORTED_EVENT) {
+      var errors = [], serverRequests = [], customData = {};
+
+      function getCustomData() {
+        return customData;
+      }
+
+      function watchCustomData(id, data) {
+        customData[id] = data;
+      }
+
+      function reportError(name, data) {
+        errors.push({
+          name: name,
+          payload: data,
+          date: new Date()
+        });
+
+        $rootScope.$broadcast(ERROR_REPORTED_EVENT, errors);
+      }
+
+      function reportServerRequest(url, response, status) {
+        serverRequests.push({
+          url: url,
+          response: response,
+          status: status,
+          showResponse: false,
+          date: new Date()
+        });
+        $rootScope.$broadcast(SERVER_REQUEST_REPORTED_EVENT, serverRequests);
+      }
+
+      function getUrlFilterPattern() {
+        return urlFilterPattern;
+      }
+
+      return {
 
         /**
          * @ngdoc function
-         * @name  twigs.devel.service:DevelopmentInfoServiceProvider#setUrlFilterPattern
-         * @methodOf twigs.devel.service:DevelopmentInfoServiceProvider
+         * @name  twigs.devel.service:DevelopmentInfoService#reportError
+         * @methodOf twigs.devel.service:DevelopmentInfoService
          *
          * @description
-         * Pass in a regex pattern (e.g. `/\/ws\/rest\//`) to filter XHTTP request urls. Most of the time,
-         * you only want to include REST request and exclude angular's request to templates etc.
+         * Invoke this to report an error that happend in your application
          *
-         * @param {string} pattern A regex pattern to filter XHTTP Request urls
+         * @param {string} name The name of the error
+         * @param {object} data Error payload that will be displayed
          */
-        this.setUrlFilterPattern = function (pattern) {
-            urlFilterPattern = pattern;
-        };
+        reportError: reportError,
 
         /**
-         * @ngdoc service
-         * @name twigs.devel.service:DevelopmentInfoService
+         *  Only invoked by our response interceptor. No need to use that from outside.
+         */
+        reportServerRequest: reportServerRequest,
+
+        getUrlFilterPattern: getUrlFilterPattern,
+
+        /**
+         * only used by our controller
+         */
+        getCustomData: getCustomData,
+
+
+        /**
+         * @ngdoc function
+         * @name  twigs.devel.service:DevelopmentInfoService#watchCustomData
+         * @methodOf twigs.devel.service:DevelopmentInfoService
          *
          * @description
-         * Provides functionality for gathering and displaying devel/debug information.
+         * Register addition custom data that will be displayed in the devel footer
          *
-         * Use in your services to report errors.
-         *
-         * ```javascript
-         *   function(DevelopmentInfoService){
-         *       DevelopmentInfoService.reportError('some name', {some:'payload data'});
-         *   }
-         * ```
+         * @param {string} id The id/name of the data
+         * @param {object} data Data object to watch and display
          */
-        this.$get = function ($rootScope, ERROR_REPORTED_EVENT, SERVER_REQUEST_REPORTED_EVENT) {
-            var errors = [] , serverRequests = [], customData = {};
-
-            function getCustomData() {
-                return customData;
-            }
-
-            function watchCustomData(id, data) {
-                customData[id] = data;
-            }
-
-            function reportError(name, data) {
-                errors.push({
-                    name: name,
-                    payload: data,
-                    date: new Date()
-                });
-
-                $rootScope.$broadcast(ERROR_REPORTED_EVENT, errors);
-            }
-
-            function reportServerRequest(url, response, status) {
-                serverRequests.push({
-                    url: url,
-                    response: response,
-                    status: status,
-                    showResponse: false,
-                    date: new Date()
-                });
-                $rootScope.$broadcast(SERVER_REQUEST_REPORTED_EVENT, serverRequests);
-            }
-
-            function getUrlFilterPattern() {
-                return urlFilterPattern;
-            }
-
-            var developmentInfoService = {
-
-                /**
-                 * @ngdoc function
-                 * @name  twigs.devel.service:DevelopmentInfoService#reportError
-                 * @methodOf twigs.devel.service:DevelopmentInfoService
-                 *
-                 * @description
-                 * Invoke this to report an error that happend in your application
-                 *
-                 * @param {string} name The name of the error
-                 * @param {object} data Error payload that will be displayed
-                 */
-                reportError: reportError,
-
-                /**
-                 *  Only invoked by our response interceptor. No need to use that from outside.
-                 */
-                reportServerRequest: reportServerRequest,
-
-                getUrlFilterPattern: getUrlFilterPattern,
-
-                /**
-                 * only used by our controller
-                 */
-                getCustomData: getCustomData,
-
-
-                /**
-                 * @ngdoc function
-                 * @name  twigs.devel.service:DevelopmentInfoService#watchCustomData
-                 * @methodOf twigs.devel.service:DevelopmentInfoService
-                 *
-                 * @description
-                 * Register addition custom data that will be displayed in the devel footer
-                 *
-                 * @param {string} id The id/name of the data
-                 * @param {object} data Data object to watch and display
-                 */
-                watchCustomData: watchCustomData
-            };
-
-            return developmentInfoService;
-        };
-    }
+        watchCustomData: watchCustomData
+      };
+    };
+  }
 )
 
 /**
@@ -194,76 +192,76 @@ angular.module('twigs.devel')
  * </footer>
  * ```
  */
-    .
-    controller('DevelopmentInfoCtrl', function ($rootScope, $scope, $cookieStore, $location, DevelopmentInfoService, ERROR_REPORTED_EVENT, SERVER_REQUEST_REPORTED_EVENT) {
+  .
+  controller('DevelopmentInfoCtrl', function ($rootScope, $scope, $cookieStore, $location, DevelopmentInfoService, ERROR_REPORTED_EVENT, SERVER_REQUEST_REPORTED_EVENT) {
 
-        var COOKIE_KEY = 'twg.develFooterEnabled';
+    var COOKIE_KEY = 'twg.develFooterEnabled';
 
-        if ($location.search().develFooter === 'true') {
-            $scope.develFooterEnabled = true;
-            $cookieStore.put(COOKIE_KEY, true);
-        } else if ($location.search().develFooter === 'false') {
-            $scope.develFooterEnabled = false;
-            $cookieStore.put(COOKIE_KEY, false);
-        } else {
-            $scope.develFooterEnabled = $cookieStore.get(COOKIE_KEY);
-        }
+    if ($location.search().develFooter === 'true') {
+      $scope.develFooterEnabled = true;
+      $cookieStore.put(COOKIE_KEY, true);
+    } else if ($location.search().develFooter === 'false') {
+      $scope.develFooterEnabled = false;
+      $cookieStore.put(COOKIE_KEY, false);
+    } else {
+      $scope.develFooterEnabled = $cookieStore.get(COOKIE_KEY);
+    }
 
-        /**
-         * watch for changes in custom Data
-         */
-        $scope.customData = {};
-        $rootScope.$watch(function () {
-            return DevelopmentInfoService.getCustomData();
-        }, function (changed) {
-            $scope.customData = changed;
-        }, true);
+    /**
+     * watch for changes in custom Data
+     */
+    $scope.customData = {};
+    $rootScope.$watch(function () {
+      return DevelopmentInfoService.getCustomData();
+    }, function (changed) {
+      $scope.customData = changed;
+    }, true);
 
-        $scope.$on(ERROR_REPORTED_EVENT, function (event, allErrors) {
-            $scope.errors = allErrors;
-        });
-        $scope.$on(SERVER_REQUEST_REPORTED_EVENT, function (event, allRequests) {
-            $scope.serverRequests = allRequests;
-        });
-    })
+    $scope.$on(ERROR_REPORTED_EVENT, function (event, allErrors) {
+      $scope.errors = allErrors;
+    });
+    $scope.$on(SERVER_REQUEST_REPORTED_EVENT, function (event, allRequests) {
+      $scope.serverRequests = allRequests;
+    });
+  })
 
 
 /**
  * Registers a responseInterceptor that reports all xhttpResponses that
  * devel footer will then display this information
  */
-    .config(['$httpProvider', function ($httpProvider) {
+  .config(['$httpProvider', function ($httpProvider) {
 
-        function interceptor($q, DevelopmentInfoService) {
+    function interceptor($q, DevelopmentInfoService) {
 
-            var urlFilterPattern = DevelopmentInfoService.getUrlFilterPattern();
+      var urlFilterPattern = DevelopmentInfoService.getUrlFilterPattern();
 
-            function isMatchingFilterPattern(url) {
-                return urlFilterPattern.test(url);
-            }
+      function isMatchingFilterPattern(url) {
+        return urlFilterPattern.test(url);
+      }
 
-            // default behaviour
-            function success(response) {
-                if (isMatchingFilterPattern(response.config.url)) {
-                    DevelopmentInfoService.reportServerRequest(response.config.url, response.data, response.status);
-                }
-                return response;
-            }
-
-            function error(response) {
-                if (isMatchingFilterPattern(response.config.url)) {
-                    DevelopmentInfoService.reportServerRequest(response.config.url, response.data, response.status);
-                }
-                // default behaviour
-                return $q.reject(response);
-            }
-
-            // default behaviour
-            return function (promise) {
-                return promise.then(success, error);
-            };
+      // default behaviour
+      function success(response) {
+        if (isMatchingFilterPattern(response.config.url)) {
+          DevelopmentInfoService.reportServerRequest(response.config.url, response.data, response.status);
         }
+        return response;
+      }
 
-        /** manually specify collaborator names to fix uglifying **/
-        $httpProvider.responseInterceptors.push(['$q', 'DevelopmentInfoService', interceptor]);
-    }]);
+      function error(response) {
+        if (isMatchingFilterPattern(response.config.url)) {
+          DevelopmentInfoService.reportServerRequest(response.config.url, response.data, response.status);
+        }
+        // default behaviour
+        return $q.reject(response);
+      }
+
+      // default behaviour
+      return function (promise) {
+        return promise.then(success, error);
+      };
+    }
+
+    /** manually specify collaborator names to fix uglifying **/
+    $httpProvider.responseInterceptors.push(['$q', 'DevelopmentInfoService', interceptor]);
+  }]);

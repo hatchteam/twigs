@@ -38,7 +38,7 @@
  *
  * Additionally it can handle events that bubble up from other elements with ng-click handlers or links within the row (and thus correctly ignoring these).
  *
- * Example: a Click on the button in the first row will not trigger a location change, but only invoke the 'doSomething()' method. A click on the second cell (the text) will trigger the url to change. Also a click on the third cell (link) will cause routing to /some/path and not /users/.... 
+ * Example: a Click on the button in the first row will not trigger a location change, but only invoke the 'doSomething()' method. A click on the second cell (the text) will trigger the url to change. Also a click on the third cell (link) will cause routing to /some/path and not /users/....
  *
  * ```html
  * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}" >
@@ -61,52 +61,48 @@
  *
  */
 angular.module('twigs.tableRowClick')
-    .directive('twgTableRowClick', function ($location, ExpressionEvaluator) {
-        return {
-            restrict: 'A',
-            link: function (scope, element, attrs) {
+  .directive('twgTableRowClick', function ($location, ExpressionEvaluator) {
+    return {
+      restrict: 'A',
+      link: function (scope, element, attrs) {
 
 
-                /**
-                 * check permission if attribute is present
-                 */
-                function isAllowed() {
-                    var permissionExpression = attrs.twgTableRowClickSecure;
-                    if (angular.isUndefined(permissionExpression) || permissionExpression === '') {
-                        return true;
-                    }
+        /**
+         * check permission if attribute is present
+         */
+        function isAllowed() {
+          var permissionExpression = attrs.twgTableRowClickSecure;
+          if (angular.isUndefined(permissionExpression) || permissionExpression === '') {
+            return true;
+          }
 
-                    return ExpressionEvaluator.evaluate(permissionExpression);
-                }
+          return ExpressionEvaluator.evaluate(permissionExpression);
+        }
 
-                /**
-                 * if an element is clicked that has a 'ng-click' or 'href' attribute on it's own, do not reacte to this click.
-                 * also, if the clicked element has a parent somewhere with a 'ng-click' or 'href' attribute on its own, do not react to this click.
-                 */
-                function isNgClickWrappedElement(domElement) {
-                    var element = $(domElement);
-                    if (angular.isDefined(element.attr('ng-click')) || angular.isDefined(element.attr('x-ng-click')) || angular.isDefined(element.attr('href'))) {
-                        return true;
-                    }
+        /**
+         * if an element is clicked that has a 'ng-click' or 'href' attribute on it's own, do not reacte to this click.
+         * also, if the clicked element has a parent somewhere with a 'ng-click' or 'href' attribute on its own, do not react to this click.
+         */
+        function isNgClickWrappedElement(domElement) {
+          var wrappedElement = angular.element(domElement);
+          if (angular.isDefined(wrappedElement.attr('ng-click')) || angular.isDefined(wrappedElement.attr('x-ng-click')) || angular.isDefined(wrappedElement.attr('href'))) {
+            return true;
+          }
 
-                    var matchingParent = element.closest('[ng-click],[x-ng-click],[href]');
-                    if (matchingParent.length > 0) {
-                        return true;
-                    }
+          var matchingParent = wrappedElement.closest('[ng-click],[x-ng-click],[href]');
+          return matchingParent.length > 0;
+        }
 
-                    return false;
-                }
+        element.addClass('tablerow-clickable');
+        var targetUrl = attrs.twgTableRowClick;
 
-                element.addClass("tablerow-clickable");
-                var targetUrl = attrs.twgTableRowClick;
-
-                element.on('click', function (event) {
-                    if (isAllowed() && !isNgClickWrappedElement(event.target)) {
-                        scope.$apply(function () {
-                            $location.path(targetUrl);
-                        });
-                    }
-                });
-            }
-        };
-    });
+        element.on('click', function (event) {
+          if (isAllowed() && !isNgClickWrappedElement(event.target)) {
+            scope.$apply(function () {
+              $location.path(targetUrl);
+            });
+          }
+        });
+      }
+    };
+  });

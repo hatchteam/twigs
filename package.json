@@ -34,7 +34,8 @@
     "grunt-google-cdn": "~0.1.1",
     "grunt-ngmin": "~0.0.2",
     "grunt-ngdocs": "~0.2.1",
-    "grunt-angular-templates": "0.5.3"
+    "grunt-angular-templates": "0.5.3",
+    "grunt-eslint": "~2.0.0"
   },
   "engines": {
     "node": ">=0.10.0"

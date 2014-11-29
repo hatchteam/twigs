@@ -45,7 +45,7 @@ angular.module('twigs.sortable', []);
 
 angular.module('twigs.tableRowClick', ['twigs.security']);
 
-angular.module('twigs.globalPopups', ['ui.bootstrap.modal' , 'twigs.templates']);
+angular.module('twigs.globalPopups', ['ui.bootstrap.modal', 'twigs.templates']);
 
 angular.module('twigs.protectedRoutes', ['twigs.security', 'ngRoute']);
 
@@ -63,15 +63,15 @@ angular.module('twigs.protectedRoutes', ['twigs.security', 'ngRoute']);
  * ```
  */
 angular.module('twigs', [
-    'twigs.menu',
-    'twigs.activeRoute',
-    'twigs.devel',
-    'twigs.choose',
-    'twigs.flow',
-    'twigs.globalHotkeys',
-    'twigs.security',
-    'twigs.sortable',
-    'twigs.dynamicSize',
-    'twigs.tableRowClick',
-    'twigs.globalPopups',
-    'twigs.protectedRoutes']);
+  'twigs.menu',
+  'twigs.activeRoute',
+  'twigs.devel',
+  'twigs.choose',
+  'twigs.flow',
+  'twigs.globalHotkeys',
+  'twigs.security',
+  'twigs.sortable',
+  'twigs.dynamicSize',
+  'twigs.tableRowClick',
+  'twigs.globalPopups',
+  'twigs.protectedRoutes']);

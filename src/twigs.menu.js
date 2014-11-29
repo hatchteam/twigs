@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /* twigs
  * Copyright (C) 2014, Hatch Development Team
@@ -191,7 +191,7 @@ angular.module('twigs.menu')
           foundItem = searchItemRecursively(subItem, itemName);
           return !foundItem; //break if foundItem is defined -> item was found
         });
-        if(foundItem){
+        if (foundItem) {
           return foundItem;
         }
       }
@@ -349,8 +349,8 @@ angular.module('twigs.menu')
       if (isExternalLink(linkFromConfig)) {
         return linkFromConfig;
       }
-      if (linkFromConfig.charAt(0) !== "/") {
-        throw "please use routes in menu configuration: " + linkFromConfig;
+      if (linkFromConfig.charAt(0) !== '/') {
+        throw 'please use routes in menu configuration: ' + linkFromConfig;
       }
       return linkFromConfig;
     }
@@ -380,17 +380,17 @@ angular.module('twigs.menu')
      * Creates new SubMenuItem instance.
      * @param name name of the item
      * @constructor
-     * @param options item options
+     * @param _options item options
      */
-    function SubMenuItem(name, options) {
+    function SubMenuItem(name, _options) {
       this.constructor(name);
       this.items = [];
 
-      var _options = options || {};
-      this.text = _options.text || name;
-      this.link = validateMenuLink(_options.link);
-      this.activeRoute = _options.activeRoute;
-      this.options = _options;
+      var options = _options || {};
+      this.text = options.text || name;
+      this.link = validateMenuLink(options.link);
+      this.activeRoute = options.activeRoute;
+      this.options = options;
     }
 
     //inherit methods of MenuItem
@@ -418,7 +418,7 @@ angular.module('twigs.menu')
      *
      */
     MenuItem.prototype.addItem = function (itemName, itemOptions) {
-      this._createAndAddItem(itemName, itemOptions);
+      this.createAndAddItem(itemName, itemOptions);
       return this;
     };
 
@@ -442,14 +442,15 @@ angular.module('twigs.menu')
      *
      */
     MenuItem.prototype.createSubMenu = function (menuName, menuOptions) {
-      return this._createAndAddItem(menuName, menuOptions);
+      return this.createAndAddItem(menuName, menuOptions);
     };
 
-    MenuItem.prototype._createAndAddItem = function (itemName, itemOptions) {
+    MenuItem.prototype.createAndAddItem = function (itemName, itemOptions) {
       var item = new SubMenuItem(itemName, itemOptions);
       this.items.push(item);
       return item;
     };
+
   })
 
   .service('MenuPermissionService', function ($route, $injector, $log) {
@@ -459,7 +460,7 @@ angular.module('twigs.menu')
       //inject permissions if module exists, otherwise all SubMenuItems are allowed
       Permissions = $injector.get('Permissions');
     } catch (err) {
-      $log.debug("twigs.menu is used without permission filtering. Include twigs.security in your app if you wish to filter twigs.menu according to user roles.");
+      $log.debug('twigs.menu is used without permission filtering. Include twigs.security in your app if you wish to filter twigs.menu according to user roles.');
     }
 
     isSubMenuItemAllowed = function (SubMenuItem, Permissions) {
@@ -502,7 +503,7 @@ angular.module('twigs.menu')
         return menu;
       }
       if (angular.isUndefined(menu)) {
-        return;
+        return undefined;
       }
 
       return filterMenuRecursively(menu, Permissions);
@@ -559,12 +560,12 @@ angular.module('twigs.menu')
         //refilter menu on userInit if menu filtering is required and re-evaluate the active menu entry if menu filtering was applied
         if (angular.isDefined(Menu.getUserLoadedEventName())) {
           scope.$on(Menu.getUserLoadedEventName(), function () {
-            var menu = angular.copy(Menu.menu(attrs.menuName));
-            scope.menu = MenuPermissionService.filterMenuForRouteRestrictions(menu);
+            var menuCopy = angular.copy(Menu.menu(attrs.menuName));
+            scope.menu = MenuPermissionService.filterMenuForRouteRestrictions(menuCopy);
             MenuPermissionService.setActiveMenuEntryRecursively($location.path(), scope.menu);
           });
         } else {
-          $log.debug("twigs.menu has no user initialized event registered. This may cause problems when using twigs.menu permission filtering");
+          $log.debug('twigs.menu has no user initialized event registered. This may cause problems when using twigs.menu permission filtering');
         }
 
         MenuPermissionService.setActiveMenuEntryRecursively($location.path(), scope.menu);

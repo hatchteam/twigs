@@ -120,327 +120,325 @@
  */
 angular.module('twigs.flow')
 
-    .provider('Flow', function () {
-        this.flows = {};
+  .provider('Flow', function () {
+    this.flows = {};
 
-        this.$get = function ($location, $log) {
-            var flows = this.flows;
+    this.$get = function ($location, $log) {
+      var flows = this.flows;
 
-            /**
-             * finds a step in a flow with the given route (url path)
-             */
-            function findFlowAndStepForRoute(route) {
-                $log.debug('looking for step with route ', route);
+      /**
+       * finds a step in a flow with the given route (url path)
+       */
+      function findFlowAndStepForRoute(route) {
+        $log.debug('looking for step with route ', route);
 
-                var retVal;
+        var retVal;
 
-                angular.forEach(flows, function (propertyValue, propertyName) {
-                    angular.forEach(flows[propertyName].steps, function (step) {
-                        if (checkIfStepRouteRegexMatches(step.routeRegex, route)) {
-                            retVal = {
-                                flow: flows[propertyName],
-                                step: step
-                            };
-                        }
-                    });
-                });
-                if (angular.isUndefined(retVal)) {
-                    throw 'no flow-step found for route ' + route;
-                }
-                return retVal;
+        angular.forEach(flows, function (propertyValue, propertyName) {
+          angular.forEach(flows[propertyName].steps, function (step) {
+            if (checkIfStepRouteRegexMatches(step.routeRegex, route)) {
+              retVal = {
+                flow: flows[propertyName],
+                step: step
+              };
             }
+          });
+        });
+        if (angular.isUndefined(retVal)) {
+          throw 'no flow-step found for route ' + route;
+        }
+        return retVal;
+      }
 
 
-            function checkIfStepRouteRegexMatches(routeRegex, givenUrl) {
-                if (angular.isUndefined(routeRegex.test)) {
-                    throw 'Expected regex, but got ' + routeRegex;
-                }
-                return routeRegex.test(givenUrl);
-            }
+      function checkIfStepRouteRegexMatches(routeRegex, givenUrl) {
+        if (angular.isUndefined(routeRegex.test)) {
+          throw 'Expected regex, but got ' + routeRegex;
+        }
+        return routeRegex.test(givenUrl);
+      }
 
-            /**
-             * finds a step object with the given id within the given flow
-             */
-            function findStepForId(stepId, currentFlowId) {
-                var currentFlow = flows[currentFlowId];
+      /**
+       * finds a step object with the given id within the given flow
+       */
+      function findStepForId(stepId, currentFlowId) {
+        var currentFlow = flows[currentFlowId];
 
-                if (!angular.isUndefined(currentFlow.steps[stepId])) {
-                    return currentFlow.steps[stepId];
-                }
+        if (!angular.isUndefined(currentFlow.steps[stepId])) {
+          return currentFlow.steps[stepId];
+        }
 
-                throw "no step with id";
-            }
+        throw 'no step with id';
+      }
 
-            function throwErrorIfJumpIsNotAllowed(transitions, targetStepId) {
-                // check if step defines a transition to the desired targetStepId
-                var stepAllowed = false;
-                angular.forEach(transitions, function (value) {
-                    if (value === targetStepId) {
-                        stepAllowed = true;
-                    }
-                });
+      function throwErrorIfJumpIsNotAllowed(transitions, targetStepId) {
+        // check if step defines a transition to the desired targetStepId
+        var stepAllowed = false;
+        angular.forEach(transitions, function (value) {
+          if (value === targetStepId) {
+            stepAllowed = true;
+          }
+        });
 
-                if (stepAllowed !== true) {
-                    throw "transition to step " + targetStepId + " is not allowed!";
-                }
-            }
-
-
-            var FlowService = {
-                currentFlowId: undefined,
-                currentFlowModel: {},
+        if (stepAllowed !== true) {
+          throw 'transition to step ' + targetStepId + ' is not allowed!';
+        }
+      }
 
 
-                /**
-                 * @ngdoc function
-                 * @name twigs.flow.service:Flow#getModel
-                 * @methodOf twigs.flow.service:Flow
-                 *
-                 * @description
-                 *  Returns the flow model.
-                 *
-                 *  @returns {object} The flow model
-                 */
-                getModel: function () {
-                    return this.currentFlowModel;
-                },
+      return {
+        currentFlowId: undefined,
+        currentFlowModel: {},
 
-
-                /**
-                 * @ngdoc function
-                 * @name twigs.flow.service:Flow#next
-                 * @methodOf twigs.flow.service:Flow
-                 *
-                 * @description
-                 * Proceeds to the next step (i.e. performs the transition with the id **'next'**).
-                 */
-                next: function () {
-                    var targetStepId, targetStep, flowAndStep = findFlowAndStepForRoute($location.path());
-                    this.currentFlowId = flowAndStep.flow.id;
-
-                    targetStepId = flowAndStep.step.transitions.next;
-                    if (angular.isUndefined(targetStepId)) {
-                        throw "step does not define a transition 'next'";
-                    }
-
-
-                    targetStep = findStepForId(targetStepId, this.currentFlowId);
-                    $location.path(targetStep.route);
-                },
-
-
-                /**
-                 * @ngdoc function
-                 * @name twigs.flow.service:Flow#previous
-                 * @methodOf twigs.flow.service:Flow
-                 *
-                 * @description
-                 * Proceeds to the previous step (i.e. performs the transition with the id **'previous'**).
-                 */
-                previous: function () {
-                    var targetStepId, targetStep, flowAndStep = findFlowAndStepForRoute($location.path());
-                    this.currentFlowId = flowAndStep.flow.id;
-
-                    targetStepId = flowAndStep.step.transitions.previous;
-                    if (angular.isUndefined(targetStepId)) {
-                        throw "step does not define a transition 'previous'";
-                    }
-
-                    targetStep = findStepForId(targetStepId, this.currentFlowId);
-                    $location.path(targetStep.route);
-                },
-
-
-                /**
-                 * @ngdoc function
-                 * @name twigs.flow.service:Flow#toStep
-                 * @methodOf twigs.flow.service:Flow
-                 *
-                 * @description
-                 * Jumps directly to the specified step (if this transition is allowed by config).
-                 *
-                 * @param {string} targetStepId The id of the step to jump to
-                 */
-                toStep: function (targetStepId) {
-                    var targetStep, flowAndStep = findFlowAndStepForRoute($location.path());
-                    this.currentFlowId = flowAndStep.flow.id;
-
-                    throwErrorIfJumpIsNotAllowed(flowAndStep.step.transitions, targetStepId);
-
-                    targetStep = findStepForId(targetStepId, this.currentFlowId);
-                    $location.path(targetStep.route);
-                },
-
-
-                /**
-                 * @ngdoc function
-                 * @name twigs.flow.service:Flow#isCurrentStep
-                 * @methodOf twigs.flow.service:Flow
-                 *
-                 * @description
-                 * Checks whether the current step matches the given stepId.
-                 * Can be of good use if you share a controller between all steps.
-                 *
-                 * @param {string} stepId The step id to check for
-                 * @returns {boolean} True if the given stepId matches the current step. False otherwise.
-                 */
-                isCurrentStep: function (stepId) {
-                    var flowAndStep , targetStep, currentPath = $location.path();
-
-                    flowAndStep = findFlowAndStepForRoute(currentPath);
-                    if (angular.isUndefined(flowAndStep)) {
-                        throw "no flow found for path " + currentPath;
-                    }
-                    targetStep = findStepForId(stepId, flowAndStep.flow.id);
-
-                    return checkIfStepRouteRegexMatches(targetStep.routeRegex, currentPath);
-                },
-
-                finish: function () {
-                    this.currentFlowId = undefined;
-                    this.currentFlowModel = {};
-                }
-
-            };
-
-            return FlowService;
-        };
 
         /**
          * @ngdoc function
-         * @name twigs.flow.provider:FlowProvider#flow
-         * @methodOf twigs.flow.provider:FlowProvider
+         * @name twigs.flow.service:Flow#getModel
+         * @methodOf twigs.flow.service:Flow
          *
          * @description
-         * Starts a new flow configuration
+         *  Returns the flow model.
          *
-         * @param {string[]} flwoId A unique id for this new flow
-         * @returns {object} The FlowProvider
+         *  @returns {object} The flow model
          */
-        this.flow = function (flowId) {
-            if (!angular.isUndefined(this.currentFlowId)) {
-                throw "flow configuration error! use '$flowProvider.createFlow()' to complete previous flow";
-            }
+        getModel: function () {
+          return this.currentFlowModel;
+        },
 
-            this.currentFlowId = flowId;
-
-            this.flows[flowId] = {
-                id: flowId,
-                steps: {}
-            };
-
-            return this;
-        };
-
-
-        /**
-         * this function is from the AngularJS sources. See /src/ngRoute/route.js
-         *
-         * computes regular expression for a given path string
-         *
-         * @param {string} path The Path as String (e.g.  /some/path/:id )
-         * @param {object} opts Options
-         * @returns {{originalPath: *, regexp: *}}
-         */
-        function pathRegExp(path, opts) {
-            var insensitive = opts.caseInsensitiveMatch,
-                ret = {
-                    originalPath: path,
-                    regexp: path
-                },
-                keys = ret.keys = [];
-
-            path = path
-                .replace(/([().])/g, '\\$1')
-                .replace(/(\/)?:(\w+)([\?\*])?/g, function (_, slash, key, option) {
-                    var optional = option === '?' ? option : null;
-                    var star = option === '*' ? option : null;
-                    keys.push({ name: key, optional: !!optional });
-                    slash = slash || '';
-                    return '' +
-                        (optional ? '' : slash) +
-                        '(?:' + (optional ? slash : '') +
-                        (star && '(.+?)' || '([^/]+)') +
-                        (optional || '') +
-                        ')' +
-                        (optional || '');
-                })
-                .replace(/([\/$\*])/g, '\\$1');
-
-            ret.regexp = new RegExp('^' + path + '$', insensitive ? 'i' : '');
-            return ret;
-        }
 
         /**
          * @ngdoc function
-         * @name twigs.flow.provider:FlowProvider#step
-         * @methodOf twigs.flow.provider:FlowProvider
+         * @name twigs.flow.service:Flow#next
+         * @methodOf twigs.flow.service:Flow
          *
          * @description
-         * Adds a step to the current flow
-         *
-         * @param {object} stepConfig Step configuration with properties: **id**, **route**, and **transitions**
-         *
-         *    * `id` the unique id of the new step
-         *    * `route` a string that must match a path from a route definition
-         *    * `transitions` object that contains all valid transitions to other steps
-         *
-         * @returns {object} The FlowProvider
+         * Proceeds to the next step (i.e. performs the transition with the id **'next'**).
          */
-        this.step = function (stepConfig) {
-            if (angular.isUndefined(this.currentFlowId)) {
-                throw "flow configuration error! use '$flowProvider.flow('myFlow').step(...)";
-            }
+        next: function () {
+          var targetStepId, targetStep, flowAndStep = findFlowAndStepForRoute($location.path());
+          this.currentFlowId = flowAndStep.flow.id;
 
-            checkStepConfig(stepConfig);
+          targetStepId = flowAndStep.step.transitions.next;
+          if (angular.isUndefined(targetStepId)) {
+            throw 'step does not define a transition "next"';
+          }
 
-            var currentFlow = this.flows[this.currentFlowId];
 
-            checkStepIdInFlow(currentFlow, stepConfig.id);
+          targetStep = findStepForId(targetStepId, this.currentFlowId);
+          $location.path(targetStep.route);
+        },
 
-            stepConfig.routeRegex = pathRegExp(stepConfig.route, {}).regexp;
-
-            currentFlow.steps[stepConfig.id] = stepConfig;
-
-            return this;
-        };
 
         /**
          * @ngdoc function
-         * @name twigs.flow.provider:FlowProvider#createFlow
-         * @methodOf twigs.flow.provider:FlowProvider
+         * @name twigs.flow.service:Flow#previous
+         * @methodOf twigs.flow.service:Flow
          *
          * @description
-         * Completes the flow creation. You must invoke this function before starting a new flow with **flow()**.
+         * Proceeds to the previous step (i.e. performs the transition with the id **'previous'**).
          */
-        this.createFlow = function () {
-            this.currentFlowId = undefined;
+        previous: function () {
+          var targetStepId, targetStep, flowAndStep = findFlowAndStepForRoute($location.path());
+          this.currentFlowId = flowAndStep.flow.id;
 
-            // TODO: maybe check transitions:  check if target of transition is a valid stepId that exists in the flow
-        };
+          targetStepId = flowAndStep.step.transitions.previous;
+          if (angular.isUndefined(targetStepId)) {
+            throw 'step does not define a transition "previous"';
+          }
+
+          targetStep = findStepForId(targetStepId, this.currentFlowId);
+          $location.path(targetStep.route);
+        },
 
 
         /**
-         * throws an error if step id already exists in givenFlow
+         * @ngdoc function
+         * @name twigs.flow.service:Flow#toStep
+         * @methodOf twigs.flow.service:Flow
+         *
+         * @description
+         * Jumps directly to the specified step (if this transition is allowed by config).
+         *
+         * @param {string} targetStepId The id of the step to jump to
          */
-        function checkStepIdInFlow(flow, stepId) {
-            if (angular.isDefined(flow.steps[stepId])) {
-                var error = 'a step with id "' + stepId;
-                error += '" is already configured in flow "' + flow.id + '"';
-                throw error;
-            }
+        toStep: function (targetStepId) {
+          var targetStep, flowAndStep = findFlowAndStepForRoute($location.path());
+          this.currentFlowId = flowAndStep.flow.id;
+
+          throwErrorIfJumpIsNotAllowed(flowAndStep.step.transitions, targetStepId);
+
+          targetStep = findStepForId(targetStepId, this.currentFlowId);
+          $location.path(targetStep.route);
+        },
+
+
+        /**
+         * @ngdoc function
+         * @name twigs.flow.service:Flow#isCurrentStep
+         * @methodOf twigs.flow.service:Flow
+         *
+         * @description
+         * Checks whether the current step matches the given stepId.
+         * Can be of good use if you share a controller between all steps.
+         *
+         * @param {string} stepId The step id to check for
+         * @returns {boolean} True if the given stepId matches the current step. False otherwise.
+         */
+        isCurrentStep: function (stepId) {
+          var flowAndStep, targetStep, currentPath = $location.path();
+
+          flowAndStep = findFlowAndStepForRoute(currentPath);
+          if (angular.isUndefined(flowAndStep)) {
+            throw 'no flow found for path ' + currentPath;
+          }
+          targetStep = findStepForId(stepId, flowAndStep.flow.id);
+
+          return checkIfStepRouteRegexMatches(targetStep.routeRegex, currentPath);
+        },
+
+        finish: function () {
+          this.currentFlowId = undefined;
+          this.currentFlowModel = {};
         }
 
-        /*
-         * throws an error if the given stepconfig is invalid
-         */
-        function checkStepConfig(stepconfig) {
-            if (angular.isUndefined(stepconfig.id)) {
-                throw "step must have an id";
-            }
-            if (angular.isUndefined(stepconfig.route)) {
-                throw "step must have a route";
-            }
-        }
+      };
+    };
 
-    });
+    /**
+     * @ngdoc function
+     * @name twigs.flow.provider:FlowProvider#flow
+     * @methodOf twigs.flow.provider:FlowProvider
+     *
+     * @description
+     * Starts a new flow configuration
+     *
+     * @param {string[]} flowId A unique id for this new flow
+     * @returns {object} The FlowProvider
+     */
+    this.flow = function (flowId) {
+      if (!angular.isUndefined(this.currentFlowId)) {
+        throw 'flow configuration error! use "$flowProvider.createFlow()" to complete previous flow';
+      }
+
+      this.currentFlowId = flowId;
+
+      this.flows[flowId] = {
+        id: flowId,
+        steps: {}
+      };
+
+      return this;
+    };
+
+
+    /**
+     * this function is from the AngularJS sources. See /src/ngRoute/route.js
+     *
+     * computes regular expression for a given path string
+     *
+     * @param {string} path The Path as String (e.g.  /some/path/:id )
+     * @param {object} opts Options
+     * @returns {{originalPath: *, regexp: *}}
+     */
+    function pathRegExp(path, opts) {
+      var insensitive = opts.caseInsensitiveMatch,
+        ret = {
+          originalPath: path,
+          regexp: path
+        },
+        keys = ret.keys = [];
+
+      path = path
+        .replace(/([().])/g, '\\$1')
+        .replace(/(\/)?:(\w+)([\?\*])?/g, function (_, slash, key, option) {
+          var optional = option === '?' ? option : null;
+          var star = option === '*' ? option : null;
+          keys.push({name: key, optional: !!optional});
+          slash = slash || '';
+          return '' +
+            (optional ? '' : slash) +
+            '(?:' + (optional ? slash : '') +
+            (star && '(.+?)' || '([^/]+)') +
+            (optional || '') +
+            ')' +
+            (optional || '');
+        })
+        .replace(/([\/$\*])/g, '\\$1');
+
+      ret.regexp = new RegExp('^' + path + '$', insensitive ? 'i' : '');
+      return ret;
+    }
+
+    /**
+     * @ngdoc function
+     * @name twigs.flow.provider:FlowProvider#step
+     * @methodOf twigs.flow.provider:FlowProvider
+     *
+     * @description
+     * Adds a step to the current flow
+     *
+     * @param {object} stepConfig Step configuration with properties: **id**, **route**, and **transitions**
+     *
+     *    * `id` the unique id of the new step
+     *    * `route` a string that must match a path from a route definition
+     *    * `transitions` object that contains all valid transitions to other steps
+     *
+     * @returns {object} The FlowProvider
+     */
+    this.step = function (stepConfig) {
+      if (angular.isUndefined(this.currentFlowId)) {
+        throw 'flow configuration error! use $flowProvider.flow("myFlow").step(...)';
+      }
+
+      checkStepConfig(stepConfig);
+
+      var currentFlow = this.flows[this.currentFlowId];
+
+      checkStepIdInFlow(currentFlow, stepConfig.id);
+
+      stepConfig.routeRegex = pathRegExp(stepConfig.route, {}).regexp;
+
+      currentFlow.steps[stepConfig.id] = stepConfig;
+
+      return this;
+    };
+
+    /**
+     * @ngdoc function
+     * @name twigs.flow.provider:FlowProvider#createFlow
+     * @methodOf twigs.flow.provider:FlowProvider
+     *
+     * @description
+     * Completes the flow creation. You must invoke this function before starting a new flow with **flow()**.
+     */
+    this.createFlow = function () {
+      this.currentFlowId = undefined;
+
+      // TODO: maybe check transitions:  check if target of transition is a valid stepId that exists in the flow
+    };
+
+
+    /**
+     * throws an error if step id already exists in givenFlow
+     */
+    function checkStepIdInFlow(flow, stepId) {
+      if (angular.isDefined(flow.steps[stepId])) {
+        var error = 'a step with id "' + stepId;
+        error += '" is already configured in flow "' + flow.id + '"';
+        throw error;
+      }
+    }
+
+    /*
+     * throws an error if the given stepconfig is invalid
+     */
+    function checkStepConfig(stepconfig) {
+      if (angular.isUndefined(stepconfig.id)) {
+        throw 'step must have an id';
+      }
+      if (angular.isUndefined(stepconfig.route)) {
+        throw 'step must have a route';
+      }
+    }
+
+  });

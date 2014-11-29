@@ -70,9 +70,9 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
      "version": "0.1.4.1",
      ...
  3. grunt build
- 4. comit the version number and dist folder
+ 4. commit the version number and dist folder
    1. run grunt docu if the docu changed
-   2. comit the new docu to master and "gh-pages" branch
+   2. commit the new docu to "gh-pages" branch
    3. push gh-pages branch
  5. push master
  6. create new release on github

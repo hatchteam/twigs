@@ -42,12 +42,12 @@
  * <table twg-sortableTable>
  *  <thead>
  *   <tr>
- *     <th twg-sortable="name">Name</th>
- *     <th twg-sortable="number">Number</th>
+ *     <th twg-sortable='name'>Name</th>
+ *     <th twg-sortable='number'>Number</th>
  *   </tr>
  *   </thead>
  *   <tbody>
- *     <tr ng-repeat="data in dummyData | orderBy:orderPropertyName:orderProp">
+ *     <tr ng-repeat='data in dummyData | orderBy:orderPropertyName:orderProp'>
  *       <td>{{data.number}}</td>
  *       <td>{{data.name}}</td>
  *     </tr>
@@ -60,69 +60,68 @@ angular.module('twigs.sortable')
 /**
  * is placed on the table tag and creates a child scope.
  */
-    .directive('twgSortableTable', function () {
-        return {
-            restrict: 'A',
-            scope: true
-        };
-    })
+  .directive('twgSortableTable', function () {
+    return {
+      restrict: 'A',
+      scope: true
+    };
+  })
 
-    .directive('twgSortable', function () {
+  .directive('twgSortable', function () {
 
-        var CLASS_SORT_ASC = "column-sort-asc";
-        var CLASS_SORT_DESC = "column-sort-desc";
-        var CLASS_SORT_NONE = "column-sort-none";
+    var CLASS_SORT_ASC = 'column-sort-asc';
+    var CLASS_SORT_DESC = 'column-sort-desc';
+    var CLASS_SORT_NONE = 'column-sort-none';
 
-        return {
-            restrict: 'A',
-            link: function (scope, element, attrs) {
-                var _getClass;
-                var propertyName = attrs.twgSortable;
+    return {
+      restrict: 'A',
+      link: function (scope, element, attrs) {
+        var propertyName = attrs.twgSortable;
 
-                _getClass = function (prop) {
-                    if (scope.orderPropertyName === prop) {
-                        if (scope.orderProp) {
-                            return CLASS_SORT_DESC;
-                        } else {
-                            return CLASS_SORT_ASC;
-                        }
-                    } else {
-                        return CLASS_SORT_NONE;
-                    }
-                };
-
-                element.bind('click', function () {
-
-                    if (scope.orderPropertyName === propertyName) {
-                        scope.orderProp = !scope.orderProp;
-                    } else {
-                        scope.orderPropertyName = propertyName;
-                        scope.orderProp = false;
-                    }
-
-                    element.removeClass(CLASS_SORT_DESC);
-                    element.removeClass(CLASS_SORT_ASC);
-                    element.removeClass(CLASS_SORT_NONE);
-
-                    element.addClass(_getClass(propertyName));
-
-                    if (!scope.$$phase) {
-                        scope.$digest();
-                    }
-                });
-
-                scope.$watch('orderPropertyName', function (newProperty, oldProperty) {
-                    if (propertyName === oldProperty) {
-                        element.removeClass(CLASS_SORT_ASC);
-                        element.removeClass(CLASS_SORT_DESC);
-
-                        if (!element.hasClass(CLASS_SORT_NONE)) {
-                            element.addClass(CLASS_SORT_NONE);
-                        }
-                    }
-                });
-
-                element.addClass(CLASS_SORT_NONE);
+        function getClass(prop) {
+          if (scope.orderPropertyName === prop) {
+            if (scope.orderProp) {
+              return CLASS_SORT_DESC;
+            } else {
+              return CLASS_SORT_ASC;
             }
-        };
-    });
+          } else {
+            return CLASS_SORT_NONE;
+          }
+        }
+
+        element.bind('click', function () {
+
+          if (scope.orderPropertyName === propertyName) {
+            scope.orderProp = !scope.orderProp;
+          } else {
+            scope.orderPropertyName = propertyName;
+            scope.orderProp = false;
+          }
+
+          element.removeClass(CLASS_SORT_DESC);
+          element.removeClass(CLASS_SORT_ASC);
+          element.removeClass(CLASS_SORT_NONE);
+
+          element.addClass(getClass(propertyName));
+
+          if (!scope.$$phase) {
+            scope.$digest();
+          }
+        });
+
+        scope.$watch('orderPropertyName', function (newProperty, oldProperty) {
+          if (propertyName === oldProperty) {
+            element.removeClass(CLASS_SORT_ASC);
+            element.removeClass(CLASS_SORT_DESC);
+
+            if (!element.hasClass(CLASS_SORT_NONE)) {
+              element.addClass(CLASS_SORT_NONE);
+            }
+          }
+        });
+
+        element.addClass(CLASS_SORT_NONE);
+      }
+    };
+  });
