@@ -6,7 +6,6 @@
     "url": "https://github.com/hatchteam/twigs.git"
   },
   "scripts": {
-    "postinstall": "bower install",
     "test": "grunt"
   },
   "dependencies": {},
