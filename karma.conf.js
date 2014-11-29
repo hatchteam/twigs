@@ -20,8 +20,6 @@ module.exports = function (config) {
             'components/angular-mocks/angular-mocks.js',
             'components/angular-bootstrap/ui-bootstrap.min.js',
             'components/angular-route/angular-route.js',
-            'components/select2/select2.js',
-            'components/angular-ui-select2/src/select2.js',
             'src/*.js',
             'src/*.js',
             '.tmp/templates.js',

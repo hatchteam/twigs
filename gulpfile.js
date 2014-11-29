@@ -1,5 +1,6 @@
 var
   gulp = require('gulp'),
+  karma = require('karma').server,
   eslint = require('gulp-eslint');
 
 
@@ -14,4 +15,25 @@ gulp.task('lint', function () {
     .pipe(eslint.failOnError());
 });
 
-gulp.task('default', ['lint']);
+/**
+ * Runs our unit tests with karma
+ * */
+gulp.task('test', function (done) {
+  karma.start({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true,
+    autoWatch: false
+  }, done);
+});
+
+/**
+ * Watch for file changes and re-run tests on each change
+ * */
+gulp.task('tdd', function (done) {
+  karma.start({
+    configFile: __dirname + '/karma.conf.js',
+    autoWatch: true
+  }, done);
+});
+
+gulp.task('default', ['lint', 'test']);
