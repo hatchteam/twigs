@@ -1,6 +1,14 @@
 {
   "name": "twigs",
   "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hatchteam/twigs.git"
+  },
+  "scripts": {
+    "postinstall": "bower install",
+    "test": "grunt"
+  },
   "dependencies": {},
   "devDependencies": {
     "grunt": "0.4.5",
