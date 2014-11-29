@@ -352,13 +352,13 @@ describe('Service & Provider: Permissions ', function () {
 
         it('hides element if hasPermission returns false', function () {
 
-            spyOn(Permissions, 'hasPermission').andReturn(false);
+            spyOn(Permissions, 'hasPermission').and.returnValue(false);
 
             var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="hasPermission(\'super\')"></div> </div>');
             var compiledElement = whenCompiling(element);
 
             expect(Permissions.hasPermission).toHaveBeenCalledWith('super');
-            expect(Permissions.hasPermission.callCount).toBe(1);
+            expect(Permissions.hasPermission.calls.count()).toBe(1);
 
             var testElement = compiledElement.find('#testElement');
             expect(testElement.eq(0).hasClass('ng-hide')).toBe(true);
@@ -366,13 +366,13 @@ describe('Service & Provider: Permissions ', function () {
 
         it('shows element if hasPermission returns true', function () {
 
-            spyOn(Permissions, 'hasPermission').andReturn(true);
+            spyOn(Permissions, 'hasPermission').and.returnValue(true);
 
             var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="hasPermission(\'super\')"></div> </div>');
             var compiledElement = whenCompiling(element);
 
             expect(Permissions.hasPermission).toHaveBeenCalledWith('super');
-            expect(Permissions.hasPermission.callCount).toBe(1);
+            expect(Permissions.hasPermission.calls.count()).toBe(1);
 
             var testElement = compiledElement.find('#testElement');
             expect(testElement.eq(0).hasClass('ng-hide')).toBe(false);
@@ -380,13 +380,13 @@ describe('Service & Provider: Permissions ', function () {
 
         it('shows element if isAuthenticated returns true', function () {
 
-            spyOn(Permissions, 'isAuthenticated').andReturn(true);
+            spyOn(Permissions, 'isAuthenticated').and.returnValue(true);
 
             var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="isAuthenticated()"></div> </div>');
             var compiledElement = whenCompiling(element);
 
             expect(Permissions.isAuthenticated).toHaveBeenCalled();
-            expect(Permissions.isAuthenticated.callCount).toBe(1);
+            expect(Permissions.isAuthenticated.calls.count()).toBe(1);
 
             var testElement = compiledElement.find('#testElement');
             expect(testElement.eq(0).hasClass('ng-hide')).toBe(false);
@@ -394,13 +394,13 @@ describe('Service & Provider: Permissions ', function () {
 
         it('hides element if isAuthenticated returns false', function () {
 
-            spyOn(Permissions, 'isAuthenticated').andReturn(false);
+            spyOn(Permissions, 'isAuthenticated').and.returnValue(false);
 
             var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="isAuthenticated()"></div> </div>');
             var compiledElement = whenCompiling(element);
 
             expect(Permissions.isAuthenticated).toHaveBeenCalled();
-            expect(Permissions.isAuthenticated.callCount).toBe(1);
+            expect(Permissions.isAuthenticated.calls.count()).toBe(1);
 
             var testElement = compiledElement.find('#testElement');
             expect(testElement.eq(0).hasClass('ng-hide')).toBe(true);
@@ -408,13 +408,13 @@ describe('Service & Provider: Permissions ', function () {
 
         it('shows element if hasRole returns true', function () {
 
-            spyOn(Permissions, 'hasRole').andReturn(true);
+            spyOn(Permissions, 'hasRole').and.returnValue(true);
 
             var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="hasRole(\'USER\')"></div> </div>');
             var compiledElement = whenCompiling(element);
 
             expect(Permissions.hasRole).toHaveBeenCalledWith('USER');
-            expect(Permissions.hasRole.callCount).toBe(1);
+            expect(Permissions.hasRole.calls.count()).toBe(1);
 
             var testElement = compiledElement.find('#testElement');
             expect(testElement.eq(0).hasClass('ng-hide')).toBe(false);
@@ -422,13 +422,13 @@ describe('Service & Provider: Permissions ', function () {
 
         it('hides element if hasRole returns false', function () {
 
-            spyOn(Permissions, 'hasRole').andReturn(false);
+            spyOn(Permissions, 'hasRole').and.returnValue(false);
 
             var element = angular.element('<div class="content"> <div id="testElement" twg-secure-show="hasRole(\'USER\')"></div> </div>');
             var compiledElement = whenCompiling(element);
 
             expect(Permissions.hasRole).toHaveBeenCalledWith('USER');
-            expect(Permissions.hasRole.callCount).toBe(1);
+            expect(Permissions.hasRole.calls.count()).toBe(1);
 
             var testElement = compiledElement.find('#testElement');
             expect(testElement.eq(0).hasClass('ng-hide')).toBe(true);
@@ -467,13 +467,13 @@ describe('Service & Provider: Permissions ', function () {
 
         it('disables element if hasPermission returns false', function () {
 
-            spyOn(Permissions, 'hasPermission').andReturn(false);
+            spyOn(Permissions, 'hasPermission').and.returnValue(false);
 
             var element = angular.element('<div class="content"> <div id="testElement" twg-secure-enabled="hasPermission(\'super\')"></div> </div>');
             var compiledElement = whenCompiling(element);
 
             expect(Permissions.hasPermission).toHaveBeenCalledWith('super');
-            expect(Permissions.hasPermission.callCount).toBe(1);
+            expect(Permissions.hasPermission.calls.count()).toBe(1);
 
             var testElement = compiledElement.find('#testElement');
             expect(testElement.eq(0).attr('disabled')).toBe('disabled');
@@ -481,13 +481,13 @@ describe('Service & Provider: Permissions ', function () {
 
         it('enables element if hasPermission returns true', function () {
 
-            spyOn(Permissions, 'hasPermission').andReturn(true);
+            spyOn(Permissions, 'hasPermission').and.returnValue(true);
 
             var element = angular.element('<div class="content"> <div id="testElement" twg-secure-enabled="hasPermission(\'super\')"></div> </div>');
             var compiledElement = whenCompiling(element);
 
             expect(Permissions.hasPermission).toHaveBeenCalledWith('super');
-            expect(Permissions.hasPermission.callCount).toBe(1);
+            expect(Permissions.hasPermission.calls.count()).toBe(1);
 
             var testElement = compiledElement.find('#testElement');
             expect(testElement.eq(0).attr('disabled')).toBeUndefined();

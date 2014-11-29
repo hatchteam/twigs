@@ -64,7 +64,7 @@ describe("Directive: twgTableRowClick", function () {
 
     it("should not change $location.path on click if permissions are missing", function () {
 
-        spyOn(Permissions,'isAuthenticated').andReturn(false);
+        spyOn(Permissions,'isAuthenticated').and.returnValue(false);
 
         var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123" twg-table-row-click-secure="isAuthenticated()" ><td>some content</td></tr></table>');
         whenCompiling(tableElement);
@@ -74,7 +74,7 @@ describe("Directive: twgTableRowClick", function () {
 
     it("should change $location.path on click if permissions are valid", function () {
 
-        spyOn(Permissions,'hasRole').andReturn(true);
+        spyOn(Permissions,'hasRole').and.returnValue(true);
 
         var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123" twg-table-row-click-secure="hasRole(\'myrole\')" ><td>some content</td></tr></table>');
         whenCompiling(tableElement);
@@ -97,7 +97,7 @@ describe("Directive: twgTableRowClick", function () {
         whenClickingChildElement(tableElement, '#someSpan');
         expect($location.path()).toBe('/home');
     });
-  
+
     it("should not change $location.path on click. when clicking element with href", function () {
         var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123"><td><span id="someSpan" href="some/path">some content</span></td></tr></table>');
         $scope.modelValue = false;
