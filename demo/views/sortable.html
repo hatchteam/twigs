@@ -1,51 +1,28 @@
-<section id="choose" ng-controller="DemoSortableCtrl">
-    <div class="page-header">
-        <h1>Sortable</h1>
+<section id="sortable" ng-controller="DemoSortableCtrl as sortable">
+  <div class="page-header">
+    <h1>Sortable</h1>
+  </div>
+
+  <div class="row">
+
+    <div class="col-md-12">
+
+      <h3>First Table</h3>
+      <table class="table" twg-sortable-table>
+        <thead>
+        <tr>
+          <th twg-sortable="firstName">Firstname</th>
+          <th twg-sortable="lastName">Lastname</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="data in sortable.dataForTableOne | orderBy:orderPropertyName:orderProp">
+          <td>{{data.firstName}}</td>
+          <td>{{data.lastName}}</td>
+        </tr>
+        </tbody>
+      </table>
     </div>
-
-    <div class="row">
-
-        <div class="col-md-12">
-
-            <h3>First Table</h3>
-            <table class="table" twg-sortable-table>
-                <thead>
-                <tr>
-                    <th twg-sortable="firstName">Firstname</th>
-                    <th twg-sortable="lastName">Lastname</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat="data in dataForTableOne | orderBy:orderPropertyName:orderProp">
-                    <td>{{data.firstName}}</td>
-                    <td>{{data.lastName}}</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="row">
-
-        <div class="col-md-12">
-
-            <h3>First Table</h3>
-            <table class="table" twg-sortable-table>
-                <thead>
-                <tr>
-                    <th twg-sortable="firstName">Firstname</th>
-                    <th twg-sortable="lastName">Lastname</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat="data in dataForTableTwo | orderBy:orderPropertyName:orderProp">
-                    <td>{{data.firstName}}</td>
-                    <td>{{data.lastName}}</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
+  </div>
 
 </section>

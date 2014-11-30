@@ -16,9 +16,8 @@
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
   <!-- build:css styles/main.css -->
 
-  <link rel="stylesheet" href="/components/select2/select2.css">
-  <link rel="stylesheet" href="/components/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/demo/styles/main.css">
+  <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="styles/main.css">
   <!-- endbuild -->
 </head>
 <body ng-app="twigsDemo" twg-global-hotkeys>
@@ -28,11 +27,6 @@
   experience this site.</p>
 <![endif]-->
 
-<!--[if lt IE 9]>
-<script src="es5-shim/es5-shim.js"></script>
-<script src="json3/lib/json3.min.js"></script>
-<![endif]-->
-
 
 <!-- Add your site or application content here -->
 <div id="wrapper">
@@ -40,7 +34,6 @@
   <div ng-include="'views/nav.html'"></div>
   <div class="header-placeholder"></div>
   <div class="container">
-    <div ng-include="'views/gettingstarted.html'"></div>
     <div ng-include="'views/hotkeys.html'"></div>
     <div ng-include="'views/sortable.html'"></div>
   </div>
@@ -48,18 +41,18 @@
 </div>
 
 
-<script src="/components/jquery/jquery.min.js"></script>
-<script src="/components/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="/components/angular/angular.js"></script>
-<script src="/components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-<script src="/components/angular-route/angular-route.js"></script>
-<script src="/components/angular-cookies/angular-cookies.js"></script>
+<script src="../bower_components/jquery/jquery.min.js"></script>
+<script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="../bower_components/angular/angular.js"></script>
+<script src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="../bower_components/angular-route/angular-route.js"></script>
+<script src="../bower_components/angular-cookies/angular-cookies.js"></script>
 
 
 <!-- our twigs scripts  -->
-<script src="/src/_declarations.js"></script>
-<script src="/src/twigs.globalHotkeys.js"></script>
-<script src="/src/twigs.sortable.js"></script>
+<script src="../src/_declarations.js"></script>
+<script src="../src/twigs.globalHotkeys.js"></script>
+<script src="../src/twigs.sortable.js"></script>
 
 <!-- you can use the concatenated version - ->
 <script src="/dist/twigs.js"></script>
@@ -71,10 +64,6 @@
 <script src="/demo/scripts/demoApp.js"></script>
 <script src="/demo/scripts/controllers/demoHotkeysCtrl.js"></script>
 <script src="/demo/scripts/controllers/demoSortableCtrl.js"></script>
-<script src="/demo/scripts/controllers/navCtrl.js"></script>
-
-<script type="text/javascript" src="/components/select2/select2.js"></script>
-<script type="text/javascript" src="/components/angular-ui-select2/src/select2.js"></script>
 
 </body>
 </html>

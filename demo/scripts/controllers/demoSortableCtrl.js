@@ -2,16 +2,13 @@
 
 
 angular.module('twigsDemo')
-    .controller('DemoSortableCtrl', function ($scope) {
+  .controller('DemoSortableCtrl', function () {
 
+    var vm = this;
 
-        $scope.dataForTableOne = [
-            { firstName: "Sergio", lastName: "Pepperoni"  },
-            { firstName: "Thomaso", lastName: "Alabori"  }
-        ];
-        $scope.dataForTableTwo = [
-            { firstName: "Sandra", lastName: "Schimantzki"  },
-            { firstName: "Tamara", lastName: "Alessi"  }
-        ];
+    vm.dataForTableOne = [
+      {firstName: "Sergio", lastName: "Pepperoni"},
+      {firstName: "Thomaso", lastName: "Alabori"}
+    ];
 
-    });
+  });

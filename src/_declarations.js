@@ -35,8 +35,6 @@ angular.module('twigs.flow', []);
 
 angular.module('twigs.templates', []);
 
-angular.module('twigs.choose', ['ui.select2', 'twigs.templates']);
-
 angular.module('twigs.globalHotkeys', []);
 
 angular.module('twigs.security', []);
@@ -66,7 +64,6 @@ angular.module('twigs', [
   'twigs.menu',
   'twigs.activeRoute',
   'twigs.devel',
-  'twigs.choose',
   'twigs.flow',
   'twigs.globalHotkeys',
   'twigs.security',

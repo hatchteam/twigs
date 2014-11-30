@@ -2,19 +2,17 @@
 
 
 angular.module('twigsDemo')
-    .controller('DemoHotkeysCtrl', function ($scope, GlobalHotkeysService) {
+  .controller('DemoHotkeysCtrl', function (GlobalHotkeysService) {
 
-        $scope.message = '';
+    var vm = this;
+    vm.message = '';
 
-        $scope.areaFocus = function () {
-            $scope.focussed = true;
-        };
-
-        GlobalHotkeysService.registerGlobalHotkey('a', function (event) {
-            $scope.message = 'Callback for "a"';
-        });
-        GlobalHotkeysService.registerGlobalHotkeyCode('40', function (event) {
-            $scope.message = 'Callback for code "40" (arrow down)';
-        });
-
+    GlobalHotkeysService.registerGlobalHotkey('a', function () {
+      vm.message = 'Callback for "a"';
     });
+
+    GlobalHotkeysService.registerGlobalHotkeyCode('40', function () {
+      vm.message = 'Callback for code "40" (arrow down)';
+    });
+
+  });

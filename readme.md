@@ -15,37 +15,34 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
 
 # Quickstart
 
-1. Add twigs as a dependency to your **bower.json**.
+1. Add twigs as a dependency to your project.
 
-  ```javascript
-  "dependencies": {
-    "angular": "~1.2.12",
-    "twigs": "0.1.0"
-   }
   ```
-2. run **bower install**
+  bower install twigs --save-dev
+  ```
 
-3. Reference the twigs modules you want to use in your angular module's declaration.
+2. Reference the twigs modules you want to use in your angular module's declaration.
 
   ```javascript
    var App = angular.module('MyApp',['twigs']);
   ```
+  
 4. Reference the needed files in your index.html
 
   ```html
     <head>
     <!-- include twigs css for twigs.globalPopups -->
     <!-- after bootstrap.css and before yourOwn.css -->
-    <link rel="stylesheet" href="components/twigs/dist/styles/twigs.css">
+    <link rel="stylesheet" href="bower_components/twigs/dist/styles/twigs.css">
     </head>
 
     <body>
     <!-- here goes your app/markup -->
 
     <!-- include angular -->
-    <script src="components/angular/angular.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
     <!-- include twigs -->
-    <script src="components/twigs/dist/twigs.js"></script>
+    <script src="bower_components/twigs/dist/twigs.js"></script>
     </body>
   ```
 
@@ -59,7 +56,7 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
 
  1. check out the code
  2. run **npm install**
- 3. run **grunt test:unit**
+ 3. run **gulp test**
 
 ## Create a new twigs release
 (this tutorial is only relevant for twigs core developers)
@@ -71,7 +68,7 @@ Twigs is a library of useful Services and Directives for AngularJS applications.
      ...
  3. grunt build
  4. commit the version number and dist folder
-   1. run grunt docu if the docu changed
+   1. run gulp docu if the docu changed
    2. commit the new docu to "gh-pages" branch
    3. push gh-pages branch
  5. push master
