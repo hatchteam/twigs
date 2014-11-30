@@ -9,6 +9,7 @@ var
   rename = require('gulp-rename'),
   gulpDocs = require('gulp-ngdocs'),
   webserver = require('gulp-webserver'),
+  ngTemplates = require('gulp-ng-templates'),
   eslint = require('gulp-eslint');
 
 
@@ -22,6 +23,7 @@ var paths = {
   prodFiles: './src/**/*.js',
   testFiles: './test/**/*.js',
   styleFiles: './styles/**/*.less',
+  templateFiles: './templates/**/*.html',
   dist: './dist',
   docs: './docs'
 };
@@ -73,8 +75,8 @@ gulp.task('clean', ['cleandist', 'cleandoc']);
 /**
  * concatenates all our production js files, ngAnnotates them, uglifies and minifies
  */
-gulp.task('compress', ['cleandist'], function () {
-  return gulp.src(paths.prodFiles)
+gulp.task('compress', ['cleandist', 'templates'], function () {
+  return gulp.src([paths.prodFiles, './.tmp/templates.js'])
     // concatenates our productionFiles to the dist directory
     .pipe(concat(fileNames.twigsDist))
     // adds injection metadata to our angular components
@@ -84,6 +86,19 @@ gulp.task('compress', ['cleandist'], function () {
     .pipe(uglify())
     .pipe(rename(fileNames.twigsDistMin))
     .pipe(gulp.dest(paths.dist))
+});
+
+/**
+ * generates a new file with an angular module "twigs.templates",
+ * which puts all our html files into the angular template cache
+ */
+gulp.task('templates', function () {
+  return gulp.src(paths.templateFiles)
+    .pipe(ngTemplates({
+      module: 'twigs.templates',
+      filename: 'templates.js'
+    }))
+    .pipe(gulp.dest('./.tmp/'));
 });
 
 /**
