@@ -1,13 +1,103 @@
 var
   gulp = require('gulp'),
   karma = require('karma').server,
+  del = require('del'),
+  less = require('gulp-less'),
+  concat = require('gulp-concat'),
+  ngAnnotate = require('gulp-ng-annotate'),
+  uglify = require('gulp-uglify'),
+  rename = require('gulp-rename'),
+  gulpDocs = require('gulp-ngdocs'),
+  webserver = require('gulp-webserver'),
   eslint = require('gulp-eslint');
 
 
-var paths = {
-  prodFiles: './src/**/*.js'
+var server = {
+  host: 'localhost',
+  port: '8001',
+  root: './'
 };
 
+var paths = {
+  prodFiles: './src/**/*.js',
+  testFiles: './test/**/*.js',
+  styleFiles: './styles/**/*.less',
+  dist: './dist',
+  docs: './docs'
+};
+
+var fileNames = {
+  twigsDist: 'twigs.js',
+  twigsDistMin: 'twigs.min.js'
+};
+
+
+gulp.task('serve', function () {
+  gulp.src(server.root)
+    .pipe(webserver({
+      host: server.host,
+      port: server.port,
+      open: '/demo/index.html',
+      livereload: true,
+      directoryListing: false
+    }));
+});
+
+/**
+ * generates ngDoc
+ */
+gulp.task('docu', ['cleandoc'], function () {
+
+  var options = {
+    html5Mode: false,
+    startPage: '/api',
+    title: 'Twigs Documentation',
+    animation: true
+  };
+
+  return gulp.src(paths.prodFiles)
+    .pipe(gulpDocs.process(options))
+    .pipe(gulp.dest(paths.docs));
+});
+
+gulp.task('cleandist', function (done) {
+  del([paths.dist], done);
+});
+
+gulp.task('cleandoc', function (done) {
+  del([paths.docs], done);
+});
+
+gulp.task('clean', ['cleandist', 'cleandoc']);
+
+/**
+ * concatenates all our production js files, ngAnnotates them, uglifies and minifies
+ */
+gulp.task('compress', ['cleandist'], function () {
+  return gulp.src(paths.prodFiles)
+    // concatenates our productionFiles to the dist directory
+    .pipe(concat(fileNames.twigsDist))
+    // adds injection metadata to our angular components
+    .pipe(ngAnnotate())
+    .pipe(gulp.dest(paths.dist))
+    // obfuscate
+    .pipe(uglify())
+    .pipe(rename(fileNames.twigsDistMin))
+    .pipe(gulp.dest(paths.dist))
+});
+
+/**
+ * compiles less files to dist directory
+ */
+gulp.task('less', function () {
+  gulp.src(paths.styleFiles)
+    .pipe(less())
+    .pipe(gulp.dest(paths.dist + '/styles'));
+});
+
+/**
+ * lints our production files with ESLint
+ */
 gulp.task('lint', function () {
   return gulp.src(paths.prodFiles)
     .pipe(eslint())
@@ -36,4 +126,13 @@ gulp.task('tdd', function (done) {
   }, done);
 });
 
-gulp.task('default', ['lint', 'test']);
+
+gulp.task('build', [
+  'lint',
+  'test',
+  'docu',
+  'compress',
+  'less'
+]);
+
+gulp.task('default', ['build']);

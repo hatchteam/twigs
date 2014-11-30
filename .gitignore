@@ -1,7 +1,7 @@
 node_modules
 .tmp
 .sass-cache
-components
+bower_components/
 coverage
 .idea/
 *.orig

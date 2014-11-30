@@ -2,59 +2,56 @@
 // Generated on Wed Mar 05 2014 09:38:26 GMT+0100 (W. Europe Standard Time)
 
 module.exports = function (config) {
-    config.set({
+  config.set({
 
-        // base path, that will be used to resolve files and exclude
-        basePath: '',
-
-
-        // frameworks to use
-        frameworks: ['jasmine'],
+    // base path, that will be used to resolve files and exclude
+    basePath: '',
 
 
-        // list of files / patterns to load in the browser
-        files: [
-            'components/jquery/jquery.min.js'  ,
-            'components/angular/angular.js',
-            'components/angular-cookies/angular-cookies.js',
-            'components/angular-mocks/angular-mocks.js',
-            'components/angular-bootstrap/ui-bootstrap.min.js',
-            'components/angular-route/angular-route.js',
-            'src/*.js',
-            'src/*.js',
-            '.tmp/templates.js',
-            'test/spec/**/*.js'
-        ],
+    // frameworks to use
+    frameworks: ['jasmine'],
 
 
-        // list of files to exclude
-        exclude: [
+    // list of files / patterns to load in the browser
+    files: [
+      'bower_components/jquery/jquery.min.js',
+      'bower_components/angular/angular.js',
+      'bower_components/angular-cookies/angular-cookies.js',
+      'bower_components/angular-mocks/angular-mocks.js',
+      'bower_components/angular-bootstrap/ui-bootstrap.min.js',
+      'bower_components/angular-route/angular-route.js',
+      'src/*.js',
+      'src/*.js',
+      'test/spec/**/*.js'
+    ],
 
-        ],
 
-        preprocessors: {
-            'src/*.js': 'coverage'
-        },
+    // list of files to exclude
+    exclude: [],
 
-        reporters: ['progress', 'coverage'],
+    preprocessors: {
+      'src/*.js': 'coverage'
+    },
 
-        coverageReporter: {
-            type: 'html',
-            dir: 'coverage/'
-        },
+    reporters: ['progress', 'coverage'],
 
-        port: 9876,
+    coverageReporter: {
+      type: 'html',
+      dir: 'coverage/'
+    },
 
-        colors: true,
+    port: 9876,
 
-        logLevel: config.LOG_INFO,
+    colors: true,
 
-        autoWatch: false,
+    logLevel: config.LOG_INFO,
 
-        browsers: ['PhantomJS'],
+    autoWatch: false,
 
-        captureTimeout: 60000,
+    browsers: ['PhantomJS'],
 
-        singleRun: false
-    });
+    captureTimeout: 60000,
+
+    singleRun: false
+  });
 };
