@@ -104,7 +104,7 @@ gulp.task('templates', function () {
 /**
  * compiles less files to dist directory
  */
-gulp.task('less', function () {
+gulp.task('less', ['cleandist'], function () {
   gulp.src(paths.styleFiles)
     .pipe(less())
     .pipe(gulp.dest(paths.dist + '/styles'));
