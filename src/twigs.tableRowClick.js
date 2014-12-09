@@ -61,22 +61,26 @@
  *
  */
 angular.module('twigs.tableRowClick')
-  .directive('twgTableRowClick', function ($location, ExpressionEvaluator) {
+  .directive('twgTableRowClick', function ($q, $location, ExpressionEvaluator) {
     return {
       restrict: 'A',
       link: function (scope, element, attrs) {
 
 
         /**
-         * check permission if attribute is present
+         * If attribute twgTableRowClickSecure is set, check permission by invoking permissionEvaluator
+         *
+         * @returns {Promise}
          */
         function isAllowed() {
           var permissionExpression = attrs.twgTableRowClickSecure;
           if (angular.isUndefined(permissionExpression) || permissionExpression === '') {
-            return true;
+            return $q.when(true);
           }
 
-          return ExpressionEvaluator.evaluate(permissionExpression);
+          var result = ExpressionEvaluator.evaluate(permissionExpression);
+          // some expressions might return a promise, some might not. be safe and wrap all in a promise
+          return $q.when(result);
         }
 
         /**
@@ -97,11 +101,16 @@ angular.module('twigs.tableRowClick')
         var targetUrl = attrs.twgTableRowClick;
 
         element.on('click', function (event) {
-          if (isAllowed() && !isNgClickWrappedElement(event.target)) {
-            scope.$apply(function () {
-              $location.path(targetUrl);
-            });
+          if (isNgClickWrappedElement(event.target)) {
+            return;
           }
+
+          isAllowed().then(function (isAllowed) {
+            if (isAllowed) {
+              $location.path(targetUrl);
+            }
+          });
+
         });
       }
     };

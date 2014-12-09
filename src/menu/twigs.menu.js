@@ -208,19 +208,6 @@ angular.module('twigs.menu')
       return searchItemRecursively(menus[menuName], itemName);
     }
 
-//    function findMenuItemInMenu(menuName, itemName) {
-//      if (!menus[menuName]) {
-//        return undefined;
-//      }
-//      var foundItem;
-//      menus[menuName].items.every(function (item) {
-//        foundItem =  searchItemRecursively(item, itemName);
-//        return !foundItem; //break if foundItem is defined -> item was found
-//      });
-//      return foundItem;
-//    }
-
-
     var serviceInstance = {
       createMenu: function (menuName, templateUrl) {
         var menu = new RootMenuItem(menuName, templateUrl);
@@ -453,125 +440,32 @@ angular.module('twigs.menu')
 
   })
 
-  .service('MenuPermissionService', function ($route, $injector, $log) {
-    var isSubMenuItemAllowed, filterMenuForRouteRestrictions, filterMenuRecursively, setActiveMenuEntryRecursively, Permissions, activeRouteRegex;
 
-    try {
-      //inject permissions if module exists, otherwise all SubMenuItems are allowed
-      Permissions = $injector.get('Permissions');
-    } catch (err) {
-      $log.debug('twigs.menu is used without permission filtering. Include twigs.security in your app if you wish to filter twigs.menu according to user roles.');
-    }
-
-    isSubMenuItemAllowed = function (SubMenuItem, Permissions) {
-      var hasRoles = true;
-      var SubMenuItemRoute = $route.routes[SubMenuItem.link];
-      if (angular.isUndefined(SubMenuItemRoute)) {
-        //if therre is no route match for SubMenuItem.link dont filter the SubMenuItem
-        return true;
-      }
-      angular.forEach(SubMenuItemRoute.neededRoles, function (neededRole) {
-        var hasNeededRole = Permissions.hasRole(neededRole);
-        if (!hasNeededRole) {
-          hasRoles = false;
-          return false;
-        }
-      });
-      return hasRoles;
-    };
-
-    filterMenuRecursively = function (menu, Permissions) {
-      if (angular.isDefined(menu.items) && menu.items.length > 0) {
-        var ok = [];
-        angular.forEach(menu.items, function (SubMenuItem) {
-          if (isSubMenuItemAllowed(SubMenuItem, Permissions)) {
-            var oldSubMenuItemSubItemsCount = SubMenuItem.items.length;
-            var newSubMenuItem = filterMenuRecursively(SubMenuItem, Permissions);
-            if (newSubMenuItem.items.length !== 0 || oldSubMenuItemSubItemsCount === 0) {
-              //only push this item if it has no submenu or it has a submenu and the submenu items are visible
-              ok.push(SubMenuItem);
-            }
-          }
-        });
-        menu.items = ok;
-      }
-      return menu;
-    };
-
-    filterMenuForRouteRestrictions = function (menu) {
-      if (angular.isUndefined(Permissions)) {
-        return menu;
-      }
-      if (angular.isUndefined(menu)) {
-        return undefined;
-      }
-
-      return filterMenuRecursively(menu, Permissions);
-    };
-
-    activeRouteRegex = function (menu, path) {
-      if (angular.isDefined(menu.activeRoute) && menu.activeRoute.length > 0) {
-        var regexp = new RegExp('^' + menu.activeRoute + '$', 'i');
-        if (regexp.test(path)) {
-          return true;
-        }
-      }
-      return false;
-    };
-
-    setActiveMenuEntryRecursively = function (path, menu) {
-      var subItemFound = false;
-
-      if (angular.isDefined(menu.items) && menu.items.length > 0) {
-        angular.forEach(menu.items, function (item) {
-          item.active = false;
-          if (setActiveMenuEntryRecursively(path, item) === true) {
-            subItemFound = true;
-            item.active = true;
-            return false;
-          }
-        });
-        menu.active = subItemFound;
-
-        if (subItemFound === false) {
-          //check if this menu item should be active itself
-          menu.active = (menu.link === path || activeRouteRegex(menu, path) === true);
-        }
-        return menu.active;
-      } else {
-        return (menu.link === path || activeRouteRegex(menu, path) === true);
-      }
-    };
-
-    return {
-      isSubMenuItemAllowed: isSubMenuItemAllowed,
-      filterMenuForRouteRestrictions: filterMenuForRouteRestrictions,
-      setActiveMenuEntryRecursively: setActiveMenuEntryRecursively
-    };
-  })
-
-  .directive('twgMenu', function ($rootScope, $location, $log, Menu, MenuPermissionService) {
+  .directive('twgMenu', function ($rootScope, $location, $log, Menu, MenuPermissionService, MenuHelper) {
     return {
       restrict: 'E',
       link: function (scope, element, attrs) {
-        var menu = angular.copy(Menu.menu(attrs.menuName));
-        scope.menu = MenuPermissionService.filterMenuForRouteRestrictions(menu);
+
+        function update() {
+          MenuPermissionService.filterMenuForRouteRestrictions(Menu.menu(attrs.menuName)).then(function (filteredMenu) {
+            scope.menu = filteredMenu;
+            MenuHelper.setActiveMenuEntryRecursively($location.path(), scope.menu);
+          });
+        }
 
         //refilter menu on userInit if menu filtering is required and re-evaluate the active menu entry if menu filtering was applied
         if (angular.isDefined(Menu.getUserLoadedEventName())) {
           scope.$on(Menu.getUserLoadedEventName(), function () {
-            var menuCopy = angular.copy(Menu.menu(attrs.menuName));
-            scope.menu = MenuPermissionService.filterMenuForRouteRestrictions(menuCopy);
-            MenuPermissionService.setActiveMenuEntryRecursively($location.path(), scope.menu);
+            update();
           });
         } else {
           $log.debug('twigs.menu has no user initialized event registered. This may cause problems when using twigs.menu permission filtering');
         }
 
-        MenuPermissionService.setActiveMenuEntryRecursively($location.path(), scope.menu);
+        update();
 
         $rootScope.$on('$routeChangeSuccess', function () {
-          MenuPermissionService.setActiveMenuEntryRecursively($location.path(), scope.menu);
+          MenuHelper.setActiveMenuEntryRecursively($location.path(), scope.menu);
         });
       },
       templateUrl: function (element, attrs) {

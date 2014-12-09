@@ -1,5 +1,0 @@
-function iit() {
-}
-
-function ddescribe() {
-}

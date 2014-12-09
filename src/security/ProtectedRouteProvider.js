@@ -27,15 +27,15 @@ angular.module('twigs.protectedRoutes')
  * In an application that uses a permission model, we'd like to protect some views from
  * unauthorized access.
  *
- * ProtectedRoutes allows you to define which user-roles are needed to access a route. You can use our ProtectedRouteProvider
- * in the same way you would use the standard $routeProvider.
+ * ProtectedRoutes allows you to protect a route. (You can use our ProtectedRouteProvider
+ * in the same way you would use the standard $routeProvider).
  *
- * Additionally you can specify the property _neededRoles_. Angular will then
- * evaluate the user's permission on routeChangeStart. If the user has the required roles, the route and the location changes.
+ * You can specify the property _protection_. Angular will then
+ * evaluate the user's permission on routeChangeStart. If the user has the required permissions, the route and the location changes.
  * If not, the route-change is prevented and a _$routeChangeError_ event is thrown, which can be handled by your application to e.g. forward to the main view or to display an
  * appropriate message.
  *
- * If you don't want to check for a specific role, but only check if a user is logged in, set the property _authenticated_ to true.
+ * If you don't want to check for a specific permission, but only check if a user is logged in, set the property _authenticated_ to true.
  *
  * ### How to configure protected routes
  * ```javascript
@@ -51,7 +51,7 @@ angular.module('twigs.protectedRoutes')
  *     .when('/settings', {
  *         templateUrl: '/views/settings.html',
  *         controller: 'SettingsCtrl',
- *         neededRoles:['ADMIN']
+ *         protection:[{roles:['ADMIN']}]
  *     }),
  *     .when('/profile', {
  *         templateUrl: '/views/settings.html',
@@ -60,12 +60,12 @@ angular.module('twigs.protectedRoutes')
  *     });
  * ```
  *
- * Note: ProtectedRoute depends on the twigs.security module. Make sure you registered a user loader function (see [PermissionsProvider](#/api/twigs.security.provider:PermissionsProvider))
+ * Note: ProtectedRoute depends on the twigs.security module. Make sure you registered a user loader function (see [AuthorizerProvider](#/api/twigs.security.provider:AuthorizerProvider))
  *
  */
   .provider('ProtectedRoute', function ($routeProvider) {
 
-    var neededRolesForRoutes = {};
+    var protectionsForRoutes = {};
 
     /**
      * needed to mirror the angular's RouteProvider api !
@@ -78,59 +78,55 @@ angular.module('twigs.protectedRoutes')
     this.when = function (path, route) {
       if (isProtectedRouteConfig(route)) {
         route.resolve = angular.extend(route.resolve || {}, {
-          'CurrentUser': function (Permissions) {
-            return Permissions.getUser();
+          'CurrentUser': function (Authorizer) {
+            return Authorizer.getUser();
           },
-          'hasPermission': function ($q, Permissions) {
-            return isUserAllowedToAccessRoute($q, Permissions, route.neededRoles);
+          'hasPermission': function ($q, Authorizer) {
+            return isUserAllowedToAccessRoute($q, Authorizer, route.protection);
           }
         });
-        neededRolesForRoutes[path] = route.neededRoles;
+        protectionsForRoutes[path] = route.protection;
       }
       $routeProvider.when(path, route);
       return this;
     };
 
     function isProtectedRouteConfig(route) {
-      if (angular.isDefined(route.neededRoles)) {
-        if (typeof route.neededRoles === 'object') {
-          return true;
-        } else {
-          throw 'Invalid protected route config: neededRoles must be an array';
-        }
-      } else if (angular.isDefined(route.authenticated)) {
-        return route.authenticated === true;
+      if (angular.isUndefined(route.protection)) {
+        return false;
       }
-      return false;
+
+      if (route.protection === true) {
+        // route is protected -> user must be logged in to access it
+        return true;
+      }
+
+      if (Object.prototype.toString.call(route.protection) === '[object Array]') {
+        return true;
+      }
+
+      throw 'Invalid protected route config: protection must be either an array or "true"';
     }
 
-    function isUserAllowedToAccessRoute($q, Permissions, neededRoles) {
+    function isUserAllowedToAccessRoute($q, Authorizer, protection) {
       var deferred = $q.defer();
-      Permissions.getUser()
+      Authorizer.getUser()
         .then(function () {
-          if (userHasAllRoles(neededRoles, Permissions)) {
-            deferred.resolve({});
-          } else {
-            deferred.reject(new Error('missing_roles'));
-          }
+
+          Authorizer.hasPermission.apply(Authorizer, protection)
+            .then(function (result) {
+              if (result) {
+                deferred.resolve({});
+              } else {
+                deferred.reject(new Error('User is not allowed to access route!'));
+              }
+            });
+
         }, function (err) {
           deferred.reject(err);
         });
 
       return deferred.promise;
-    }
-
-    function userHasAllRoles(neededRoles, Permissions) {
-      var allRoles = true;
-      angular.forEach(neededRoles, function (neededRole) {
-        if (!allRoles) {
-          return;
-        }
-        if (!Permissions.hasRole(neededRole)) {
-          allRoles = false;
-        }
-      });
-      return allRoles;
     }
 
     this.$get = function () {

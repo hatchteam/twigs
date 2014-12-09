@@ -7,10 +7,8 @@ module.exports = function (config) {
     // base path, that will be used to resolve files and exclude
     basePath: '',
 
-
     // frameworks to use
     frameworks: ['jasmine'],
-
 
     // list of files / patterns to load in the browser
     files: [
@@ -20,11 +18,10 @@ module.exports = function (config) {
       'bower_components/angular-mocks/angular-mocks.js',
       'bower_components/angular-bootstrap/ui-bootstrap.min.js',
       'bower_components/angular-route/angular-route.js',
-      'src/*.js',
-      'src/*.js',
-      'test/spec/**/*.js'
+      'src/**/module.js',
+      'src/**/*.js',
+      'test/unit/**/*.js'
     ],
-
 
     // list of files to exclude
     exclude: [],

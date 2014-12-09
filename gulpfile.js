@@ -12,7 +12,6 @@ var
   ngTemplates = require('gulp-ng-templates'),
   eslint = require('gulp-eslint');
 
-
 var server = {
   host: 'localhost',
   port: '8001',
@@ -20,6 +19,7 @@ var server = {
 };
 
 var paths = {
+  prodModuleFiles: './src/**/module.js',
   prodFiles: './src/**/*.js',
   testFiles: './test/**/*.js',
   styleFiles: './styles/**/*.less',
@@ -32,7 +32,6 @@ var fileNames = {
   twigsDist: 'twigs.js',
   twigsDistMin: 'twigs.min.js'
 };
-
 
 gulp.task('serve', function () {
   gulp.src(server.root)
@@ -76,7 +75,7 @@ gulp.task('clean', ['cleandist', 'cleandoc']);
  * concatenates all our production js files, ngAnnotates them, uglifies and minifies
  */
 gulp.task('compress', ['cleandist', 'templates'], function () {
-  return gulp.src([paths.prodFiles, './.tmp/templates.js'])
+  return gulp.src([paths.prodModuleFiles, paths.prodFiles, './.tmp/templates.js'])
     // concatenates our productionFiles to the dist directory
     .pipe(concat(fileNames.twigsDist))
     // adds injection metadata to our angular components
@@ -140,7 +139,6 @@ gulp.task('tdd', function (done) {
     autoWatch: true
   }, done);
 });
-
 
 gulp.task('build', [
   'lint',

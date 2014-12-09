@@ -17,17 +17,18 @@
 
 'use strict';
 
-describe('Service & Provider: ProtectedRoutes', function () {
 
-  var ProtectedRouteProvider, PermissionsProvider, $location, $route, $rootScope;
+describe('ProtectedRouteProvider', function () {
+
+  var ProtectedRouteProvider, AuthorizerProvider, $location, $route, $rootScope;
 
   beforeEach(function () {
     // Initialize the service provider by injecting it to a fake module's config block
     var fakeModule = angular.module('testApp', []);
 
-    fakeModule.config(function (_ProtectedRouteProvider_, _PermissionsProvider_) {
+    fakeModule.config(function (_ProtectedRouteProvider_, _AuthorizerProvider_) {
       ProtectedRouteProvider = _ProtectedRouteProvider_;
-      PermissionsProvider = _PermissionsProvider_;
+      AuthorizerProvider = _AuthorizerProvider_;
     });
     // Initialize ht.flow module injector
     angular.mock.module('twigs.protectedRoutes', 'testApp');
@@ -59,7 +60,7 @@ describe('Service & Provider: ProtectedRoutes', function () {
       ProtectedRouteProvider.when('/protected', {
         templateUrl: 'views/protected.html',
         controller: 'ProtectedCtrl',
-        neededRoles: ['ADMIN']
+        protection: [{roles: ['ADMIN']}]
       });
 
       var configViaService = $route.routes['/protected'];
@@ -77,7 +78,7 @@ describe('Service & Provider: ProtectedRoutes', function () {
             return true;
           }
         },
-        neededRoles: ['ADMIN']
+        protection: [{roles: ['ADMIN']}]
       });
 
       var configViaService = $route.routes['/main'];
@@ -87,11 +88,11 @@ describe('Service & Provider: ProtectedRoutes', function () {
       expect(configViaService.templateUrl).toBe('views/main.html');
     });
 
-    it('allows to setup a protected Route with "authenticated")', function () {
+    it('allows to setup a protected Route with protection:true)', function () {
       ProtectedRouteProvider.when('/main', {
         templateUrl: 'views/main.html',
         controller: 'MainCtrl',
-        authenticated: true
+        protection: true
       });
       var configViaService = $route.routes['/main'];
       expect(configViaService.resolve).toBeDefined();
@@ -99,26 +100,27 @@ describe('Service & Provider: ProtectedRoutes', function () {
       expect(configViaService.templateUrl).toBe('views/main.html');
     });
 
-    it('does not mark a route as proteced, if "authenticated" is not set to true)', function () {
-      // test with something other than 'true'
-      ProtectedRouteProvider.when('/main', {
-        templateUrl: 'views/main.html',
-        controller: 'MainCtrl',
-        authenticated: 'somethingElse'
-      });
-      var configViaService = $route.routes['/main'];
-      expect(configViaService.resolve).toBeUndefined();
-      expect(configViaService.templateUrl).toBe('views/main.html');
+    it('throws if "protection" is set to false', function () {
 
-      // and again with 'false'
-      ProtectedRouteProvider.when('/main2', {
-        templateUrl: 'views/main2.html',
-        controller: 'MainCtrl2',
-        authenticated: false
-      });
-      configViaService = $route.routes['/main'];
-      expect(configViaService.resolve).toBeUndefined();
-      expect(configViaService.templateUrl).toBe('views/main.html');
+      expect(function () {
+        ProtectedRouteProvider.when('/main2', {
+          templateUrl: 'views/main2.html',
+          controller: 'MainCtrl2',
+          protection: false
+        });
+      }).toThrow();
+
+    });
+
+    it('throws if "protection" is set to a string', function () {
+      expect(function () {
+        ProtectedRouteProvider.when('/main', {
+          templateUrl: 'views/main.html',
+          controller: 'MainCtrl',
+          protection: 'somethingElse'
+        });
+      }).toThrow();
+
     });
 
     it('allows to setup multiple protected Routes', function () {
@@ -126,12 +128,12 @@ describe('Service & Provider: ProtectedRoutes', function () {
         .when('/main', {
           templateUrl: 'views/main.html',
           controller: 'MainCtrl',
-          neededRoles: ['ADMIN']
+          protection: [{roles: ['ADMIN']}]
         })
         .when('/some', {
           templateUrl: 'views/some.html',
           controller: 'SomeCtrl',
-          neededRoles: ['USER', 'ADMIN']
+          protection: [{roles: ['USER', 'ADMIN']}]
         });
     });
 
@@ -140,7 +142,7 @@ describe('Service & Provider: ProtectedRoutes', function () {
         ProtectedRouteProvider.when('/', {
           templateUrl: 'views/main.html',
           controller: 'MainCtrl',
-          neededRoles: 'ADMIN'
+          protection: 'Not an Array'
         });
       }
 
