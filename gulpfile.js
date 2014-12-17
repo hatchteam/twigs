@@ -10,7 +10,8 @@ var
   gulpDocs = require('gulp-ngdocs'),
   webserver = require('gulp-webserver'),
   ngTemplates = require('gulp-ng-templates'),
-  eslint = require('gulp-eslint');
+  eslint = require('gulp-eslint'),
+  path = require('path');
 
 var server = {
   host: 'localhost',
@@ -95,7 +96,10 @@ gulp.task('templates', function () {
   return gulp.src(paths.templateFiles)
     .pipe(ngTemplates({
       module: 'twigs.templates',
-      filename: 'templates.js'
+      filename: 'templates.js',
+      path: function (filePath, base) {
+        return path.join('templates', filePath.replace(base, ''));
+      }
     }))
     .pipe(gulp.dest('./.tmp/'));
 });

@@ -6,5 +6,4 @@ coverage
 .idea/
 *.orig
 test-results.xml
-dist/
 docs/
