@@ -34,6 +34,9 @@ var fileNames = {
   twigsDistMin: 'twigs.min.js'
 };
 
+/**
+ * serves the demo application
+ */
 gulp.task('serve', function () {
   gulp.src(server.root)
     .pipe(webserver({

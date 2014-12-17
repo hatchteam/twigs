@@ -1,0 +1,29 @@
+<ul class="nav navbar-nav">
+  <li>
+    <a href="#" role="button" class="navbar-brand">
+      Twigs Demo
+    </a>
+  </li>
+
+
+  <li ng-class="{'active': menuItem.active,'dropdown':menuItem.items && menuItem.items.length > 0}"
+      ng-repeat="menuItem in menu.items">
+
+    <a ng-href="#{{menuItem.link}}" ng-class="{'dropdown-toggle':menuItem.items && menuItem.items.length > 0}"
+       data-toggle="dropdown">
+      <span class="menu-icon"><i ng-class="menuItem.options.iconClass"></i></span>
+      <span class="text">{{menuItem.text}}</span>
+    </a>
+
+    <ul class="dropdown-menu" ng-if="menuItem.items && menuItem.items.length > 0">
+      <li ng-repeat="subMenuItem in menuItem.items" ng-class="{'active': subMenuItem.active}">
+        <a href="#{{subMenuItem.link}}">
+          <span class="submenu-label">{{subMenuItem.text}}</span>
+        </a>
+      </li>
+    </ul>
+
+  </li>
+
+
+</ul>

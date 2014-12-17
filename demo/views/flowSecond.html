@@ -1,0 +1,23 @@
+<div class="progress">
+  <div class="progress-bar" role="progressbar"  style="width: 66.6666666%;">
+  </div>
+</div>
+
+<div class="row">
+  We only need one controller for the whole wizard...
+
+  <form class="form-horizontal">
+    <div class="form-group">
+      <label for="lastname" class="control-label col-sm-2 ">Lastname</label>
+
+      <div class="col-sm-10">
+        <input id="lastname" class="form-control" ng-model="flow.flowmodel.lastName"/>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="row">
+  <button ng-click="flow.onButtonPrevious()" class="btn btn-primary btn-sm">Previous</button>
+  <button ng-click="flow.onButtonNext()" class="btn btn-primary btn-sm">Next</button>
+</div>

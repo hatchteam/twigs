@@ -1,0 +1,22 @@
+<div class="progress">
+  <div class="progress-bar" role="progressbar"  style="width: 100%;">
+  </div>
+</div>
+
+<div class="row">
+  Third Step of our Flow .
+
+  <br/>
+  You can use different controllers for each step.
+  Nevertheless, the steps can access a shared flow-datamodel:
+
+
+    <pre>
+    {{flow.flowmodel}}
+    </pre>
+
+</div>
+
+<div class="row">
+  <button ng-click="flow.onButtonPrevious()" class="btn btn-primary btn-sm">Previous</button>
+</div>

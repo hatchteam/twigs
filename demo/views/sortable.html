@@ -1,27 +1,38 @@
 <section id="sortable" ng-controller="DemoSortableCtrl as sortable">
+  <a name="/modules/sortable"></a>
+
   <div class="page-header">
-    <h1>Sortable</h1>
+    <h1>Sortable
+      <small><a class="label label-success"
+                href="http://hatchteam.github.io/twigs/docs/#/api/twigs.sortable.directive:twgSortable">Docu</a></small>
+    </h1>
   </div>
 
   <div class="row">
 
-    <div class="col-md-12">
+    <div class="col-md-6">
+      <h3>Countries</h3>
 
-      <h3>First Table</h3>
-      <table class="table" twg-sortable-table>
+      <table class="table" twg-sortable-table ng-init="orderPropertyName='name';orderProp=false">
         <thead>
         <tr>
-          <th twg-sortable="firstName">Firstname</th>
-          <th twg-sortable="lastName">Lastname</th>
+          <th twg-sortable="name">Name</th>
+          <th twg-sortable="pop">Population</th>
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="data in sortable.dataForTableOne | orderBy:orderPropertyName:orderProp">
-          <td>{{data.firstName}}</td>
-          <td>{{data.lastName}}</td>
+        <tr ng-repeat="country in sortable.countries | orderBy:orderPropertyName:orderProp">
+          <td>{{country.name}}</td>
+          <td>{{country.pop | number}}</td>
         </tr>
         </tbody>
       </table>
+
+    </div>
+    <div class="col-md-6">
+      <p>In a modern user interface, we expect tables to be sortable. The twgSortable directive provides an easy way to
+        define sortable tables. Just specify the attribute's name you want to sort by (in the example: 'name' and
+        'number').</p>
     </div>
   </div>
 

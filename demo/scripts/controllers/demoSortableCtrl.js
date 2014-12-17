@@ -6,9 +6,12 @@ angular.module('twigsDemo')
 
     var vm = this;
 
-    vm.dataForTableOne = [
-      {firstName: "Sergio", lastName: "Pepperoni"},
-      {firstName: "Thomaso", lastName: "Alabori"}
+    vm.countries = [
+      {name: "China", pop: 1367140000},
+      {name: "India", pop: 1264020000},
+      {name: "United States", pop: 319271000},
+      {name: "Indonesia", pop: 252164800},
+      {name: "Brazil", pop: 203596000}
     ];
 
   });

@@ -31,11 +31,20 @@
 <!-- Add your site or application content here -->
 <div id="wrapper">
 
-  <div ng-include="'views/nav.html'"></div>
+  <header class="navbar navbar-default navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <nav class="hidden-xs">
+          <twg-menu menu-name="main_menu"></twg-menu>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+
   <div class="header-placeholder"></div>
-  <div class="container">
-    <div ng-include="'views/hotkeys.html'"></div>
-    <div ng-include="'views/sortable.html'"></div>
+  <div class="container main-container" ng-view autoscroll="false">
+
   </div>
 
 </div>
@@ -49,12 +58,7 @@
 <script src="../bower_components/angular-cookies/angular-cookies.js"></script>
 
 
-<!-- our twigs scripts  -->
-<script src="../src/_declarations.js"></script>
-<script src="../src/twigs.globalHotkeys.js"></script>
-<script src="../src/twigs.sortable.js"></script>
-
-<!-- you can use the concatenated version - ->
+<!-- you can use the concatenated version -->
 <script src="/dist/twigs.js"></script>
 
 <!-- or even the minified version - ->
@@ -62,7 +66,12 @@
 <!-- -->
 
 <script src="/demo/scripts/demoApp.js"></script>
+<script src="/demo/scripts/routeConfig.js"></script>
+<script src="/demo/scripts/menuConfig.js"></script>
+<script src="/demo/scripts/flowConfig.js"></script>
 <script src="/demo/scripts/controllers/demoHotkeysCtrl.js"></script>
+<script src="/demo/scripts/controllers/demoFlowCtrl.js"></script>
+<script src="/demo/scripts/controllers/secondDemoFlowCtrl.js"></script>
 <script src="/demo/scripts/controllers/demoSortableCtrl.js"></script>
 
 </body>

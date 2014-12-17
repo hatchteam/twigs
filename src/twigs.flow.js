@@ -36,7 +36,7 @@
  * ```javascript
  * var App = angular.module('Main',['twigs.flow']);
  *
- * App.config(function ($routeProvider,FlowProvider) {
+ * App.config(function ($routeProvider, FlowProvider) {
  *
  * // define your routes as usual
  * $routeProvider
@@ -54,7 +54,7 @@
  *     });
  *
  * // define a flow
- * $flowProvider.flow('myWizard')
+ * FlowProvider.flow('myWizard')
  *     .step({
  *         'id': 'first',  // a unique step id within this flow.
  *         'route': '/firstStep',  // this matches the first route definition from above
