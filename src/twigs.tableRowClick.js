@@ -48,17 +48,6 @@
  * </tr>
  * ```
  *
- * ### Secure tableRowClick
- *
- * Additionally, if you use the twigs.security module, you can guard table-row clicks with security expressions:
- *
- * ```html
- * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}"
- *     twg-table-row-click-secure="hasRole('ADMIN')" >
- *  <td>Some text</td>
- * </tr>
- * ```
- *
  */
 angular.module('twigs.tableRowClick')
   .directive('twgTableRowClick', function ($q, $location) {
@@ -89,6 +78,10 @@ angular.module('twigs.tableRowClick')
           }
 
           $location.path(targetUrl);
+
+          if (!scope.$$phase) {
+            scope.$apply();
+          }
 
         });
       }
