@@ -1,0 +1,42 @@
+<section id="tablerowclick">
+  <a name="/modules/tablerowclick"></a>
+
+  <div class="page-header">
+    <h1>Table Row Click
+      <small><a class="label label-success"
+                href="http://hatchteam.github.io/twigs/docs/#/api/twigs.tableRowClick.directive:twgTableRowClick">Docu</a>
+      </small>
+    </h1>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <table class="table">
+        <tbody>
+        <tr twg-table-row-click="#/home">
+          <td>A click on this row will forward to #/home</td>
+          <td>Link will not trigger route change: <a href="#/modules/tablerowclick">Link</a></td>
+        </tr>
+        <tr twg-table-row-click="#/home">
+          <td>A click on this row will forward to #/home</td>
+          <td>Button will not trigger route change:
+            <button class="btn btn-sm btn-xs" ng-click="some">options</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-6">
+      <p>For a better user experience, we want to be able to react to mouseclicks anywhere on a table row, not just one
+        link in a cell.
+        This directive adds a mouse listener to the row and switches to the specified url when the user clicks anywhere
+        on the row.</p>
+
+      <p>
+        If the click originates from a anchor or element with ng-click attribute set, the click event that bubbles up
+        will be ignored.
+      </p>
+    </div>
+  </div>
+
+</section>

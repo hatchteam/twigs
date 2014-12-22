@@ -29,6 +29,10 @@ angular.module('twigsDemo')
       link: '/modules/flow',
       text: 'Flow'
     });
+    modulesMenu.addItem('main_menu_modules_tablerowclick', {
+      link: '/modules/tablerowclick',
+      text: 'Table Row Click'
+    });
 
 
   });
