@@ -24,17 +24,17 @@ describe('MenuPermissionService', function () {
     mockUserShouldBeLoggedIn = true;
 
     $provide.value('Authorizer', {
-      hasPermission: function (args) {
+      hasPermission: function (permissionsToCheck) {
         var deferred = $q.defer();
 
         if (mockUserShouldBeLoggedIn === false) {
           deferred.resolve(false);
-        } else if (args === true) {
+        } else if (permissionsToCheck === true) {
           // we are logged in, return "true" for "protection:true" in route config
           deferred.resolve(true);
         } else {
           // check for roles
-          deferred.resolve(args[0].roles[0] === 'ADMIN');
+          deferred.resolve(permissionsToCheck.roles[0] === 'ADMIN');
         }
 
         return deferred.promise;
@@ -42,13 +42,11 @@ describe('MenuPermissionService', function () {
     });
   }));
 
-
   beforeEach(inject(function (_MenuPermissionService_, _$q_, _$rootScope_) {
     MenuPermissionService = _MenuPermissionService_;
     $q = _$q_;
     $rootScope = _$rootScope_;
   }));
-
 
   it('Should correctly filter menu: one topItem allowed, one topItem forbidden', function (done) {
 
@@ -71,13 +69,13 @@ describe('MenuPermissionService', function () {
         templateUrl: 'views/refdata/users.html',
         controller: 'UsersCtrl',
         // user possesses this role
-        protection: [{roles: ['ADMIN']}]
+        protection: {roles: ['ADMIN']}
       })
       .when('/forbidden', {
         templateUrl: 'forbidden.html',
         controller: 'ForbiddenCtrl',
         // user does not possess this role
-        protection: [{roles: ['RESTRICTED']}]
+        protection: {roles: ['RESTRICTED']}
       })
       .otherwise({
         redirectTo: '/'
@@ -115,18 +113,16 @@ describe('MenuPermissionService', function () {
         link: '/a/2'
       });
 
-
     ProtectedRouteProvider
       .when('/a', {
-        protection: [{roles: ['RESTRICTED']}]
+        protection: {roles: ['RESTRICTED']}
       })
       .when('/a1', {
-        protection: [{roles: ['ADMIN']}]
+        protection: {roles: ['ADMIN']}
       })
       .when('/a2', {
-        protection: [{roles: ['RESTRICTED']}]
+        protection: {roles: ['RESTRICTED']}
       });
-
 
     MenuPermissionService.filterMenuForRouteRestrictions(menu)
       .then(function (filteredMenu) {
@@ -153,18 +149,16 @@ describe('MenuPermissionService', function () {
         link: '/a/2'
       });
 
-
     ProtectedRouteProvider
       .when('/a', {
-        protection: [{roles: ['ADMIN']}]
+        protection: {roles: ['ADMIN']}
       })
       .when('/a/1', {
-        protection: [{roles: ['ADMIN']}]
+        protection: {roles: ['ADMIN']}
       })
       .when('/a/2', {
-        protection: [{roles: ['RESTRICTED']}]
+        protection: {roles: ['RESTRICTED']}
       });
-
 
     MenuPermissionService.filterMenuForRouteRestrictions(menu)
       .then(function (filteredMenu) {

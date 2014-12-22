@@ -60,13 +60,13 @@ describe('ProtectedRouteProvider', function () {
       ProtectedRouteProvider.when('/protected', {
         templateUrl: 'views/protected.html',
         controller: 'ProtectedCtrl',
-        protection: [{roles: ['ADMIN']}]
+        protection: {roles: ['ADMIN']}
       });
 
       var configViaService = $route.routes['/protected'];
       expect(configViaService.controller).toBe('ProtectedCtrl');
       expect(configViaService.resolve).toBeDefined();
-      expect(configViaService.resolve.hasPermission).toBeDefined();
+      expect(configViaService.resolve.isUserAllowedToAccessRoute).toBeDefined();
     });
 
     it('allows to setup a protected Route with a resolve (resolve gets extended, not overwritten!)', function () {
@@ -78,12 +78,12 @@ describe('ProtectedRouteProvider', function () {
             return true;
           }
         },
-        protection: [{roles: ['ADMIN']}]
+        protection: {roles: ['ADMIN']}
       });
 
       var configViaService = $route.routes['/main'];
       expect(configViaService.resolve).toBeDefined();
-      expect(configViaService.resolve.hasPermission).toBeDefined();
+      expect(configViaService.resolve.isUserAllowedToAccessRoute).toBeDefined();
       expect(configViaService.resolve.some).toBeDefined();
       expect(configViaService.templateUrl).toBe('views/main.html');
     });
@@ -96,7 +96,7 @@ describe('ProtectedRouteProvider', function () {
       });
       var configViaService = $route.routes['/main'];
       expect(configViaService.resolve).toBeDefined();
-      expect(configViaService.resolve.hasPermission).toBeDefined();
+      expect(configViaService.resolve.isUserAllowedToAccessRoute).toBeDefined();
       expect(configViaService.templateUrl).toBe('views/main.html');
     });
 
@@ -128,12 +128,12 @@ describe('ProtectedRouteProvider', function () {
         .when('/main', {
           templateUrl: 'views/main.html',
           controller: 'MainCtrl',
-          protection: [{roles: ['ADMIN']}]
+          protection: {roles: ['ADMIN']}
         })
         .when('/some', {
           templateUrl: 'views/some.html',
           controller: 'SomeCtrl',
-          protection: [{roles: ['USER', 'ADMIN']}]
+          protection: {roles: ['USER', 'ADMIN']}
         });
     });
 

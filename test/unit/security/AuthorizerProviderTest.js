@@ -28,8 +28,8 @@ describe('AuthorizerProvider', function () {
 
   it('allows to register a permission evaluation function', function () {
     expect(AuthorizerProvider).toBeDefined();
-    expect(AuthorizerProvider.registerPermissionEvaluationFunction).toBeDefined();
-    AuthorizerProvider.registerPermissionEvaluationFunction(angular.foo);
+    expect(AuthorizerProvider.registerPermissionEvaluator).toBeDefined();
+    AuthorizerProvider.registerPermissionEvaluator(angular.foo);
   });
 
 

@@ -57,7 +57,7 @@ describe('Authorizer', function () {
   }
 
   function hasAlwaysTruePermissionEvaluationFunction() {
-    AuthorizerProvider.registerPermissionEvaluationFunction(function () {
+    AuthorizerProvider.registerPermissionEvaluator(function () {
       return function () {
         return true;
       };
@@ -211,14 +211,14 @@ describe('Authorizer', function () {
   });
 
 
-  describe('#isAuthenticated()', function () {
+  describe('#isLoggedIn()', function () {
 
     it('returns a promise', function () {
       hasResolvingRegisteredUserLoader();
 
-      var authenticatedPromise = Authorizer.isAuthenticated();
-      expect(authenticatedPromise).not.toBeUndefined();
-      expect(authenticatedPromise.then).not.toBeUndefined();
+      var loggedInPromise = Authorizer.isLoggedIn();
+      expect(loggedInPromise).not.toBeUndefined();
+      expect(loggedInPromise.then).not.toBeUndefined();
     });
 
     it('resolves to true, if user was loaded', function (done) {
@@ -227,10 +227,10 @@ describe('Authorizer', function () {
       Authorizer.getUser()
         .finally(function () {
 
-          Authorizer.isAuthenticated()
-            .then(function (authenticated) {
+          Authorizer.isLoggedIn()
+            .then(function (loggedIn) {
               expect(userLoderInvocationCount).toBe(1);
-              expect(authenticated).toBe(true);
+              expect(loggedIn).toBe(true);
               done();
             });
 
@@ -246,10 +246,10 @@ describe('Authorizer', function () {
 
       Authorizer.getUser()
         .finally(function () {
-          Authorizer.isAuthenticated()
-            .then(function (authenticated) {
+          Authorizer.isLoggedIn()
+            .then(function (loggedIn) {
               expect(userLoderInvocationCount).toBe(1);
-              expect(authenticated).toBe(false);
+              expect(loggedIn).toBe(false);
               done();
             });
 
@@ -262,16 +262,16 @@ describe('Authorizer', function () {
     it('resolves to false, if user was not loaded', function () {
       hasResolvingRegisteredUserLoader();
 
-      var isAuthenticated = undefined;
+      var isLoggedIn = undefined;
 
-      Authorizer.isAuthenticated()
-        .then(function (authenticated) {
-          isAuthenticated = authenticated;
+      Authorizer.isLoggedIn()
+        .then(function (result) {
+          isLoggedIn = result;
         });
 
       $rootScope.$apply();
       expect(userLoderInvocationCount).toBe(0);
-      expect(isAuthenticated).toBe(false);
+      expect(isLoggedIn).toBe(false);
 
     });
 
@@ -285,7 +285,7 @@ describe('Authorizer', function () {
       hasResolvingRegisteredUserLoader();
       hasAlwaysTruePermissionEvaluationFunction();
 
-      var permissionPromise = Authorizer.hasPermission();
+      var permissionPromise = Authorizer.hasPermission({});
       expect(permissionPromise).not.toBeUndefined();
       expect(permissionPromise.then).not.toBeUndefined();
     });
@@ -294,7 +294,29 @@ describe('Authorizer', function () {
 
       expect(function () {
         Authorizer.hasPermission();
-      }).toThrowError('No PermissionEvaluatorFunction defined! Call AuthorizerProvider.registerPermissionEvaluationFunction(fn) first!');
+      }).toThrowError('No PermissionEvaluator defined! Call AuthorizerProvider.registerPermissionEvaluator(fn) first!');
+
+    });
+
+    it('should throw if no argument is passed', function () {
+
+      hasResolvingRegisteredUserLoader();
+      hasAlwaysTruePermissionEvaluationFunction();
+
+      expect(function () {
+        Authorizer.hasPermission();
+      }).toThrowError('No permission object to check!');
+
+    });
+
+    it('should throw if array is passed', function () {
+
+      hasResolvingRegisteredUserLoader();
+      hasAlwaysTruePermissionEvaluationFunction();
+
+      expect(function () {
+        Authorizer.hasPermission([]);
+      }).toThrowError('Permission to check must be an object, but array given!');
 
     });
 
@@ -304,7 +326,7 @@ describe('Authorizer', function () {
 
       Authorizer.getUser()
         .finally(function () {
-          Authorizer.hasPermission()
+          Authorizer.hasPermission({})
             .then(function (result) {
               expect(result).toBe(true);
               done();
@@ -317,13 +339,12 @@ describe('Authorizer', function () {
     it('should invoke evaluationFunction with correct arguments', function (done) {
       hasResolvingRegisteredUserLoader();
 
-      var evaluationFunctionCalled = false, customArgObjectOne = {name: 'one'}, customArgObjectTwo = {name: 'two'};
+      var evaluationFunctionCalled = false, customPermissionsToCheck = {name: 'one'};
 
-      AuthorizerProvider.registerPermissionEvaluationFunction(function () {
-        return function (user, args) {
+      AuthorizerProvider.registerPermissionEvaluator(function () {
+        return function (user, permissions) {
           expect(user).toBe(dummyUserObject);
-          expect(args[0]).toBe(customArgObjectOne);
-          expect(args[1]).toBe(customArgObjectTwo);
+          expect(permissions).toBe(customPermissionsToCheck);
 
           evaluationFunctionCalled = true;
           return true;
@@ -332,7 +353,7 @@ describe('Authorizer', function () {
 
       Authorizer.getUser()
         .finally(function () {
-          Authorizer.hasPermission(customArgObjectOne, customArgObjectTwo)
+          Authorizer.hasPermission(customPermissionsToCheck)
             .then(function (result) {
               expect(evaluationFunctionCalled).toBe(true);
               expect(result).toBe(true);

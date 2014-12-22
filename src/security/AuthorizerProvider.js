@@ -13,15 +13,6 @@ angular.module('twigs.security')
   .provider('Authorizer', function () {
 
     var
-      /**
-       * @ngdoc property
-       * @name twigs.security.provider:AuthorizerProvider#user
-       * @propertyOf twigs.security.provider:AuthorizerProvider
-       *
-       * @description
-       *  The user object
-       */
-      user = {},
 
       /**
        * @ngdoc property
@@ -35,25 +26,13 @@ angular.module('twigs.security')
 
       /**
        * @ngdoc property
-       * @name twigs.security.provider:AuthorizerProvider#permissionEvaluatorFunction
+       * @name twigs.security.provider:AuthorizerProvider#permissionEvaluator
        * @propertyOf twigs.security.provider:AuthorizerProvider
        *
        * @description
-       *   The evaluator function (register via .registerPermissionEvaluationFunction()
+       *   The evaluator function (register via .registerPermissionEvaluator()
        */
-      permissionEvaluatorFunction,
-
-      /**
-       * @ngdoc property
-       * @name twigs.security.provider:AuthorizerProvider#userLoadingPromise
-       * @propertyOf twigs.security.provider:AuthorizerProvider
-       *
-       * @description
-       *  we remember, that we are already loading the user.
-       *  A second call to "Authorizer.getUser()" while the first call ist still waiting for a server-response,
-       *  will receive the same promise;
-       */
-      userLoadingPromise;
+      permissionEvaluator;
 
 
     /**
@@ -101,14 +80,18 @@ angular.module('twigs.security')
      * @methodOf twigs.security.provider:AuthorizerProvider
      *
      * @description
-     * Registers the evaluation function for evaluating permissions.
-     * Permissions service will pass in the users permission, and the needed permissions (arguments)
+     * Registers the permission evaluator for evaluating permissions.
+     * Your evaluator must return a evaluation function.
+     * Authorizer will pass in the user object, and the needed permissions (arguments)
      *
      * ```javascript
-     * AuthorizerProvider.registerPermissionEvaluationFunction(function () {
+     * AuthorizerProvider.registerPermissionEvaluationFunction(function (SomeCollaborator) {
          *       return function (user, args) {
          *          // decide upon users permissions and args.
          *          // return true or false
+         *
+         *          // SomeCollaborator.foo()
+         *
          *          return true:
          *      };
          *   });
@@ -116,15 +99,15 @@ angular.module('twigs.security')
      *
      * @param {function} fn The evaluator function
      */
-    this.registerPermissionEvaluationFunction = registerPermissionEvaluationFunction;
+    this.registerPermissionEvaluator = registerPermissionEvaluator;
 
 
     function registerUserLoaderFunction(loaderFunction) {
       userLoaderFunction = loaderFunction;
     }
 
-    function registerPermissionEvaluationFunction(evaluationFunction) {
-      permissionEvaluatorFunction = evaluationFunction;
+    function registerPermissionEvaluator(evaluator) {
+      permissionEvaluator = evaluator;
     }
 
     /**
@@ -136,15 +119,37 @@ angular.module('twigs.security')
 
     function Authorizer($rootScope, $q, $injector, UserObjectSanityChecker) {
 
-      function isAuthenticated() {
+      var
+        /**
+         * @ngdoc property
+         * @name twigs.security.provider:AuthorizerProvider#user
+         * @propertyOf twigs.security.provider:AuthorizerProvider
+         *
+         * @description
+         *  The user object
+         */
+        user = {},
+        /**
+         * @ngdoc property
+         * @name twigs.security.provider:AuthorizerProvider#userLoadingPromise
+         * @propertyOf twigs.security.provider:AuthorizerProvider
+         *
+         * @description
+         *  we remember, that we are already loading the user.
+         *  A second call to "Authorizer.getUser()" while the first call ist still waiting for a server-response,
+         *  will receive the same promise;
+         */
+        userLoadingPromise;
+
+
+      function isLoggedIn() {
         var deferred = $q.defer();
 
         if (isCurrentlyLoadingUser()) {
           getCurrentUser()
             .then(function () {
               deferred.resolve(true);
-            },
-            function () {
+            }, function () {
               deferred.resolve(false);
             });
         } else if (isUserLoaded()) {
@@ -156,26 +161,34 @@ angular.module('twigs.security')
         return deferred.promise;
       }
 
-      function hasPermission() {
-        if (angular.isUndefined(permissionEvaluatorFunction)) {
-          throw new Error('No PermissionEvaluatorFunction defined! Call AuthorizerProvider.registerPermissionEvaluationFunction(fn) first!');
+      function hasPermission(permission) {
+        if (angular.isUndefined(permissionEvaluator)) {
+          throw new Error('No PermissionEvaluator defined! Call AuthorizerProvider.registerPermissionEvaluator(fn) first!');
+        }
+
+        if (!permission || typeof permission !== 'object') {
+          throw new Error('No permission object to check!');
+        }
+
+        if (Object.prototype.toString.call(permission) === '[object Array]') {
+          throw new Error('Permission to check must be an object, but array given!');
         }
 
         var deferred = $q.defer();
-        var evalFn = $injector.invoke(permissionEvaluatorFunction);
+        var evalFn = $injector.invoke(permissionEvaluator);
 
-        if (isCurrentlyLoadingUser()) {
+        if (isUserLoaded()) {
+          // if user is already loaded, invoke evaluatorFunction
+          deferred.resolve(evalFn(user, permission));
+        } else {
+          // if user is not yet loaded or is currently loading, wait for promise
           getCurrentUser()
             .then(function () {
-              deferred.resolve(evalFn(user, arguments));
+              deferred.resolve(evalFn(user, permission));
             },
             function () {
               deferred.resolve(false);
             });
-        } else if (isUserLoaded()) {
-          deferred.resolve(evalFn(user, arguments));
-        } else {
-          deferred.resolve(false);
         }
 
         return deferred.promise;
@@ -222,12 +235,7 @@ angular.module('twigs.security')
         } else if (isCurrentlyLoadingUser()) {
           return userLoadingPromise;
         } else {
-          userLoadingPromise = loadUser()
-            .then(function (user) {
-              $rootScope.$broadcast('userInitialized');
-              return user;
-            });
-
+          userLoadingPromise = loadUser();
           return userLoadingPromise;
         }
       }
@@ -259,7 +267,7 @@ angular.module('twigs.security')
          *
          * @description
          * Clears the securityContext. After invocation, no user object is loaded and
-         * 'isAuthenticated()' will return false
+         * 'isLoggedIn()' will resolve to false
          *
          */
         clearSecurityContext: clearSecurityContext,
@@ -271,24 +279,25 @@ angular.module('twigs.security')
          *
          * @description
          *  Will call registered evaluator function. Is mostly used in twigs.security directives.
-         *  Will not trigger a userLoad. If loading of user is pending, will wait for promise to be resolved/rejected.
          *
-         * @param {object[]} arguments Any number of parameters. Will be passed on to evaluator function.
+         * @param {object} permission Object that specifies the permissions to check. Will be passed on to evaluator function.
          * @returns {promise} Resolves to true if current user has needed permission(s)
          */
         hasPermission: hasPermission,
 
         /**
          * @ngdoc function
-         * @name twigs.security.service:Authorizer#isAuthenticated
+         * @name twigs.security.service:Authorizer#isLoggedIn
          * @methodOf twigs.security.service:Authorizer
          *
          * @description
-         *  Will not trigger a userLoad. If loading of user is pending, will wait for promise to be resolved/rejected.
+         *  Checks whether a user was successfully loaded from the backend. If a userLoad is currently pending, this will wait for the promise
+         *  to be resolved or rejected.
+         *  This Will not trigger a userLoad by itself!
          *
-         * @returns {promise} Resolves to true if current user is loaded.
+         * @returns {promise} Resolves to true if a user is loaded.
          */
-        isAuthenticated: isAuthenticated
+        isLoggedIn: isLoggedIn
       };
     }
 

@@ -51,12 +51,12 @@ angular.module('twigs.protectedRoutes')
  *     .when('/settings', {
  *         templateUrl: '/views/settings.html',
  *         controller: 'SettingsCtrl',
- *         protection:[{roles:['ADMIN']}]
+ *         protection: {roles:['ADMIN']}
  *     }),
  *     .when('/profile', {
  *         templateUrl: '/views/settings.html',
  *         controller: 'SettingsCtrl',
- *         authenticated: true
+ *         protection: true
  *     });
  * ```
  *
@@ -78,12 +78,13 @@ angular.module('twigs.protectedRoutes')
     this.when = function (path, route) {
       if (isProtectedRouteConfig(route)) {
         route.resolve = angular.extend(route.resolve || {}, {
-          'CurrentUser': function (Authorizer) {
+          // explicitly specify collaborator names to inject, since ngAnnotate does not correctly do it.
+          'CurrentUser': ['Authorizer', function (Authorizer) {
             return Authorizer.getUser();
-          },
-          'hasPermission': function ($q, Authorizer) {
+          }],
+          'isUserAllowedToAccessRoute': ['$q', 'Authorizer', function ($q, Authorizer) {
             return isUserAllowedToAccessRoute($q, Authorizer, route.protection);
-          }
+          }]
         });
         protectionsForRoutes[path] = route.protection;
       }
@@ -102,10 +103,14 @@ angular.module('twigs.protectedRoutes')
       }
 
       if (Object.prototype.toString.call(route.protection) === '[object Array]') {
+        throw new Error('Invalid protected route config: protection must be either an object or "true"');
+      }
+
+      if (typeof route.protection === 'object') {
         return true;
       }
 
-      throw 'Invalid protected route config: protection must be either an array or "true"';
+      throw 'Invalid protected route config: protection must be either an object or "true"';
     }
 
     function isUserAllowedToAccessRoute($q, Authorizer, protection) {
@@ -113,10 +118,17 @@ angular.module('twigs.protectedRoutes')
       Authorizer.getUser()
         .then(function () {
 
+          if (protection === true) {
+            // if protection is specified with "true" (protection:true), we don't have to
+            // further evaluate permissions.
+            deferred.resolve();
+            return;
+          }
+
           Authorizer.hasPermission.apply(Authorizer, protection)
             .then(function (result) {
               if (result) {
-                deferred.resolve({});
+                deferred.resolve();
               } else {
                 deferred.reject(new Error('User is not allowed to access route!'));
               }

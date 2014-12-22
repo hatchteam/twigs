@@ -86,7 +86,6 @@
  * ### A more complex example with nested menus:
  * Each menu item can contain a list of menu item children. Each parent menu / children menu structure is nothing else than a menu item with a list of menu items as menu.items property.
  * ```javascript
- * MenuProvider.userLoadedEventName('userInitialized'); //for details see below
  * var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html')
  * .addItem('main_menu_home', {
  *           text : 'Home',
@@ -181,7 +180,7 @@
  */
 angular.module('twigs.menu')
   .provider('Menu', function Menu() {
-    var menus = {}, userLoadedEventName;
+    var menus = {};
 
     function searchItemRecursively(item, itemName) {
       //the recursion
@@ -225,13 +224,8 @@ angular.module('twigs.menu')
       },
       removeMenu: function (menuName) {
         delete menus[menuName];
-      },
-      getUserLoadedEventName: function () {
-        return userLoadedEventName;
-      },
-      setUserLoadedEventName: function (_userLoadedEventName) {
-        userLoadedEventName = _userLoadedEventName;
       }
+
     };
 
     this.$get = function () {
@@ -304,29 +298,6 @@ angular.module('twigs.menu')
      */
     this.removeMenu = function (menuName) {
       serviceInstance.removeMenu(menuName);
-    };
-
-    /**
-     * @ngdoc function
-     * @name twigs.menu.provider:MenuProvider#setUserLoadedEventName
-     * @methodOf twigs.menu.provider:MenuProvider
-     *
-     * @description
-     * If the menuitems should be filtered by the current users role, a event which signals
-     * successfull loading of the user and his role needs to be specified. This event triggers
-     * a re-filtering of the menu after successful login. Otherwise the menu is always filtered
-     * pre login which means the user has no role yet.
-     * If you use twigs.security the default event name is 'userInitialized'
-     *
-     * @param {String} userLoadedEventName The name of the user successfully loaded event
-     *
-     * Example:
-     * ```javascript
-     * MenuProvider.setUserLoadedEventName('userInitialized');
-     * ```
-     */
-    this.setUserLoadedEventName = function (userLoadedEventName) {
-      serviceInstance.setUserLoadedEventName(userLoadedEventName);
     };
 
     function validateMenuLink(linkFromConfig) {
@@ -451,15 +422,6 @@ angular.module('twigs.menu')
             scope.menu = filteredMenu;
             MenuHelper.setActiveMenuEntryRecursively($location.path(), scope.menu);
           });
-        }
-
-        //refilter menu on userInit if menu filtering is required and re-evaluate the active menu entry if menu filtering was applied
-        if (angular.isDefined(Menu.getUserLoadedEventName())) {
-          scope.$on(Menu.getUserLoadedEventName(), function () {
-            update();
-          });
-        } else {
-          $log.debug('twigs.menu has no user initialized event registered. This may cause problems when using twigs.menu permission filtering');
         }
 
         update();

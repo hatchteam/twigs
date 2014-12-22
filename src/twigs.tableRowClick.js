@@ -61,27 +61,10 @@
  *
  */
 angular.module('twigs.tableRowClick')
-  .directive('twgTableRowClick', function ($q, $location, ExpressionEvaluator) {
+  .directive('twgTableRowClick', function ($q, $location) {
     return {
       restrict: 'A',
       link: function (scope, element, attrs) {
-
-
-        /**
-         * If attribute twgTableRowClickSecure is set, check permission by invoking permissionEvaluator
-         *
-         * @returns {Promise}
-         */
-        function isAllowed() {
-          var permissionExpression = attrs.twgTableRowClickSecure;
-          if (angular.isUndefined(permissionExpression) || permissionExpression === '') {
-            return $q.when(true);
-          }
-
-          var result = ExpressionEvaluator.evaluate(permissionExpression);
-          // some expressions might return a promise, some might not. be safe and wrap all in a promise
-          return $q.when(result);
-        }
 
         /**
          * if an element is clicked that has a 'ng-click' or 'href' attribute on it's own, do not reacte to this click.
@@ -105,11 +88,7 @@ angular.module('twigs.tableRowClick')
             return;
           }
 
-          isAllowed().then(function (isAllowed) {
-            if (isAllowed) {
-              $location.path(targetUrl);
-            }
-          });
+          $location.path(targetUrl);
 
         });
       }

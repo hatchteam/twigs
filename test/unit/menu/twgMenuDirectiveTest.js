@@ -20,9 +20,9 @@ describe('twgMenu Directive', function () {
 
   beforeEach(module(function ($provide) {
     $provide.value('Authorizer', {
-      hasPermission: function (args) {
+      hasPermission: function (permissionsToCheck) {
         var deferred = $q.defer();
-        deferred.resolve(args[0].roles[0] === 'ADMIN');
+        deferred.resolve(permissionsToCheck.roles[0] === 'ADMIN');
         return deferred.promise;
       }
     });
@@ -78,11 +78,11 @@ describe('twgMenu Directive', function () {
     ProtectedRouteProvider
       .when('/allowed', {
         // user possesses this role
-        protection: [{roles: ['ADMIN']}]
+        protection: {roles: ['ADMIN']}
       })
       .when('/forbidden', {
         // user does not possess this role
-        protection: [{roles: ['RESTRICTED']}]
+        protection: {roles: ['RESTRICTED']}
       });
 
     var el = angular.element('<div><twg-menu menu-name="main_menu"></twigs-menu></div>');
@@ -115,16 +115,16 @@ describe('twgMenu Directive', function () {
 
     ProtectedRouteProvider
       .when('/import/claim', {
-        protection: [{roles: ['RESTRICTED']}]
+        protection: {roles: ['RESTRICTED']}
       })
       .when('/import/damage', {
-        protection: [{roles: ['RESTRICTED']}]
+        protection: {roles: ['RESTRICTED']}
       })
       .when('/export/claim', {
-        protection: [{roles: ['RESTRICTED']}]
+        protection: {roles: ['RESTRICTED']}
       })
       .when('/export/damage', {
-        protection: [{roles: ['ADMIN']}]
+        protection: {roles: ['ADMIN']}
       });
 
     var el = angular.element('<div><twg-menu menu-name="secondaryNavigation"></twigs-menu></div>');

@@ -18,18 +18,16 @@
 'use strict';
 
 describe("Directive: twgTableRowClick", function () {
-  var $q, $compile, $rootScope, $scope, $location, Authorizer;
+  var $q, $compile, $rootScope, $scope, $location;
 
   beforeEach(angular.mock.module('twigs.tableRowClick'));
 
-
-  beforeEach(inject(function (_$q_, _$compile_, _$rootScope_, _$location_, _Authorizer_) {
+  beforeEach(inject(function (_$q_, _$compile_, _$rootScope_, _$location_) {
     $q = _$q_;
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $scope = _$rootScope_.$new();
     $location = _$location_;
-    Authorizer = _Authorizer_;
     $location.path('/home');
     $rootScope.$apply();
   }));
@@ -58,40 +56,6 @@ describe("Directive: twgTableRowClick", function () {
 
   it("should change $location.path on click", function () {
     var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123"><td>some content</td></tr></table>');
-    whenCompiling(tableElement);
-    whenClickingRow(tableElement);
-    expect($location.path()).toBe('/some/path/123');
-  });
-
-  it("should not change $location.path on click if not authenticated", function () {
-
-    spyOn(Authorizer, 'isAuthenticated').and.returnValue(false);
-
-    var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123" twg-table-row-click-secure="isAuthenticated()" ><td>some content</td></tr></table>');
-    whenCompiling(tableElement);
-    whenClickingRow(tableElement);
-    expect($location.path()).toBe('/home');
-  });
-
-  it("should not change $location.path on click if permissions are missing", function () {
-
-    var deferred = $q.defer();
-    deferred.resolve(false);
-    spyOn(Authorizer, 'hasPermission').and.returnValue(deferred.promise);
-
-    var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123" twg-table-row-click-secure="hasPermission()" ><td>some content</td></tr></table>');
-    whenCompiling(tableElement);
-    whenClickingRow(tableElement);
-    expect($location.path()).toBe('/home');
-  });
-
-  it("should change $location.path on click if permissions are valid", function () {
-
-    var deferred = $q.defer();
-    deferred.resolve(true);
-    spyOn(Authorizer, 'hasPermission').and.returnValue(deferred.promise);
-
-    var tableElement = angular.element('<table><tr twg-table-row-click="some/path/123" twg-table-row-click-secure="hasPermission({some:\'thing\'})" ><td>some content</td></tr></table>');
     whenCompiling(tableElement);
     whenClickingRow(tableElement);
     expect($location.path()).toBe('/some/path/123');
@@ -129,6 +93,9 @@ describe("Directive: twgTableRowClick", function () {
     expect($location.path()).toBe('/home');
   });
 
-
 });
+
+
+
+
 
