@@ -98,6 +98,13 @@ angular.module('twigs.security')
           evaluate();
         });
 
+        scope.$on('userCleared', function () {
+          manipulateElement(false);
+        });
+
+        scope.$on('userLoaded', function () {
+          evaluate();
+        });
 
       }
     };

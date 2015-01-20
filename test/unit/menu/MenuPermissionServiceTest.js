@@ -29,14 +29,21 @@ describe('MenuPermissionService', function () {
 
         if (mockUserShouldBeLoggedIn === false) {
           deferred.resolve(false);
-        } else if (permissionsToCheck === true) {
-          // we are logged in, return "true" for "protection:true" in route config
-          deferred.resolve(true);
         } else {
+
+          if (!permissionsToCheck || typeof permissionsToCheck !== 'object') {
+            throw new Error('No permission object to check!');
+          }
+
           // check for roles
           deferred.resolve(permissionsToCheck.roles[0] === 'ADMIN');
         }
 
+        return deferred.promise;
+      },
+      isLoggedIn: function () {
+        var deferred = $q.defer();
+        deferred.resolve(mockUserShouldBeLoggedIn);
         return deferred.promise;
       }
     });
@@ -193,6 +200,31 @@ describe('MenuPermissionService', function () {
     MenuPermissionService.filterMenuForRouteRestrictions(menu)
       .then(function (filteredMenu) {
         expect(filteredMenu.items.length).toBe(0);
+
+        done();
+      });
+
+    $rootScope.$apply();
+
+  });
+
+  it('Should correctly filter menu: item "protection" set to true, user is logged in', function (done) {
+
+    var menu = MenuProvider.createMenu('main_menu', "views/menu/mainMenuTemplate.html");
+
+    mockUserShouldBeLoggedIn = true;
+
+    menu.addItem('a1', {
+      link: '/a/1'
+    });
+
+    ProtectedRouteProvider.when('/a/1', {
+      protection: true
+    });
+
+    MenuPermissionService.filterMenuForRouteRestrictions(menu)
+      .then(function (filteredMenu) {
+        expect(filteredMenu.items.length).toBe(1);
 
         done();
       });

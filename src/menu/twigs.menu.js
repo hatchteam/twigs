@@ -415,6 +415,7 @@ angular.module('twigs.menu')
   .directive('twgMenu', function ($rootScope, $location, $log, Menu, MenuPermissionService, MenuHelper) {
     return {
       restrict: 'E',
+      scope: {},
       link: function (scope, element, attrs) {
 
         function update() {
@@ -427,8 +428,20 @@ angular.module('twigs.menu')
         update();
 
         $rootScope.$on('$routeChangeSuccess', function () {
-          MenuHelper.setActiveMenuEntryRecursively($location.path(), scope.menu);
+          // routeChangeSuccess event can occur before first filtering in update method is done...
+          if (scope.menu) {
+            MenuHelper.setActiveMenuEntryRecursively($location.path(), scope.menu);
+          }
         });
+
+        scope.$on('userCleared', function () {
+          update();
+        });
+
+        scope.$on('userLoaded', function () {
+          update();
+        });
+
       },
       templateUrl: function (element, attrs) {
         if (angular.isDefined(attrs.templateUrl)) {

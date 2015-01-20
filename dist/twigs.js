@@ -23,8 +23,6 @@
  *  If we don't do this, we get problems when concatenating all files into one (grunt concatenates in alphabetical order)
  */
 
-angular.module('twigs.menu', []);
-
 angular.module('twigs.activeRoute', []);
 
 angular.module('twigs.devel', ['ngCookies']);
@@ -36,8 +34,6 @@ angular.module('twigs.flow', []);
 angular.module('twigs.templates', []);
 
 angular.module('twigs.globalHotkeys', []);
-
-angular.module('twigs.security', []);
 
 angular.module('twigs.sortable', []);
 
@@ -72,6 +68,10 @@ angular.module('twigs', [
   'twigs.tableRowClick',
   'twigs.globalPopups',
   'twigs.protectedRoutes']);
+
+angular.module('twigs.menu', ['ngRoute']);
+
+angular.module('twigs.security', []);
 
 'use strict';
 
@@ -491,7 +491,7 @@ angular.module('twigs.devel')
  * ```javascript
  * var App = angular.module('Main',['twigs.flow']);
  *
- * App.config(function ($routeProvider,FlowProvider) {
+ * App.config(function ($routeProvider, FlowProvider) {
  *
  * // define your routes as usual
  * $routeProvider
@@ -509,7 +509,7 @@ angular.module('twigs.devel')
  *     });
  *
  * // define a flow
- * $flowProvider.flow('myWizard')
+ * FlowProvider.flow('myWizard')
  *     .step({
  *         'id': 'first',  // a unique step id within this flow.
  *         'route': '/firstStep',  // this matches the first route definition from above
@@ -1832,1206 +1832,6 @@ angular.module('twigs.globalPopups')
  */
 
 /**
- * @ngdoc object
- * @name twigs.menu.provider:MenuProvider
- *
- * @description
- * MenuProvider can be used to define menus globally which can later be used in multiple views.
- *
- * The currently active menu item is determined over the current window location and the link defined for each menu item.
- * If the link of a menu item matches the current path, the property menuItem.active will be true for that item.
- *
- * Menus can be filtered using the functionality of twigs.ProtectedRouteProvider. If the link of a menu item matches
- * with the link of a protected route and the current users role does not meet the needed roles to access that route,
- * the menu item will be removed from the menu.
- * Therefore twigs.ProtectedRouteProvider must be included in your application and configured as described under [ProtectedRouteProvider](#/api/twigs.menu.provider:ProtectedRouteProvider)
- *
- * ### Usage
- * You need to specify a config block to create a new Menu and you need to create a html template for the Menu content.
- *
- * MenuProvider.createMenu(... creates a new Menu with the given name and html template.
- * Menuitems or submenus can be added to this menu, nested as much as you like.
- *
- * ```javascript
- * angular.module('myApp').config(function (MenuProvider) {
- *       var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html')
- *       .addItem('main_menu_home', {
- *           text : 'Home',
- *           link: '/home',
- *           iconClass: 'fa fa-desktop fa-lg'
- *       });
- *
- *      var settingsMenu = mainMenu.createSubMenu('main_menu_settings',
- *          {link: '/settings/ac',text : 'Settings-Menu', iconClass: 'fa fa-lock fa-lg'});
- *
- *       settingsMenu.addItem('main_menu_settings_users', {
- *          text : 'Users',
- *          link: '/settings/ac/users'
- *       }).addItem('main_menu_settings_roles', {
- *          text : 'Roles',
- *          link: '/settings/ac/roles'
- *      });
- * });
- * ```
- * The html template 'views/mainMenu.html' referenced by MenuProvider.createMenu(...
- * Here you can iterate over all menu.items.
- * ```html
- * <ul>
- *      <li class="openable" ng-class="{'active': menuItem.active}"
- *          x-ng-repeat="menuItem in menu.items">
- *           <a x-ng-href="#{{menuItem.link}}">
- *              <span class="menu-icon">
- *                <i x-ng-class="menuItem.options.iconClass"></i>
- *               </span>
- *              <span class="text">
- *                {{menuItem.text}}
- *              </span>
- *              <span class="menu-hover"></span>
- *          </a>
- *      </li>
- * </ul>
- * ```
- *
- * The directive used in every one of your pages where the menu should be displayed:
- * ```html
- * <twg-menu menu-name="main_menu"></twg-menu>
- * ```
- *
- * ### A more complex example with nested menus:
- * Each menu item can contain a list of menu item children. Each parent menu / children menu structure is nothing else than a menu item with a list of menu items as menu.items property.
- * ```javascript
- * MenuProvider.userLoadedEventName('userInitialized'); //for details see below
- * var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html')
- * .addItem('main_menu_home', {
- *           text : 'Home',
- *           link: '/home',
- *           iconClass: 'fa fa-desktop fa-lg'
- *       });
- *
- * var settingsMenu = mainMenu.createSubMenu('main_menu_settings',
- *      {link: '/settings/ac',text : 'Settings-Menu', iconClass: 'fa fa-lock fa-lg'});
- *
- * settingsMenu.addItem('main_menu_settings_users', {
- *      text : 'Users',
- *      link: '/settings/ac/users',
- *      activeRoute: '/settings/ac/users(/.*)?' // for example navigating to
- *                                              // #/settings/ac/users/new also marks this
- *                                              // menu item active
- *   }).addItem('main_menu_settings_roles', {
- *       text : 'Roles',
- *       link: '/settings/ac/roles'
- *   });
- *
- * var ordersMenu = mainMenu.createSubMenu('main_menu_orders',
- *      {link: '/orders/', text : 'Orders', iconClass: 'fa fa-lock fa-lg'});
- *
- * ordersMenu.addItem('main_menu_orders_new_order', {
- *      text : 'New Order',
- *      link: '/orders/new'
- *   }).addItem('main_menu_orders_overview', {
- *       text : 'Order Overview',
- *       link: '/orders/overview'
- *   });
- * ```
- * The corresponding html template:
- * ```html
- * <ul>
- *      <li class="openable" ng-class="{'active': menuItem.active}"
- *          x-ng-repeat="menuItem in menu.items">
- *          <a x-ng-href="#{{menuItem.link}}">
- *              <span class="menu-icon">
- *                  <i x-ng-class="menuItem.options.iconClass"></i>
- *              </span>
- *              <span class="text">
- *                  {{menuItem.text}}
- *              </span>
- *              <span class="menu-hover"></span>
- *          </a>
- *
- *          <ul class="submenu" x-ng-if="menuItem.items.length > 0">
- *              <li x-ng-repeat="subMenuItem in menuItem.items"
- *                  ng-class="{'active': subMenuItem.active}">
- *                  <a href="#{{subMenuItem.link}}">
- *                          <span class="submenu-label">{{subMenuItem.text}}</span>
- *                   </a>
- *              </li>
- *          </ul>
- *      </li>
- * </ul>
- * ```
- *
- * See [twgMenu](#/api/twigs.menu.directive:twgMenu) for more information on how to use the twgMenu directive in your views.
- */
-
-/**
- * @ngdoc directive
- * @name twigs.menu.directive:twgMenu
- * @element ANY
- * @attribute menu-name the name of the menu to be rendered (defined on the MenuProvider.createMenu(...  )
- * @attribute template-url (optional) the template to be used when rendering the menu
- *
- * @description
- * In many web applications you will need navigations or menus which are present on all or multiple html pages. TwgMenu allows you
- * to define those menues globally so that you only need to include a directive referencing the menu in your html page.
- *
- * TwgMenu registers each route change and ensures that correspondent menu entry is marked active as well as parent menu items if the menu is collapsable.
- *
- * TwgMenu can filter menu items with links referencing restricted routes (using twg.protectedRoutes) so that only users with the necessary access roles see those menu items.
- * In order to use menu filtering, twg.protectedRoutes needs to be included in your app and properly configured. See [ProtectedRouteProvider](#/api/twigs.menu.provider:ProtectedRouteProvider)
- *
- * ```html
- *<twigs-menu menu-name="main_menu"></twigs-menu>
- * ```
- *
- * Normally, twigs-menu renders the menu with the html template specified on the MenuProvider.createMenu(...
- * Alternatively a different template may be specified directly on the directive as follows:
- *
- *```html
- *<twigs-menu menu-name="main_menu" template-url="navigation/mySpecialTemplate.html">
- *</twigs-menu>
- * ```
- *
- * See [MenuProvider](#/api/twigs.menu.provider:MenuProvider) for more information on how to set up Menus.
- */
-angular.module('twigs.menu')
-  .provider('Menu', function Menu() {
-    var menus = {}, userLoadedEventName;
-
-    function searchItemRecursively(item, itemName) {
-      //the recursion
-      if (item.items.length > 0) {
-        var foundItem;
-        item.items.every(function (subItem) {
-          foundItem = searchItemRecursively(subItem, itemName);
-          return !foundItem; //break if foundItem is defined -> item was found
-        });
-        if (foundItem) {
-          return foundItem;
-        }
-      }
-      //the actual check
-      if (item.name === itemName) {
-        return item;
-      }
-    }
-
-    function findMenuItemInMenu(menuName, itemName) {
-      if (!menus[menuName]) {
-        return undefined;
-      }
-      return searchItemRecursively(menus[menuName], itemName);
-    }
-
-//    function findMenuItemInMenu(menuName, itemName) {
-//      if (!menus[menuName]) {
-//        return undefined;
-//      }
-//      var foundItem;
-//      menus[menuName].items.every(function (item) {
-//        foundItem =  searchItemRecursively(item, itemName);
-//        return !foundItem; //break if foundItem is defined -> item was found
-//      });
-//      return foundItem;
-//    }
-
-
-    var serviceInstance = {
-      createMenu: function (menuName, templateUrl) {
-        var menu = new RootMenuItem(menuName, templateUrl);
-        if (angular.isDefined(menus[menuName])) {
-          throw 'Menu is already defined: ' + menuName;
-        }
-        menus[menuName] = menu;
-        return menu;
-      },
-      menu: function (menuName) {
-        return menus[menuName];
-      },
-      getMenuItemInMenu: function (menuName, itemName) {
-        return findMenuItemInMenu(menuName, itemName);
-      },
-      removeMenu: function (menuName) {
-        delete menus[menuName];
-      },
-      getUserLoadedEventName: function () {
-        return userLoadedEventName;
-      },
-      setUserLoadedEventName: function (_userLoadedEventName) {
-        userLoadedEventName = _userLoadedEventName;
-      }
-    };
-
-    this.$get = function () {
-      return serviceInstance;
-    };
-
-    /**
-     * @ngdoc function
-     * @name twigs.menu.provider:MenuProvider#createMenu
-     * @methodOf twigs.menu.provider:MenuProvider
-     *
-     * @description
-     * Defines a new Menu.
-     *
-     * @param {String} menuName The name of the menu
-     * @param {String} templateUrl The template used to render this menu
-     * @returns {RootMenuItem} root instance for the new menu.
-     *
-     * Example:
-     * ```javascript
-     * var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html');
-     * ```
-     */
-    this.createMenu = function (menuName, templateUrl) {
-      return serviceInstance.createMenu(menuName, templateUrl);
-    };
-
-    /**
-     * @ngdoc function
-     * @name twigs.menu.provider:MenuProvider#menu
-     * @methodOf twigs.menu.provider:MenuProvider
-     *
-     * @description
-     * Returns the root menu item instance for the menu with the specified menuName if it exists;
-     * otherwise, returns undefined.
-     *
-     * @param {string} menuName name of the menu
-     * @returns {SubMenuItem} root instance for the menu.
-     */
-    this.menu = function (menuName) {
-      return serviceInstance.menu(menuName);
-    };
-
-    /**
-     * @ngdoc function
-     * @name twigs.menu.provider:MenuProvider#getMenuItemInMenu
-     * @methodOf twigs.menu.provider:MenuProvider
-     *
-     * @description
-     * Searches for a menu item with the specified name in the specified menu.
-     * Returns the first result, if multiple items with that name exist.
-     *
-     * @param {string} menuName name of the menu to search in
-     * @param {string} itemName name of the menu item to find
-     * @returns {object} menu item if exists, undefined otherwise
-     */
-    this.getMenuItemInMenu = function (menuName, itemName) {
-      return serviceInstance.getMenuItemInMenu(menuName, itemName);
-    };
-
-    /**
-     * @ngdoc function
-     * @name twigs.menu.provider:MenuProvider#removeMenu
-     * @methodOf twigs.menu.provider:MenuProvider
-     *
-     * @description
-     * Removes menu with the specified menuName
-     *
-     * @param {string} menuName name of the menu
-     */
-    this.removeMenu = function (menuName) {
-      serviceInstance.removeMenu(menuName);
-    };
-
-    /**
-     * @ngdoc function
-     * @name twigs.menu.provider:MenuProvider#setUserLoadedEventName
-     * @methodOf twigs.menu.provider:MenuProvider
-     *
-     * @description
-     * If the menuitems should be filtered by the current users role, a event which signals
-     * successfull loading of the user and his role needs to be specified. This event triggers
-     * a re-filtering of the menu after successful login. Otherwise the menu is always filtered
-     * pre login which means the user has no role yet.
-     * If you use twigs.security the default event name is 'userInitialized'
-     *
-     * @param {String} userLoadedEventName The name of the user successfully loaded event
-     *
-     * Example:
-     * ```javascript
-     * MenuProvider.setUserLoadedEventName('userInitialized');
-     * ```
-     */
-    this.setUserLoadedEventName = function (userLoadedEventName) {
-      serviceInstance.setUserLoadedEventName(userLoadedEventName);
-    };
-
-    function validateMenuLink(linkFromConfig) {
-      if (angular.isUndefined(linkFromConfig) || linkFromConfig.length < 1) {
-        return linkFromConfig;
-      }
-      if (isExternalLink(linkFromConfig)) {
-        return linkFromConfig;
-      }
-      if (linkFromConfig.charAt(0) !== '/') {
-        throw 'please use routes in menu configuration: ' + linkFromConfig;
-      }
-      return linkFromConfig;
-    }
-
-    function isExternalLink(linkFromConfig) {
-      return linkFromConfig.substring(0, 4) === 'http';
-    }
-
-    //MenuItem SuperClass
-    function MenuItem(name) {
-      this.name = name;
-    }
-
-    /**
-     * Creates new RootMenuItem instance.
-     * @param name name of the Menu
-     * @constructor
-     * @param templateUrl the html template used by the twigs-menu directive
-     */
-    function RootMenuItem(name, templateUrl) {
-      this.constructor(name);
-      this.templateUrl = templateUrl;
-      this.items = [];
-    }
-
-    /**
-     * Creates new SubMenuItem instance.
-     * @param name name of the item
-     * @constructor
-     * @param _options item options
-     */
-    function SubMenuItem(name, _options) {
-      this.constructor(name);
-      this.items = [];
-
-      var options = _options || {};
-      this.text = options.text || name;
-      this.link = validateMenuLink(options.link);
-      this.activeRoute = options.activeRoute;
-      this.options = options;
-    }
-
-    //inherit methods of MenuItem
-    RootMenuItem.prototype = new MenuItem(name);
-    SubMenuItem.prototype = new MenuItem(name);
-
-    /**
-     * @ngdoc function
-     * @name twigs.menu.provider:MenuProvider#addItem
-     * @methodOf twigs.menu.provider:MenuProvider
-     *
-     * @description
-     * Adds new item with the specified itemName to the list of the child items of a menu item.
-     *
-     * @param {string} itemName name of the menu item. Name should be unique in the context of
-     * the whole menu (not just among direct siblings). This restriction is not strictly
-     * enforced, but functionality of some of the SubMenuItem methods depend on it.
-     * @param {object} itemOptions used for the configuration of the menu item.
-     * Can contain any attribute which may by referenced in the html template of your menu. itemOptions.text and itemOptions.link
-     * are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)
-     * @param {string} itemOptions.text The display text or translation key of the item
-     * @param {string} itemOptions.link The link which should be opened when the item is clicked
-     * @param {string} (optional) itemOptions.activeRoute The link regex used to mark this menu item active if nested pages are under itemOptions.link
-     * @returns {SubMenuItem} current instance
-     *
-     */
-    MenuItem.prototype.addItem = function (itemName, itemOptions) {
-      this.createAndAddItem(itemName, itemOptions);
-      return this;
-    };
-
-    /**
-     * @ngdoc function
-     * @name twigs.menu.provider:MenuProvider#createSubMenu
-     * @methodOf twigs.menu.provider:MenuProvider
-     *
-     * @description
-     * Adds a new submenu with the specified menuName to the list of the child items of a menu item.
-     *
-     * @param {string} menuName name of the submenu. Name should be unique in the context of
-     * the whole menu (not just among direct siblings). This restriction is not strictly
-     * enforced, but functionality of some of the SubMenuItem methods depend on it.
-     * * @param {object} menuOptions used for the configuration of the menu item.
-     * Can contain any attribute which may by referenced in the html template of your menu. itemOptions.text and itemOptions.link
-     * are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)
-     * @param {string} menuOptions.text The display text or translation key of the item
-     * @param {string} menuOptions.link The link which should be opened when the item is clicked
-     * @returns {SubMenuItem} instance for the new submenu
-     *
-     */
-    MenuItem.prototype.createSubMenu = function (menuName, menuOptions) {
-      return this.createAndAddItem(menuName, menuOptions);
-    };
-
-    MenuItem.prototype.createAndAddItem = function (itemName, itemOptions) {
-      var item = new SubMenuItem(itemName, itemOptions);
-      this.items.push(item);
-      return item;
-    };
-
-  })
-
-  .service('MenuPermissionService', ["$route", "$injector", "$log", function ($route, $injector, $log) {
-    var isSubMenuItemAllowed, filterMenuForRouteRestrictions, filterMenuRecursively, setActiveMenuEntryRecursively, Permissions, activeRouteRegex;
-
-    try {
-      //inject permissions if module exists, otherwise all SubMenuItems are allowed
-      Permissions = $injector.get('Permissions');
-    } catch (err) {
-      $log.debug('twigs.menu is used without permission filtering. Include twigs.security in your app if you wish to filter twigs.menu according to user roles.');
-    }
-
-    isSubMenuItemAllowed = function (SubMenuItem, Permissions) {
-      var hasRoles = true;
-      var SubMenuItemRoute = $route.routes[SubMenuItem.link];
-      if (angular.isUndefined(SubMenuItemRoute)) {
-        //if therre is no route match for SubMenuItem.link dont filter the SubMenuItem
-        return true;
-      }
-      angular.forEach(SubMenuItemRoute.neededRoles, function (neededRole) {
-        var hasNeededRole = Permissions.hasRole(neededRole);
-        if (!hasNeededRole) {
-          hasRoles = false;
-          return false;
-        }
-      });
-      return hasRoles;
-    };
-
-    filterMenuRecursively = function (menu, Permissions) {
-      if (angular.isDefined(menu.items) && menu.items.length > 0) {
-        var ok = [];
-        angular.forEach(menu.items, function (SubMenuItem) {
-          if (isSubMenuItemAllowed(SubMenuItem, Permissions)) {
-            var oldSubMenuItemSubItemsCount = SubMenuItem.items.length;
-            var newSubMenuItem = filterMenuRecursively(SubMenuItem, Permissions);
-            if (newSubMenuItem.items.length !== 0 || oldSubMenuItemSubItemsCount === 0) {
-              //only push this item if it has no submenu or it has a submenu and the submenu items are visible
-              ok.push(SubMenuItem);
-            }
-          }
-        });
-        menu.items = ok;
-      }
-      return menu;
-    };
-
-    filterMenuForRouteRestrictions = function (menu) {
-      if (angular.isUndefined(Permissions)) {
-        return menu;
-      }
-      if (angular.isUndefined(menu)) {
-        return undefined;
-      }
-
-      return filterMenuRecursively(menu, Permissions);
-    };
-
-    activeRouteRegex = function (menu, path) {
-      if (angular.isDefined(menu.activeRoute) && menu.activeRoute.length > 0) {
-        var regexp = new RegExp('^' + menu.activeRoute + '$', 'i');
-        if (regexp.test(path)) {
-          return true;
-        }
-      }
-      return false;
-    };
-
-    setActiveMenuEntryRecursively = function (path, menu) {
-      var subItemFound = false;
-
-      if (angular.isDefined(menu.items) && menu.items.length > 0) {
-        angular.forEach(menu.items, function (item) {
-          item.active = false;
-          if (setActiveMenuEntryRecursively(path, item) === true) {
-            subItemFound = true;
-            item.active = true;
-            return false;
-          }
-        });
-        menu.active = subItemFound;
-
-        if (subItemFound === false) {
-          //check if this menu item should be active itself
-          menu.active = (menu.link === path || activeRouteRegex(menu, path) === true);
-        }
-        return menu.active;
-      } else {
-        return (menu.link === path || activeRouteRegex(menu, path) === true);
-      }
-    };
-
-    return {
-      isSubMenuItemAllowed: isSubMenuItemAllowed,
-      filterMenuForRouteRestrictions: filterMenuForRouteRestrictions,
-      setActiveMenuEntryRecursively: setActiveMenuEntryRecursively
-    };
-  }])
-
-  .directive('twgMenu', ["$rootScope", "$location", "$log", "Menu", "MenuPermissionService", function ($rootScope, $location, $log, Menu, MenuPermissionService) {
-    return {
-      restrict: 'E',
-      link: function (scope, element, attrs) {
-        var menu = angular.copy(Menu.menu(attrs.menuName));
-        scope.menu = MenuPermissionService.filterMenuForRouteRestrictions(menu);
-
-        //refilter menu on userInit if menu filtering is required and re-evaluate the active menu entry if menu filtering was applied
-        if (angular.isDefined(Menu.getUserLoadedEventName())) {
-          scope.$on(Menu.getUserLoadedEventName(), function () {
-            var menuCopy = angular.copy(Menu.menu(attrs.menuName));
-            scope.menu = MenuPermissionService.filterMenuForRouteRestrictions(menuCopy);
-            MenuPermissionService.setActiveMenuEntryRecursively($location.path(), scope.menu);
-          });
-        } else {
-          $log.debug('twigs.menu has no user initialized event registered. This may cause problems when using twigs.menu permission filtering');
-        }
-
-        MenuPermissionService.setActiveMenuEntryRecursively($location.path(), scope.menu);
-
-        $rootScope.$on('$routeChangeSuccess', function () {
-          MenuPermissionService.setActiveMenuEntryRecursively($location.path(), scope.menu);
-        });
-      },
-      templateUrl: function (element, attrs) {
-        if (angular.isDefined(attrs.templateUrl)) {
-          return attrs.templateUrl;
-        } else {
-          return Menu.menu(attrs.menuName).templateUrl;
-        }
-      }
-    };
-  }]);
-
-'use strict';
-
-/* twigs
- * Copyright (C) 2014, Hatch Development Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-angular.module('twigs.protectedRoutes')
-
-/**
- * @ngdoc object
- * @name twigs.protectedRoutes.provider:ProtectedRouteProvider
- *
- * @description
- * In an application that uses a permission model, we'd like to protect some views from
- * unauthorized access.
- *
- * ProtectedRoutes allows you to define which user-roles are needed to access a route. You can use our ProtectedRouteProvider
- * in the same way you would use the standard $routeProvider.
- *
- * Additionally you can specify the property _neededRoles_. Angular will then
- * evaluate the user's permission on routeChangeStart. If the user has the required roles, the route and the location changes.
- * If not, the route-change is prevented and a _$routeChangeError_ event is thrown, which can be handled by your application to e.g. forward to the main view or to display an
- * appropriate message.
- *
- * If you don't want to check for a specific role, but only check if a user is logged in, set the property _authenticated_ to true.
- *
- * ### How to configure protected routes
- * ```javascript
- * var App = angular.module('Main',['twigs.protectedRoutes']);
- *
- * App.config(function (ProtectedRouteProvider) {
- *
- * ProtectedRouteProvider
- *     .when('/home', {
- *         templateUrl: 'views/home.html',
- *         controller: 'HomeCtrl'
- *     })
- *     .when('/settings', {
- *         templateUrl: '/views/settings.html',
- *         controller: 'SettingsCtrl',
- *         neededRoles:['ADMIN']
- *     }),
- *     .when('/profile', {
- *         templateUrl: '/views/settings.html',
- *         controller: 'SettingsCtrl',
- *         authenticated: true
- *     });
- * ```
- *
- * Note: ProtectedRoute depends on the twigs.security module. Make sure you registered a user loader function (see [PermissionsProvider](#/api/twigs.security.provider:PermissionsProvider))
- *
- */
-  .provider('ProtectedRoute', ["$routeProvider", function ($routeProvider) {
-
-    var neededRolesForRoutes = {};
-
-    /**
-     * needed to mirror the angular's RouteProvider api !
-     */
-    this.otherwise = $routeProvider.otherwise;
-
-    /**
-     * the when function delegates to the angular routeProvider "when".
-     */
-    this.when = function (path, route) {
-      if (isProtectedRouteConfig(route)) {
-        route.resolve = angular.extend(route.resolve || {}, {
-          'CurrentUser': function (Permissions) {
-            return Permissions.getUser();
-          },
-          'hasPermission': function ($q, Permissions) {
-            return isUserAllowedToAccessRoute($q, Permissions, route.neededRoles);
-          }
-        });
-        neededRolesForRoutes[path] = route.neededRoles;
-      }
-      $routeProvider.when(path, route);
-      return this;
-    };
-
-    function isProtectedRouteConfig(route) {
-      if (angular.isDefined(route.neededRoles)) {
-        if (typeof route.neededRoles === 'object') {
-          return true;
-        } else {
-          throw 'Invalid protected route config: neededRoles must be an array';
-        }
-      } else if (angular.isDefined(route.authenticated)) {
-        return route.authenticated === true;
-      }
-      return false;
-    }
-
-    function isUserAllowedToAccessRoute($q, Permissions, neededRoles) {
-      var deferred = $q.defer();
-      Permissions.getUser()
-        .then(function () {
-          if (userHasAllRoles(neededRoles, Permissions)) {
-            deferred.resolve({});
-          } else {
-            deferred.reject(new Error('missing_roles'));
-          }
-        }, function (err) {
-          deferred.reject(err);
-        });
-
-      return deferred.promise;
-    }
-
-    function userHasAllRoles(neededRoles, Permissions) {
-      var allRoles = true;
-      angular.forEach(neededRoles, function (neededRole) {
-        if (!allRoles) {
-          return;
-        }
-        if (!Permissions.hasRole(neededRole)) {
-          allRoles = false;
-        }
-      });
-      return allRoles;
-    }
-
-    this.$get = function () {
-      return {};
-    };
-
-  }]
-);
-
-'use strict';
-
-/* twigs
- * Copyright (C) 2014, Hatch Development Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-
-angular.module('twigs.security')
-
-  .service('UserObjectSanityChecker', function () {
-
-    var EXPECTED_PROPERTIES = ['username', 'roles', 'permissions'];
-
-    function isSaneUserObject(userObject) {
-      if (angular.isUndefined(userObject)) {
-        return false;
-      }
-
-      var allPropertiesFound = true;
-      EXPECTED_PROPERTIES.forEach(function (prop) {
-        if (angular.isUndefined(userObject[prop])) {
-          allPropertiesFound = false;
-        }
-      });
-
-      return allPropertiesFound;
-    }
-
-    return {
-      isSane: isSaneUserObject
-    };
-  })
-
-/**
- * @ngdoc object
- * @name twigs.security.provider:PermissionsProvider
- *
- * @description
- *
- **/
-  .provider('Permissions', function () {
-
-    var
-      /**
-       * @ngdoc property
-       * @name twigs.security.provider:PermissionsProvider#user
-       * @propertyOf twigs.security.provider:PermissionsProvider
-       *
-       * @description
-       *  The user object
-       */
-      user = {},
-
-      /**
-       * @ngdoc property
-       * @name twigs.security.provider:PermissionsProvider#userLoader
-       * @propertyOf twigs.security.provider:PermissionsProvider
-       *
-       * @description
-       *  The userLoader function (register via .registerUserLoader()
-       */
-      userLoader,
-
-      /**
-       * @ngdoc property
-       * @name twigs.security.provider:PermissionsProvider#permissionEvaluatorFunction
-       * @propertyOf twigs.security.provider:PermissionsProvider
-       *
-       * @description
-       *   The evaluator function (register via .registerPermissionEvaluationFunction()
-       */
-      permissionEvaluatorFunction,
-
-      /**
-       * @ngdoc property
-       * @name twigs.security.provider:PermissionsProvider#userLoadingPromise
-       * @propertyOf twigs.security.provider:PermissionsProvider
-       *
-       * @description
-       *  we remember, that we are already loading the user.
-       *  A second call to "Permissions.user()" while the first call ist still waiting for a server-response,
-       *  will receive the same promise;
-       */
-      userLoadingPromise;
-
-
-    /**
-     * @ngdoc function
-     * @name twigs.security.provider:PermissionsProvider#registerUserLoader
-     * @methodOf twigs.security.provider:PermissionsProvider
-     *
-     * @description
-     * Registers the loader function to load the user Object. The given loader function must return
-     * a promise which resolves to the user Object.
-     * The user object is expected to be of the form:
-     *
-     * ```javascript
-     *  {
-         *   username:'John',
-         *   roles:['ROLE_1','ROLE_2' ],
-         *   permissions:[]
-         *  }
-     * ```
-     *
-     * It is valid to resolve to a user object which has additional properties.
-     *
-     * ```javascript
-     * PermissionsProvider.registerUserLoader(function ($q, $resource) {
-         *       return function () {
-         *           var deferred = $q.defer();
-         *           $resource('/users/current').get({},
-         *               function (data) {
-         *                  return deferred.resolve(data);
-         *              }, function () {
-         *                  return deferred.reject();
-         *               });
-         *
-         *          return deferred.promise;
-         *      };
-         *   });
-     * ```
-     *
-     * @param {function} loader The user loader function
-     */
-    this.registerUserLoader = function (loader) {
-      userLoader = loader;
-    };
-
-    /**
-     * @ngdoc function
-     * @name twigs.security.provider:PermissionsProvider#registerPermissionEvaluationFunction
-     * @methodOf twigs.security.provider:PermissionsProvider
-     *
-     * @description
-     * Registers the evaluation function for evaluating permissions.
-     * Permissions service will pass in the users permission, and the needed permissions (arguments)
-     *
-     * ```javascript
-     * PermissionsProvider.registerPermissionEvaluationFunction(function () {
-         *       return function (permissions, args) {
-         *          // decide upon users permissions and args.
-         *          // return true or false
-         *          return true:
-         *      };
-         *   });
-     * ```
-     *
-     * @param {function} fn The evaluator function
-     */
-    this.registerPermissionEvaluationFunction = function (fn) {
-      permissionEvaluatorFunction = fn;
-    };
-
-    /**
-     * @ngdoc object
-     * @name twigs.security.service:Permissions
-     *
-     **/
-    this.$get = ["$rootScope", "$q", "$injector", "UserObjectSanityChecker", function ($rootScope, $q, $injector, UserObjectSanityChecker) {
-
-      function hasPermission() {
-        if (!isAuthenticated()) {
-          return false;
-        }
-
-        var evalFn = $injector.invoke(permissionEvaluatorFunction);
-        return evalFn(user.permissions, arguments);
-      }
-
-      function hasRole(roleName) {
-        if (!isAuthenticated()) {
-          return false;
-        }
-
-        var doesHaveRole = false;
-        user.roles.forEach(function (role) {
-          if (role === roleName) {
-            doesHaveRole = true;
-          }
-        });
-        return doesHaveRole;
-      }
-
-      function loadUser() {
-        if (angular.isUndefined(userLoader)) {
-          throw 'No userLoader defined! Call PermissionsProvider.registerUserLoader(fn)  first!';
-        }
-
-        var
-          deferred = $q.defer(),
-          loaderFn = $injector.invoke(userLoader);
-
-        loaderFn().then(function (data) {
-          if (!UserObjectSanityChecker.isSane(data)) {
-            deferred.reject(new Error('Loaded user object did not pass sanity check!'));
-          } else {
-            user = data;
-            deferred.resolve(data);
-          }
-        }, function () {
-          deferred.reject();
-        });
-
-        return deferred.promise;
-      }
-
-      function getCurrentUser() {
-        var deferred = $q.defer();
-        if (angular.isDefined(user.username)) {
-          deferred.resolve(user);
-          // when requesting the current user multiple times simultaneously, it can happen that at this point, "userLoadingPromise" is not set!
-          userLoadingPromise = deferred.promise;
-        } else {
-          if (angular.isUndefined(userLoadingPromise)) {
-            loadUser()
-              .then(function () {
-                $rootScope.$broadcast('userInitialized');
-                deferred.resolve(user);
-              }, function (error) {
-                deferred.reject(error);
-              });
-            userLoadingPromise = deferred.promise;
-          }
-        }
-        return userLoadingPromise;
-      }
-
-      function isAuthenticated() {
-        return (angular.isDefined(user.username));
-      }
-
-      function clearSecurityContext() {
-        user = {};
-        userLoadingPromise = undefined;
-        $rootScope.$broadcast('userCleared');
-      }
-
-      return {
-        /**
-         * @ngdoc function
-         * @name twigs.security.service:Permissions#getUser
-         * @methodOf twigs.security.service:Permissions
-         *
-         *
-         * @description
-         *  returns a promise, holding the current user. will load the user if necessary.
-         *
-         *  @returns {object} The User object of the currently logged-in user
-         */
-        getUser: getCurrentUser,
-
-        /**
-         * @ngdoc function
-         * @name twigs.security.service:Permissions#clearSecurityContext
-         * @methodOf twigs.security.service:Permissions
-         *
-         * @description
-         * Clears the securityContext. After invocation, no user object is loaded and
-         * 'isAuthenticated()' will return false
-         *
-         */
-        clearSecurityContext: clearSecurityContext,
-
-
-        /**
-         * @ngdoc function
-         * @name twigs.security.service:Permissions#hasPermission
-         * @methodOf twigs.security.service:Permissions
-         *
-         * @description
-         *  Will call registered evaluator function. Is mostly used in twigs.security directives.
-         *
-         * @param {object[]} arguments Any number of parameters. Will be passed on to evaluator function
-         * @returns {boolean} True if current user has needed permission(s)
-         */
-        hasPermission: hasPermission,
-
-        /**
-         * @ngdoc function
-         * @name twigs.security.service:Permissions#hasRole
-         * @methodOf twigs.security.service:Permissions
-         *
-         * @param {string} role The rolename
-         * @returns {boolean} True if a user has the given role
-         */
-        hasRole: hasRole,
-
-        /**
-         * @ngdoc function
-         * @name twigs.security.service:Permissions#isAuthenticated
-         * @methodOf twigs.security.service:Permissions
-         *
-         * @returns {boolean} True if a user is authenticated, false otherwise
-         */
-        isAuthenticated: isAuthenticated
-      };
-    }];
-  })
-
-
-/**
- * @ngdoc object
- * @name twigs.security.service:ExpressionEvaluator
- *
- * @description
- *  ExpressionEvaluator is used by twigs.security directives.
- *  It validates and evaluates given expressions against the currently loaded user and its permissions.
- **/
-  .service('ExpressionEvaluator', ["Permissions", function (Permissions) {
-
-    if (angular.isUndefined(Permissions)) {
-      throw 'We need Permissions Service for evaluating!';
-    }
-
-    var VALID_EXPRESSION_PATTERNS = [
-      /hasPermission\(.*\)/,
-      /hasRole\(.*\)/,
-      /isAuthenticated\(\)/
-    ];
-
-    function throwIfInvalidExpression(expression) {
-      var errorString = 'Invalid permission expression';
-      if (angular.isUndefined(expression) || expression.length < 1) {
-        throw errorString;
-      }
-
-      var isValidPattern = false;
-      VALID_EXPRESSION_PATTERNS.forEach(function (pattern) {
-        if (isValidPattern) {
-          // break the loop;
-          return;
-        }
-        if (pattern.test(expression)) {
-          isValidPattern = true;
-        }
-      });
-
-      if (isValidPattern !== true) {
-        throw errorString;
-      }
-    }
-
-    function evaluate(expression) {
-      throwIfInvalidExpression(expression);
-      /*eslint no-eval:0*/
-      return eval('Permissions.' + expression);
-    }
-
-    return {
-
-      /**
-       * @ngdoc function
-       * @name twigs.security.service:ExpressionEvaluator#evaluate
-       * @methodOf twigs.security.service:ExpressionEvaluator
-       *
-       * @param {string} expression The expression to evaluate
-       *   This must match one of the following regular expressions:
-       *
-       *   * /hasPermission\(.*\)/
-       *   * /hasRole\(.*\)/
-       *   * /isAuthenticated\(\)/
-       *
-       * @returns {boolean} The return value of the evaluated expression.
-       */
-      evaluate: evaluate
-    };
-  }])
-
-/**
- * @ngdoc directive
- * @name twigs.security.directive:twgSecureShow
- * @element ANY
- *
- * @description
- *   Shows an element only if given expression evaluates to true.
- *   Allowed expressions are:
- *
- *   * hasRole()
- *   * isAuthenticated()
- *   * hasPermission('some','arguments')
- *
- *  @example
- *
- *  ```html
- *  <div twg-secure-show="hasPermission('entity','CREATE')"></div>
- *  ```
- *
- **/
-  .directive('twgSecureShow', ["ExpressionEvaluator", "$animate", function (ExpressionEvaluator, $animate) {
-    return {
-      restrict: 'A',
-      scope: true,
-      link: function (scope, element, attrs) {
-
-        function evaluate() {
-          var result = ExpressionEvaluator.evaluate(attrs.twgSecureShow);
-          $animate[result ? 'removeClass' : 'addClass'](element, 'ng-hide');
-        }
-
-        scope.$on('userInitialized', function () {
-          evaluate();
-        });
-
-        scope.$on('userCleared', function () {
-          evaluate();
-        });
-
-        evaluate();
-      }
-    };
-  }])
-
-/**
- * @ngdoc directive
- * @name twigs.security.directive:twgSecureEnabled
- * @element input
- *
- * @description
- *   Enables a input field only if the given expression evaluates to true.
- *   Allowed expressions are:
- *
- *   * hasRole()
- *   * isAuthenticated()
- *   * hasPermission('some','arguments')
- *
- *  @example
- *
- *  ```html
- *  <input type="text" twg-secure-enabled="hasPermission('entity','DELETE')"></input>
- *  ```
- *  ```html
- *  <input type="text" twg-secure-enabled="isAuthenticated()"></input>
- *  ```
- *
- **/
-  .directive('twgSecureEnabled', ["ExpressionEvaluator", function (ExpressionEvaluator) {
-    return {
-      restrict: 'A',
-      scope: true,
-      link: function (scope, element, attrs) {
-
-        function evaluate() {
-          var result = ExpressionEvaluator.evaluate(attrs.twgSecureEnabled);
-          element.attr('disabled', !result);
-        }
-
-        scope.$on('userInitialized', function () {
-          evaluate();
-        });
-
-        scope.$on('userCleared', function () {
-          evaluate();
-        });
-
-        evaluate();
-      }
-    };
-  }]);
-
-'use strict';
-
-/* twigs
- * Copyright (C) 2014, Hatch Development Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/**
  * @ngdoc directive
  * @name twigs.sortable.directive:twgSortable
  * @element th, td
@@ -3190,36 +1990,12 @@ angular.module('twigs.sortable')
  * </tr>
  * ```
  *
- * ### Secure tableRowClick
- *
- * Additionally, if you use the twigs.security module, you can guard table-row clicks with security expressions:
- *
- * ```html
- * <tr x-ng-repeat="user in users.rows" twg-table-row-click="/users/{{user.id}}"
- *     twg-table-row-click-secure="hasRole('ADMIN')" >
- *  <td>Some text</td>
- * </tr>
- * ```
- *
  */
 angular.module('twigs.tableRowClick')
-  .directive('twgTableRowClick', ["$location", "ExpressionEvaluator", function ($location, ExpressionEvaluator) {
+  .directive('twgTableRowClick', ["$q", "$location", function ($q, $location) {
     return {
       restrict: 'A',
       link: function (scope, element, attrs) {
-
-
-        /**
-         * check permission if attribute is present
-         */
-        function isAllowed() {
-          var permissionExpression = attrs.twgTableRowClickSecure;
-          if (angular.isUndefined(permissionExpression) || permissionExpression === '') {
-            return true;
-          }
-
-          return ExpressionEvaluator.evaluate(permissionExpression);
-        }
 
         /**
          * if an element is clicked that has a 'ng-click' or 'href' attribute on it's own, do not reacte to this click.
@@ -3239,12 +2015,1251 @@ angular.module('twigs.tableRowClick')
         var targetUrl = attrs.twgTableRowClick;
 
         element.on('click', function (event) {
-          if (isAllowed() && !isNgClickWrappedElement(event.target)) {
-            scope.$apply(function () {
-              $location.path(targetUrl);
-            });
+          if (isNgClickWrappedElement(event.target)) {
+            return;
+          }
+
+          $location.path(targetUrl);
+
+          if (!scope.$$phase) {
+            scope.$apply();
+          }
+
+        });
+      }
+    };
+  }]);
+
+'use strict';
+
+angular.module('twigs.menu')
+
+
+  .service('MenuHelper', function () {
+
+    return {
+      setActiveMenuEntryRecursively: setActiveMenuEntryRecursively
+    };
+
+    function activeRouteRegex(menu, path) {
+      if (angular.isDefined(menu.activeRoute) && menu.activeRoute.length > 0) {
+        var regexp = new RegExp('^' + menu.activeRoute + '$', 'i');
+        if (regexp.test(path)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function setActiveMenuEntryRecursively(path, menu) {
+      var subItemFound = false;
+
+      if (angular.isDefined(menu.items) && menu.items.length > 0) {
+        angular.forEach(menu.items, function (item) {
+          item.active = false;
+          if (setActiveMenuEntryRecursively(path, item) === true) {
+            subItemFound = true;
+            item.active = true;
+            return false;
           }
         });
+        menu.active = subItemFound;
+
+        if (subItemFound === false) {
+          //check if this menu item should be active itself
+          menu.active = (menu.link === path || activeRouteRegex(menu, path) === true);
+        }
+        return menu.active;
+      } else {
+        return (menu.link === path || activeRouteRegex(menu, path) === true);
+      }
+    }
+
+  });
+
+'use strict';
+
+angular.module('twigs.menu')
+
+/**
+ * @ngdoc object
+ * @name twigs.menu.service:MenuPermissionService
+ *
+ */
+  .service('MenuPermissionService', ["$q", "$route", "$injector", "$log", function ($q, $route, $injector, $log) {
+
+    var Authorizer = getAuthorizerCollaboratorIfPresent();
+
+    return {
+      /**
+       * @ngdoc function
+       * @name twigs.security.service:MenuPermissionService#filterMenuForRouteRestrictions
+       * @methodOf twigs.menu.service:MenuPermissionService
+       *
+       * @description
+       *  Filters a given menu object according to specified protected routes. Will not filter any items if twigs.security is not present.
+       *
+       *  @returns {promise} Resolves to the filtered menu object
+       */
+      filterMenuForRouteRestrictions: filterMenuForRouteRestrictions
+    };
+
+    /**
+     * injects Authorizer if module twigs.security exists, otherwise all SubMenuItems are allowed
+     */
+    function getAuthorizerCollaboratorIfPresent() {
+      try {
+        return $injector.get('Authorizer');
+      } catch (err) {
+        $log.debug('twigs.menu is used without permission filtering. Include twigs.security in your app if you wish to filter twigs.menu according to user permissions.');
+      }
+    }
+
+    function filterMenuForRouteRestrictions(menu) {
+      var deferred = $q.defer();
+
+      if (angular.isUndefined(menu)) {
+        deferred.resolve(undefined);
+      } else if (angular.isUndefined(Authorizer)) {
+        deferred.resolve(menu);
+      } else {
+
+        filterMenuRecursively(angular.copy(menu))
+          .then(function (filteredMenu) {
+            deferred.resolve(filteredMenu);
+          });
+      }
+
+      return deferred.promise;
+    }
+
+    function hasChildren(menu) {
+      return angular.isDefined(menu.items) && menu.items.length > 0;
+    }
+
+    function checkMenuChildren(menu, deferred) {
+      if (!hasChildren(menu)) {
+        deferred.resolve(menu);
+        return;
+      }
+
+      $q.all(menu.items.map(filterMenuRecursively))
+        .then(function (childResults) {
+          menu.items = childResults.filter(function (child) {
+            return angular.isDefined(child);
+          });
+          deferred.resolve(menu);
+        });
+    }
+
+    function filterMenuRecursively(menuItem) {
+      var deferred = $q.defer();
+
+      isMenuItemAllowed(menuItem)
+        .then(function (itemIsAllowed) {
+          if (itemIsAllowed) {
+            // this menu item is allowed, loop over child-items
+            checkMenuChildren(menuItem, deferred);
+          } else {
+            // this menu item is NOT allowed, return 'filtered' item -> undefined
+            deferred.resolve(undefined);
+          }
+        });
+
+      return deferred.promise;
+    }
+
+    function getMatchingProtectedRoute(menuItem) {
+      if (angular.isUndefined(menuItem.link)) {
+        // no link -> we cannot check for route protection (might be the menu root item)
+        return undefined;
+      }
+
+      var itemRoute = $route.routes[menuItem.link];
+      if (angular.isUndefined(itemRoute) || angular.isUndefined(itemRoute.protection)) {
+        return undefined;
+      }
+
+      return itemRoute.protection;
+    }
+
+    function isMenuItemAllowed(menuItem) {
+      var deferred = $q.defer();
+
+      var itemRouteProtection = getMatchingProtectedRoute(menuItem);
+
+      if (angular.isUndefined(itemRouteProtection)) {
+        // no matching protected route -> permission granted
+        deferred.resolve(true);
+      } else if (itemRouteProtection === true) {
+        Authorizer
+          .isLoggedIn()
+          .then(function (isLoggedIn) {
+            deferred.resolve(isLoggedIn);
+          });
+      } else {
+        Authorizer
+          .hasPermission(itemRouteProtection)
+          .then(function (hasPermission) {
+            deferred.resolve(hasPermission);
+          });
+      }
+
+      return deferred.promise;
+    }
+
+
+  }]);
+
+'use strict';
+
+/* twigs
+ * Copyright (C) 2014, Hatch Development Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @ngdoc object
+ * @name twigs.menu.provider:MenuProvider
+ *
+ * @description
+ * MenuProvider can be used to define menus globally which can later be used in multiple views.
+ *
+ * The currently active menu item is determined over the current window location and the link defined for each menu item.
+ * If the link of a menu item matches the current path, the property menuItem.active will be true for that item.
+ *
+ * Menus can be filtered using the functionality of twigs.ProtectedRouteProvider. If the link of a menu item matches
+ * with the link of a protected route and the current users role does not meet the needed roles to access that route,
+ * the menu item will be removed from the menu.
+ * Therefore twigs.ProtectedRouteProvider must be included in your application and configured as described under [ProtectedRouteProvider](#/api/twigs.menu.provider:ProtectedRouteProvider)
+ *
+ * ### Usage
+ * You need to specify a config block to create a new Menu and you need to create a html template for the Menu content.
+ *
+ * MenuProvider.createMenu(... creates a new Menu with the given name and html template.
+ * Menuitems or submenus can be added to this menu, nested as much as you like.
+ *
+ * ```javascript
+ * angular.module('myApp').config(function (MenuProvider) {
+ *       var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html')
+ *       .addItem('main_menu_home', {
+ *           text : 'Home',
+ *           link: '/home',
+ *           iconClass: 'fa fa-desktop fa-lg'
+ *       });
+ *
+ *      var settingsMenu = mainMenu.createSubMenu('main_menu_settings',
+ *          {link: '/settings/ac',text : 'Settings-Menu', iconClass: 'fa fa-lock fa-lg'});
+ *
+ *       settingsMenu.addItem('main_menu_settings_users', {
+ *          text : 'Users',
+ *          link: '/settings/ac/users'
+ *       }).addItem('main_menu_settings_roles', {
+ *          text : 'Roles',
+ *          link: '/settings/ac/roles'
+ *      });
+ * });
+ * ```
+ * The html template 'views/mainMenu.html' referenced by MenuProvider.createMenu(...
+ * Here you can iterate over all menu.items.
+ * ```html
+ * <ul>
+ *      <li class="openable" ng-class="{'active': menuItem.active}"
+ *          x-ng-repeat="menuItem in menu.items">
+ *           <a x-ng-href="#{{menuItem.link}}">
+ *              <span class="menu-icon">
+ *                <i x-ng-class="menuItem.options.iconClass"></i>
+ *               </span>
+ *              <span class="text">
+ *                {{menuItem.text}}
+ *              </span>
+ *              <span class="menu-hover"></span>
+ *          </a>
+ *      </li>
+ * </ul>
+ * ```
+ *
+ * The directive used in every one of your pages where the menu should be displayed:
+ * ```html
+ * <twg-menu menu-name="main_menu"></twg-menu>
+ * ```
+ *
+ * ### A more complex example with nested menus:
+ * Each menu item can contain a list of menu item children. Each parent menu / children menu structure is nothing else than a menu item with a list of menu items as menu.items property.
+ * ```javascript
+ * var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html')
+ * .addItem('main_menu_home', {
+ *           text : 'Home',
+ *           link: '/home',
+ *           iconClass: 'fa fa-desktop fa-lg'
+ *       });
+ *
+ * var settingsMenu = mainMenu.createSubMenu('main_menu_settings',
+ *      {link: '/settings/ac',text : 'Settings-Menu', iconClass: 'fa fa-lock fa-lg'});
+ *
+ * settingsMenu.addItem('main_menu_settings_users', {
+ *      text : 'Users',
+ *      link: '/settings/ac/users',
+ *      activeRoute: '/settings/ac/users(/.*)?' // for example navigating to
+ *                                              // #/settings/ac/users/new also marks this
+ *                                              // menu item active
+ *   }).addItem('main_menu_settings_roles', {
+ *       text : 'Roles',
+ *       link: '/settings/ac/roles'
+ *   });
+ *
+ * var ordersMenu = mainMenu.createSubMenu('main_menu_orders',
+ *      {link: '/orders/', text : 'Orders', iconClass: 'fa fa-lock fa-lg'});
+ *
+ * ordersMenu.addItem('main_menu_orders_new_order', {
+ *      text : 'New Order',
+ *      link: '/orders/new'
+ *   }).addItem('main_menu_orders_overview', {
+ *       text : 'Order Overview',
+ *       link: '/orders/overview'
+ *   });
+ * ```
+ * The corresponding html template:
+ * ```html
+ * <ul>
+ *      <li class="openable" ng-class="{'active': menuItem.active}"
+ *          x-ng-repeat="menuItem in menu.items">
+ *          <a x-ng-href="#{{menuItem.link}}">
+ *              <span class="menu-icon">
+ *                  <i x-ng-class="menuItem.options.iconClass"></i>
+ *              </span>
+ *              <span class="text">
+ *                  {{menuItem.text}}
+ *              </span>
+ *              <span class="menu-hover"></span>
+ *          </a>
+ *
+ *          <ul class="submenu" x-ng-if="menuItem.items.length > 0">
+ *              <li x-ng-repeat="subMenuItem in menuItem.items"
+ *                  ng-class="{'active': subMenuItem.active}">
+ *                  <a href="#{{subMenuItem.link}}">
+ *                          <span class="submenu-label">{{subMenuItem.text}}</span>
+ *                   </a>
+ *              </li>
+ *          </ul>
+ *      </li>
+ * </ul>
+ * ```
+ *
+ * See [twgMenu](#/api/twigs.menu.directive:twgMenu) for more information on how to use the twgMenu directive in your views.
+ */
+
+/**
+ * @ngdoc directive
+ * @name twigs.menu.directive:twgMenu
+ * @element ANY
+ * @attribute menu-name the name of the menu to be rendered (defined on the MenuProvider.createMenu(...  )
+ * @attribute template-url (optional) the template to be used when rendering the menu
+ *
+ * @description
+ * In many web applications you will need navigations or menus which are present on all or multiple html pages. TwgMenu allows you
+ * to define those menues globally so that you only need to include a directive referencing the menu in your html page.
+ *
+ * TwgMenu registers each route change and ensures that correspondent menu entry is marked active as well as parent menu items if the menu is collapsable.
+ *
+ * TwgMenu can filter menu items with links referencing restricted routes (using twg.protectedRoutes) so that only users with the necessary access roles see those menu items.
+ * In order to use menu filtering, twg.protectedRoutes needs to be included in your app and properly configured. See [ProtectedRouteProvider](#/api/twigs.menu.provider:ProtectedRouteProvider)
+ *
+ * ```html
+ *<twigs-menu menu-name="main_menu"></twigs-menu>
+ * ```
+ *
+ * Normally, twigs-menu renders the menu with the html template specified on the MenuProvider.createMenu(...
+ * Alternatively a different template may be specified directly on the directive as follows:
+ *
+ *```html
+ *<twigs-menu menu-name="main_menu" template-url="navigation/mySpecialTemplate.html">
+ *</twigs-menu>
+ * ```
+ *
+ * See [MenuProvider](#/api/twigs.menu.provider:MenuProvider) for more information on how to set up Menus.
+ */
+angular.module('twigs.menu')
+  .provider('Menu', function Menu() {
+    var menus = {};
+
+    function searchItemRecursively(item, itemName) {
+      //the recursion
+      if (item.items.length > 0) {
+        var foundItem;
+        item.items.every(function (subItem) {
+          foundItem = searchItemRecursively(subItem, itemName);
+          return !foundItem; //break if foundItem is defined -> item was found
+        });
+        if (foundItem) {
+          return foundItem;
+        }
+      }
+      //the actual check
+      if (item.name === itemName) {
+        return item;
+      }
+    }
+
+    function findMenuItemInMenu(menuName, itemName) {
+      if (!menus[menuName]) {
+        return undefined;
+      }
+      return searchItemRecursively(menus[menuName], itemName);
+    }
+
+    var serviceInstance = {
+      createMenu: function (menuName, templateUrl) {
+        var menu = new RootMenuItem(menuName, templateUrl);
+        if (angular.isDefined(menus[menuName])) {
+          throw 'Menu is already defined: ' + menuName;
+        }
+        menus[menuName] = menu;
+        return menu;
+      },
+      menu: function (menuName) {
+        return menus[menuName];
+      },
+      getMenuItemInMenu: function (menuName, itemName) {
+        return findMenuItemInMenu(menuName, itemName);
+      },
+      removeMenu: function (menuName) {
+        delete menus[menuName];
+      }
+
+    };
+
+    this.$get = function () {
+      return serviceInstance;
+    };
+
+    /**
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#createMenu
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Defines a new Menu.
+     *
+     * @param {String} menuName The name of the menu
+     * @param {String} templateUrl The template used to render this menu
+     * @returns {RootMenuItem} root instance for the new menu.
+     *
+     * Example:
+     * ```javascript
+     * var mainMenu = MenuProvider.createMenu('main_menu', 'views/mainMenu.html');
+     * ```
+     */
+    this.createMenu = function (menuName, templateUrl) {
+      return serviceInstance.createMenu(menuName, templateUrl);
+    };
+
+    /**
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#menu
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Returns the root menu item instance for the menu with the specified menuName if it exists;
+     * otherwise, returns undefined.
+     *
+     * @param {string} menuName name of the menu
+     * @returns {SubMenuItem} root instance for the menu.
+     */
+    this.menu = function (menuName) {
+      return serviceInstance.menu(menuName);
+    };
+
+    /**
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#getMenuItemInMenu
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Searches for a menu item with the specified name in the specified menu.
+     * Returns the first result, if multiple items with that name exist.
+     *
+     * @param {string} menuName name of the menu to search in
+     * @param {string} itemName name of the menu item to find
+     * @returns {object} menu item if exists, undefined otherwise
+     */
+    this.getMenuItemInMenu = function (menuName, itemName) {
+      return serviceInstance.getMenuItemInMenu(menuName, itemName);
+    };
+
+    /**
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#removeMenu
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Removes menu with the specified menuName
+     *
+     * @param {string} menuName name of the menu
+     */
+    this.removeMenu = function (menuName) {
+      serviceInstance.removeMenu(menuName);
+    };
+
+    function validateMenuLink(linkFromConfig) {
+      if (angular.isUndefined(linkFromConfig) || linkFromConfig.length < 1) {
+        return linkFromConfig;
+      }
+      if (isExternalLink(linkFromConfig)) {
+        return linkFromConfig;
+      }
+      if (linkFromConfig.charAt(0) !== '/') {
+        throw 'please use routes in menu configuration: ' + linkFromConfig;
+      }
+      return linkFromConfig;
+    }
+
+    function isExternalLink(linkFromConfig) {
+      return linkFromConfig.substring(0, 4) === 'http';
+    }
+
+    //MenuItem SuperClass
+    function MenuItem(name) {
+      this.name = name;
+    }
+
+    /**
+     * Creates new RootMenuItem instance.
+     * @param name name of the Menu
+     * @constructor
+     * @param templateUrl the html template used by the twigs-menu directive
+     */
+    function RootMenuItem(name, templateUrl) {
+      this.constructor(name);
+      this.templateUrl = templateUrl;
+      this.items = [];
+    }
+
+    /**
+     * Creates new SubMenuItem instance.
+     * @param name name of the item
+     * @constructor
+     * @param _options item options
+     */
+    function SubMenuItem(name, _options) {
+      this.constructor(name);
+      this.items = [];
+
+      var options = _options || {};
+      this.text = options.text || name;
+      this.link = validateMenuLink(options.link);
+      this.activeRoute = options.activeRoute;
+      this.options = options;
+    }
+
+    //inherit methods of MenuItem
+    RootMenuItem.prototype = new MenuItem(name);
+    SubMenuItem.prototype = new MenuItem(name);
+
+    /**
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#addItem
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Adds new item with the specified itemName to the list of the child items of a menu item.
+     *
+     * @param {string} itemName name of the menu item. Name should be unique in the context of
+     * the whole menu (not just among direct siblings). This restriction is not strictly
+     * enforced, but functionality of some of the SubMenuItem methods depend on it.
+     * @param {object} itemOptions used for the configuration of the menu item.
+     * Can contain any attribute which may by referenced in the html template of your menu. itemOptions.text and itemOptions.link
+     * are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)
+     * @param {string} itemOptions.text The display text or translation key of the item
+     * @param {string} itemOptions.link The link which should be opened when the item is clicked
+     * @param {string} (optional) itemOptions.activeRoute The link regex used to mark this menu item active if nested pages are under itemOptions.link
+     * @returns {SubMenuItem} current instance
+     *
+     */
+    MenuItem.prototype.addItem = function (itemName, itemOptions) {
+      this.createAndAddItem(itemName, itemOptions);
+      return this;
+    };
+
+    /**
+     * @ngdoc function
+     * @name twigs.menu.provider:MenuProvider#createSubMenu
+     * @methodOf twigs.menu.provider:MenuProvider
+     *
+     * @description
+     * Adds a new submenu with the specified menuName to the list of the child items of a menu item.
+     *
+     * @param {string} menuName name of the submenu. Name should be unique in the context of
+     * the whole menu (not just among direct siblings). This restriction is not strictly
+     * enforced, but functionality of some of the SubMenuItem methods depend on it.
+     * * @param {object} menuOptions used for the configuration of the menu item.
+     * Can contain any attribute which may by referenced in the html template of your menu. itemOptions.text and itemOptions.link
+     * are predefined and will be mapped to the menuItem directly (i.e. accessible over menuItem.text)
+     * @param {string} menuOptions.text The display text or translation key of the item
+     * @param {string} menuOptions.link The link which should be opened when the item is clicked
+     * @returns {SubMenuItem} instance for the new submenu
+     *
+     */
+    MenuItem.prototype.createSubMenu = function (menuName, menuOptions) {
+      return this.createAndAddItem(menuName, menuOptions);
+    };
+
+    MenuItem.prototype.createAndAddItem = function (itemName, itemOptions) {
+      var item = new SubMenuItem(itemName, itemOptions);
+      this.items.push(item);
+      return item;
+    };
+
+  })
+
+
+  .directive('twgMenu', ["$rootScope", "$location", "$log", "Menu", "MenuPermissionService", "MenuHelper", function ($rootScope, $location, $log, Menu, MenuPermissionService, MenuHelper) {
+    return {
+      restrict: 'E',
+      scope: {},
+      link: function (scope, element, attrs) {
+
+        function update() {
+          MenuPermissionService.filterMenuForRouteRestrictions(Menu.menu(attrs.menuName)).then(function (filteredMenu) {
+            scope.menu = filteredMenu;
+            MenuHelper.setActiveMenuEntryRecursively($location.path(), scope.menu);
+          });
+        }
+
+        update();
+
+        $rootScope.$on('$routeChangeSuccess', function () {
+          // routeChangeSuccess event can occur before first filtering in update method is done...
+          if (scope.menu) {
+            MenuHelper.setActiveMenuEntryRecursively($location.path(), scope.menu);
+          }
+        });
+
+        scope.$on('userCleared', function () {
+          update();
+        });
+
+        scope.$on('userLoaded', function () {
+          update();
+        });
+
+      },
+      templateUrl: function (element, attrs) {
+        if (angular.isDefined(attrs.templateUrl)) {
+          return attrs.templateUrl;
+        } else {
+          return Menu.menu(attrs.menuName).templateUrl;
+        }
+      }
+    };
+  }]);
+
+'use strict';
+
+angular.module('twigs.security')
+
+
+/**
+ * @ngdoc object
+ * @name twigs.security.provider:AuthorizerProvider
+ *
+ * @description
+ *
+ **/
+  .provider('Authorizer', function () {
+
+    var
+
+      /**
+       * @ngdoc property
+       * @name twigs.security.provider:AuthorizerProvider#userLoaderFunction
+       * @propertyOf twigs.security.provider:AuthorizerProvider
+       *
+       * @description
+       *  The userLoader function (register via .registerUserLoaderFunction()
+       */
+      userLoaderFunction,
+
+      /**
+       * @ngdoc property
+       * @name twigs.security.provider:AuthorizerProvider#permissionEvaluator
+       * @propertyOf twigs.security.provider:AuthorizerProvider
+       *
+       * @description
+       *   The evaluator function (register via .registerPermissionEvaluator()
+       */
+      permissionEvaluator;
+
+
+    /**
+     * @ngdoc function
+     * @name twigs.security.provider:AuthorizerProvider#registerUserLoader
+     * @methodOf twigs.security.provider:AuthorizerProvider
+     *
+     * @description
+     * Registers the loader function to load the user Object. The given loader function must return
+     * a promise which resolves to the user Object.
+     * The user object is expected to be of the form:
+     *
+     * ```javascript
+     *  {
+         *   username:'John',
+         *   permissions:[]
+         *  }
+     * ```
+     *
+     * It is valid to resolve to a user object which has additional properties.
+     *
+     * ```javascript
+     * AuthorizerProvider.registerUserLoader(function ($q, $resource) {
+         *       return function () {
+         *           var deferred = $q.defer();
+         *           $resource('/users/current').get({},
+         *               function (data) {
+         *                  return deferred.resolve(data);
+         *              }, function () {
+         *                  return deferred.reject();
+         *               });
+         *
+         *          return deferred.promise;
+         *      };
+         *   });
+     * ```
+     *
+     * @param {function} loader The user loader function
+     */
+    this.registerUserLoaderFunction = registerUserLoaderFunction;
+
+    /**
+     * @ngdoc function
+     * @name twigs.security.provider:AuthorizerProvider#registerPermissionEvaluationFunction
+     * @methodOf twigs.security.provider:AuthorizerProvider
+     *
+     * @description
+     * Registers the permission evaluator for evaluating permissions.
+     * Your evaluator must return a evaluation function.
+     * Authorizer will pass in the user object, and the needed permissions (arguments)
+     *
+     * ```javascript
+     * AuthorizerProvider.registerPermissionEvaluationFunction(function (SomeCollaborator) {
+         *       return function (user, args) {
+         *          // decide upon users permissions and args.
+         *          // return true or false
+         *
+         *          // SomeCollaborator.foo()
+         *
+         *          return true:
+         *      };
+         *   });
+     * ```
+     *
+     * @param {function} fn The evaluator function
+     */
+    this.registerPermissionEvaluator = registerPermissionEvaluator;
+
+
+    function registerUserLoaderFunction(loaderFunction) {
+      userLoaderFunction = loaderFunction;
+    }
+
+    function registerPermissionEvaluator(evaluator) {
+      permissionEvaluator = evaluator;
+    }
+
+    /**
+     * @ngdoc object
+     * @name twigs.security.service:Authorizer
+     *
+     **/
+    this.$get = Authorizer;
+
+    function Authorizer($rootScope, $q, $injector, UserObjectSanityChecker) {
+
+      var
+        /**
+         * @ngdoc property
+         * @name twigs.security.provider:AuthorizerProvider#user
+         * @propertyOf twigs.security.provider:AuthorizerProvider
+         *
+         * @description
+         *  The user object
+         */
+        user = {},
+        /**
+         * @ngdoc property
+         * @name twigs.security.provider:AuthorizerProvider#userLoadingPromise
+         * @propertyOf twigs.security.provider:AuthorizerProvider
+         *
+         * @description
+         *  we remember, that we are already loading the user.
+         *  A second call to "Authorizer.getUser()" while the first call ist still waiting for a server-response,
+         *  will receive the same promise;
+         */
+        userLoadingPromise;
+
+
+      function isLoggedIn() {
+        var deferred = $q.defer();
+
+        if (isCurrentlyLoadingUser()) {
+          getCurrentUser()
+            .then(function () {
+              deferred.resolve(true);
+            }, function () {
+              deferred.resolve(false);
+            });
+        } else if (isUserLoaded()) {
+          deferred.resolve(true);
+        } else {
+          deferred.resolve(false);
+        }
+
+        return deferred.promise;
+      }
+
+      function hasPermission(permission) {
+        if (angular.isUndefined(permissionEvaluator)) {
+          throw new Error('No PermissionEvaluator defined! Call AuthorizerProvider.registerPermissionEvaluator(fn) first!');
+        }
+
+        if (!permission || typeof permission !== 'object') {
+          throw new Error('No permission object to check!');
+        }
+
+        if (Object.prototype.toString.call(permission) === '[object Array]') {
+          throw new Error('Permission to check must be an object, but array given!');
+        }
+
+        var deferred = $q.defer();
+        var evalFn = $injector.invoke(permissionEvaluator);
+
+        if (isUserLoaded()) {
+          // if user is already loaded, invoke evaluatorFunction
+          deferred.resolve(evalFn(user, permission));
+        } else {
+          // if user is not yet loaded or is currently loading, wait for promise
+          getCurrentUser()
+            .then(function () {
+              deferred.resolve(evalFn(user, permission));
+            },
+            function () {
+              deferred.resolve(false);
+            });
+        }
+
+        return deferred.promise;
+      }
+
+      function loadUser() {
+        if (angular.isUndefined(userLoaderFunction)) {
+          throw new Error('No UserLoaderFunction defined! Call AuthorizerProvider.registerUserLoaderFunction(fn) first!');
+        }
+
+        var
+          deferred = $q.defer(),
+          loaderFn = $injector.invoke(userLoaderFunction);
+
+        loaderFn()
+          .then(function (data) {
+            if (!UserObjectSanityChecker.isSane(data)) {
+              deferred.reject(new Error('Loaded user object did not pass sanity check!'));
+            } else {
+              user = data;
+              $rootScope.$broadcast('userLoaded');
+              deferred.resolve(data);
+            }
+          }, function () {
+            deferred.reject();
+          });
+
+        return deferred.promise;
+      }
+
+      function isCurrentlyLoadingUser() {
+        // We cannot use Promise.isPending() , since angular promise ($q) does not yet support it
+        return ( angular.isDefined(userLoadingPromise) && angular.isUndefined(user.username));
+      }
+
+      function isUserLoaded() {
+        return angular.isDefined(user.username);
+      }
+
+      function getCurrentUser() {
+        if (isUserLoaded()) {
+          return $q.when(user);
+        } else if (isCurrentlyLoadingUser()) {
+          return userLoadingPromise;
+        } else {
+          userLoadingPromise = loadUser();
+          return userLoadingPromise;
+        }
+      }
+
+      function clearSecurityContext() {
+        user = {};
+        userLoadingPromise = undefined;
+        $rootScope.$broadcast('userCleared');
+      }
+
+      return {
+        /**
+         * @ngdoc function
+         * @name twigs.security.service:Authorizer#getUser
+         * @methodOf twigs.security.service:Authorizer
+         *
+         *
+         * @description
+         *  returns a promise, holding the current user. will load the user if necessary.
+         *  Will broadcast the event "userLoaded" ont he $rootScope as soon as the user was successfully loaded from the backend.
+         *
+         *  @returns {object} The User object of the currently logged-in user
+         */
+        getUser: getCurrentUser,
+
+        /**
+         * @ngdoc function
+         * @name twigs.security.service:Authorizer#clearSecurityContext
+         * @methodOf twigs.security.service:Authorizer
+         *
+         * @description
+         * Clears the securityContext. After invocation, no user object is loaded and
+         * 'isLoggedIn()' will resolve to false.
+         *
+         * Will broadcast the event "userCleared" ont he $rootScope.
+         *
+         */
+        clearSecurityContext: clearSecurityContext,
+
+        /**
+         * @ngdoc function
+         * @name twigs.security.service:Authorizer#hasPermission
+         * @methodOf twigs.security.service:Authorizer
+         *
+         * @description
+         *  Will call registered evaluator function. Is mostly used in twigs.security directives.
+         *
+         * @param {object} permission Object that specifies the permissions to check. Will be passed on to evaluator function.
+         * @returns {promise} Resolves to true if current user has needed permission(s)
+         */
+        hasPermission: hasPermission,
+
+        /**
+         * @ngdoc function
+         * @name twigs.security.service:Authorizer#isLoggedIn
+         * @methodOf twigs.security.service:Authorizer
+         *
+         * @description
+         *  Checks whether a user was successfully loaded from the backend. If a userLoad is currently pending, this will wait for the promise
+         *  to be resolved or rejected.
+         *  This Will not trigger a userLoad by itself!
+         *
+         * @returns {promise} Resolves to true if a user is loaded.
+         */
+        isLoggedIn: isLoggedIn
+      };
+    }
+    Authorizer.$inject = ["$rootScope", "$q", "$injector", "UserObjectSanityChecker"];
+
+  });
+
+'use strict';
+
+/* twigs
+ * Copyright (C) 2014, Hatch Development Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+angular.module('twigs.protectedRoutes')
+
+/**
+ * @ngdoc object
+ * @name twigs.protectedRoutes.provider:ProtectedRouteProvider
+ *
+ * @description
+ * In an application that uses a permission model, we'd like to protect some views from
+ * unauthorized access.
+ *
+ * ProtectedRoutes allows you to protect a route. (You can use our ProtectedRouteProvider
+ * in the same way you would use the standard $routeProvider).
+ *
+ * You can specify the property _protection_. Angular will then
+ * evaluate the user's permission on routeChangeStart. If the user has the required permissions, the route and the location changes.
+ * If not, the route-change is prevented and a _$routeChangeError_ event is thrown, which can be handled by your application to e.g. forward to the main view or to display an
+ * appropriate message.
+ *
+ * If you don't want to check for a specific permission, but only check if a user is logged in, set the property _authenticated_ to true.
+ *
+ * ### How to configure protected routes
+ * ```javascript
+ * var App = angular.module('Main',['twigs.protectedRoutes']);
+ *
+ * App.config(function (ProtectedRouteProvider) {
+ *
+ * ProtectedRouteProvider
+ *     .when('/home', {
+ *         templateUrl: 'views/home.html',
+ *         controller: 'HomeCtrl'
+ *     })
+ *     .when('/settings', {
+ *         templateUrl: '/views/settings.html',
+ *         controller: 'SettingsCtrl',
+ *         protection: {roles:['ADMIN']}
+ *     }),
+ *     .when('/profile', {
+ *         templateUrl: '/views/settings.html',
+ *         controller: 'SettingsCtrl',
+ *         protection: true
+ *     });
+ * ```
+ *
+ * Note: ProtectedRoute depends on the twigs.security module. Make sure you registered a user loader function (see [AuthorizerProvider](#/api/twigs.security.provider:AuthorizerProvider))
+ *
+ */
+  .provider('ProtectedRoute', ["$routeProvider", function ($routeProvider) {
+
+    var protectionsForRoutes = {};
+
+    /**
+     * needed to mirror the angular's RouteProvider api !
+     */
+    this.otherwise = $routeProvider.otherwise;
+
+    /**
+     * the when function delegates to the angular routeProvider "when".
+     */
+    this.when = function (path, route) {
+      if (isProtectedRouteConfig(route)) {
+        route.resolve = angular.extend(route.resolve || {}, {
+          // explicitly specify collaborator names to inject, since ngAnnotate does not correctly do it.
+          'CurrentUser': ['Authorizer', function (Authorizer) {
+            return Authorizer.getUser();
+          }],
+          'isUserAllowedToAccessRoute': ['$q', 'Authorizer', function ($q, Authorizer) {
+            return isUserAllowedToAccessRoute($q, Authorizer, route.protection);
+          }]
+        });
+        protectionsForRoutes[path] = route.protection;
+      }
+      $routeProvider.when(path, route);
+      return this;
+    };
+
+    function isProtectedRouteConfig(route) {
+      if (angular.isUndefined(route.protection)) {
+        return false;
+      }
+
+      if (route.protection === true) {
+        // route is protected -> user must be logged in to access it
+        return true;
+      }
+
+      if (Object.prototype.toString.call(route.protection) === '[object Array]') {
+        throw new Error('Invalid protected route config: protection must be either an object or "true"');
+      }
+
+      if (typeof route.protection === 'object') {
+        return true;
+      }
+
+      throw 'Invalid protected route config: protection must be either an object or "true"';
+    }
+
+    function isUserAllowedToAccessRoute($q, Authorizer, protection) {
+      var deferred = $q.defer();
+      Authorizer.getUser()
+        .then(function () {
+
+          if (protection === true) {
+            // if protection is specified with "true" (protection:true), we don't have to
+            // further evaluate permissions.
+            deferred.resolve();
+            return;
+          }
+
+          Authorizer.hasPermission.call(Authorizer, protection)
+            .then(function (result) {
+              if (result) {
+                deferred.resolve();
+              } else {
+                deferred.reject(new Error('User is not allowed to access route!'));
+              }
+            });
+
+        }, function (err) {
+          deferred.reject(err);
+        });
+
+      return deferred.promise;
+    }
+
+    this.$get = function () {
+      return {};
+    };
+
+  }]
+);
+
+'use strict';
+
+angular.module('twigs.security')
+
+  .service('UserObjectSanityChecker', function () {
+
+    var EXPECTED_PROPERTIES = ['username', 'permissions'];
+
+    function isSaneUserObject(userObject) {
+      if (angular.isUndefined(userObject)) {
+        return false;
+      }
+
+      var allPropertiesFound = true;
+      EXPECTED_PROPERTIES.forEach(function (prop) {
+        if (angular.isUndefined(userObject[prop])) {
+          allPropertiesFound = false;
+        }
+      });
+
+      return allPropertiesFound;
+    }
+
+    return {
+      isSane: isSaneUserObject
+    };
+  });
+
+'use strict';
+
+/* twigs
+ * Copyright (C) 2014, Hatch Development Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+angular.module('twigs.security')
+
+/**
+ * @ngdoc directive
+ * @name twigs.security.directive:twgProtected
+ * @element ANY
+ *
+ * @description
+ *   Protects a html element: either hides it or disables it if currently logged in user does not have
+ *   specified permissions. (Permissions are evaluated via your registered evaluator)
+ *
+ *   Specify whether to hide or disable with attributes twg-protected-hide and twg-protected-disable.
+ *   If you do not specify any, element is hidden if permissions are missing.
+ *
+ *   If you set twg-protected="true", a user must be logged in. no further permission evaluation is done.
+ *   If you set twg-protected="{....}", permissions are evaluated via your registered evaluator.
+ *
+ *  @example
+ *
+ * Hide an element if no user is logged in.
+ *  ```html
+ *  <div twg-protected="true"></div>
+ *  ```
+ *
+ * is equivalent to:
+ *  ```html
+ *  <div twg-protected="true" twg-protected-hide ></div>
+ *  ```
+ *
+ * Disable element if no user is logged in.
+ *  ```html
+ *  <input twg-protected="true" twg-protected-disable />
+ *  ```
+ *
+ * Hide element if permissions are not given
+ *  ```html
+ *  <div twg-protected="{roles:['some']}" ></div>
+ *
+ *  <div twg-protected="{mustBeAdmin:true}" ></div>
+ *  ```
+ **/
+  .directive('twgProtected', ["Authorizer", "$animate", function (Authorizer, $animate) {
+    return {
+      restrict: 'A',
+      scope: {
+        twgProtected: '=',
+        twgProtectedDisable: '@',
+        twgProtectedHide: '@'
+      },
+      link: function (scope, element) {
+
+        function manipulateElement(result) {
+          if (angular.isDefined(scope.twgProtectedDisable)) {
+            if (result === true) {
+              element.removeAttr('disabled');
+            } else {
+              element.attr('disabled', 'disabled');
+            }
+          } else {
+            $animate[result ? 'removeClass' : 'addClass'](element, 'ng-hide');
+          }
+        }
+
+        function evaluate() {
+          if (scope.twgProtected === true) {
+            Authorizer.getUser()
+              .then(function () {
+                manipulateElement(true);
+              }, function () {
+                manipulateElement(false);
+              });
+          } else {
+            Authorizer.hasPermission(scope.twgProtected)
+              .then(manipulateElement);
+          }
+        }
+
+        // if value of the attribute changes, re-evaluate
+        scope.$watch('twgProtected', function () {
+          evaluate();
+        });
+
+        scope.$on('userCleared', function () {
+          manipulateElement(false);
+        });
+
+        scope.$on('userLoaded', function () {
+          evaluate();
+        });
+
       }
     };
   }]);

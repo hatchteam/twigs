@@ -112,6 +112,12 @@ angular.module('twigs.menu')
       if (angular.isUndefined(itemRouteProtection)) {
         // no matching protected route -> permission granted
         deferred.resolve(true);
+      } else if (itemRouteProtection === true) {
+        Authorizer
+          .isLoggedIn()
+          .then(function (isLoggedIn) {
+            deferred.resolve(isLoggedIn);
+          });
       } else {
         Authorizer
           .hasPermission(itemRouteProtection)
@@ -119,6 +125,7 @@ angular.module('twigs.menu')
             deferred.resolve(hasPermission);
           });
       }
+
       return deferred.promise;
     }
 

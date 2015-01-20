@@ -209,6 +209,7 @@ angular.module('twigs.security')
               deferred.reject(new Error('Loaded user object did not pass sanity check!'));
             } else {
               user = data;
+              $rootScope.$broadcast('userLoaded');
               deferred.resolve(data);
             }
           }, function () {
@@ -229,9 +230,7 @@ angular.module('twigs.security')
 
       function getCurrentUser() {
         if (isUserLoaded()) {
-          var deferred = $q.defer();
-          deferred.resolve(user);
-          return deferred.promise;
+          return $q.when(user);
         } else if (isCurrentlyLoadingUser()) {
           return userLoadingPromise;
         } else {
@@ -255,6 +254,7 @@ angular.module('twigs.security')
          *
          * @description
          *  returns a promise, holding the current user. will load the user if necessary.
+         *  Will broadcast the event "userLoaded" ont he $rootScope as soon as the user was successfully loaded from the backend.
          *
          *  @returns {object} The User object of the currently logged-in user
          */
@@ -267,7 +267,9 @@ angular.module('twigs.security')
          *
          * @description
          * Clears the securityContext. After invocation, no user object is loaded and
-         * 'isLoggedIn()' will resolve to false
+         * 'isLoggedIn()' will resolve to false.
+         *
+         * Will broadcast the event "userCleared" ont he $rootScope.
          *
          */
         clearSecurityContext: clearSecurityContext,

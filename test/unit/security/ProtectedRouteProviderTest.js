@@ -154,6 +154,31 @@ describe('ProtectedRouteProvider', function () {
 
   describe('Route changes', function () {
 
+
+    var dummyUserObject = {
+      username: 'admin',
+      roles: ['ADMIN', 'USER'],
+      permissions: []
+    };
+
+    function hasResolvingRegisteredUserLoader() {
+      AuthorizerProvider.registerUserLoaderFunction(function ($q) {
+        return function () {
+          var newDeferred = $q.defer();
+          newDeferred.resolve(dummyUserObject);
+          return newDeferred.promise;
+        };
+      });
+    }
+
+    function hasAlwaysTruePermissionEvaluationFunction() {
+      AuthorizerProvider.registerPermissionEvaluator(function () {
+        return function () {
+          return true;
+        };
+      });
+    }
+
     function givenValidUnprotectedRouteConfig() {
       ProtectedRouteProvider
         .when('/', {
@@ -169,6 +194,57 @@ describe('ProtectedRouteProvider', function () {
 
     it('changes on unprotected route', function (done) {
       givenValidUnprotectedRouteConfig();
+
+      $rootScope.$on('$routeChangeSuccess', function () {
+        done();
+      });
+
+      $location.path('/some');
+      $rootScope.$digest();
+      expect($location.path()).toBe('/some');
+
+    });
+
+    it('changes on protected route', function (done) {
+      hasResolvingRegisteredUserLoader();
+
+      ProtectedRouteProvider
+        .when('/', {
+          controller: 'MainCtrl'
+        })
+        .when('/some', {
+          controller: 'SomeCtrl',
+          protection: true
+        })
+        .otherwise({
+          redirectTo: '/'
+        });
+
+      $rootScope.$on('$routeChangeSuccess', function () {
+        done();
+      });
+
+      $location.path('/some');
+      $rootScope.$digest();
+      expect($location.path()).toBe('/some');
+
+    });
+
+    it('changes on protected route with roles', function (done) {
+      hasResolvingRegisteredUserLoader();
+      hasAlwaysTruePermissionEvaluationFunction();
+
+      ProtectedRouteProvider
+        .when('/', {
+          controller: 'MainCtrl'
+        })
+        .when('/some', {
+          controller: 'SomeCtrl',
+          protection: {roles: ['ADMIN']}
+        })
+        .otherwise({
+          redirectTo: '/'
+        });
 
       $rootScope.$on('$routeChangeSuccess', function () {
         done();

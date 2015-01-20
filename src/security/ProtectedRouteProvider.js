@@ -125,7 +125,7 @@ angular.module('twigs.protectedRoutes')
             return;
           }
 
-          Authorizer.hasPermission.apply(Authorizer, protection)
+          Authorizer.hasPermission.call(Authorizer, protection)
             .then(function (result) {
               if (result) {
                 deferred.resolve();
