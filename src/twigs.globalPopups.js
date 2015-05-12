@@ -161,7 +161,7 @@ angular.module('twigs.globalPopups')
   .provider('GlobalPopups', function GlobalPopupsProvider() {
     var serviceInstance = {};
 
-    this.$get = function ($rootScope, $modal, $timeout, $templateCache, $http, $compile, $document, $sce, $q) {
+    this.$get = function ($rootScope, $modal, $interval, $templateCache, $http, $compile, $document, $sce, $q) {
       var toastStack;
 
       /**
@@ -287,9 +287,9 @@ angular.module('twigs.globalPopups')
            * Removes the toast template after the given displayDuration
            */
           if (angular.isDefined(toast.options.displayDuration)) {
-            $timeout(function () {
+            $interval(function () {
               scope.close();
-            }, toast.options.displayDuration);
+            }, toast.options.displayDuration, 1);
           }
           deferred.resolve({close: scope.close});
         });
