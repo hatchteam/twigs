@@ -226,16 +226,16 @@ describe('Service & Provider: GlobalPopups', function () {
   });
 
   describe('GlobalPopups Toast', function () {
-    var document, $httpBackend, $timeout;
+    var document, $httpBackend, $interval;
 
     /**
      * Inject GlobalPopups Service and mock dependencies
      */
-    beforeEach(inject(function (_GlobalPopups_, _$document_, _$httpBackend_, _$timeout_) {
+    beforeEach(inject(function (_GlobalPopups_, _$document_, _$httpBackend_, _$interval_) {
       GlobalPopups = _GlobalPopups_;
       document = _$document_;
       $httpBackend = _$httpBackend_;
-      $timeout = _$timeout_;
+      $interval = _$interval_;
 
       $httpBackend.whenGET('views/globalMsg/successToast.html').respond('<div>my success content</div>');
       $httpBackend.whenGET('views/globalMsg/warningToast.html').respond('<div>my warning content</div>');
@@ -258,7 +258,7 @@ describe('Service & Provider: GlobalPopups', function () {
 
       expect(document.find('body').html()).toContain('<div id="twigs-toast"><div class="ng-scope">my success content</div></div>');
 
-      $timeout.flush();
+      $interval.flush(7000);
 
       expect(document.find('body').html()).not.toContain('<div id="twigs-toast"><div class="ng-scope">my success content</div></div>');
     });
@@ -285,7 +285,7 @@ describe('Service & Provider: GlobalPopups', function () {
       expect(document.find('body').html()).toContain('<div class="ng-scope">my success content</div>');
       expect(document.find('body').html()).toContain('<div class="ng-scope">my warning content</div>');
 
-      $timeout.flush(6000);
+      $interval.flush(6000);
 
       expect(document.find('body').html()).not.toContain('<div class="ng-scope">my warning content</div>');
       expect(document.find('body').html()).toContain('<div class="ng-scope">my success content</div>');
