@@ -209,6 +209,7 @@ angular.module('twigs.globalPopups')
       /**
        * Controller for angular bootstrap $modals used for basic Modals
        */
+      /*@ngInject*/
       var ModalInstanceCtrl = function ($scope, $modalInstance, messageText, title, primaryButtonText, secondaryButtonText) {
         $scope.message = messageText;
         $scope.title = title;
@@ -226,6 +227,7 @@ angular.module('twigs.globalPopups')
       /**
        * Controller for angular bootstrap $modals used for File Modals
        */
+      /*@ngInject*/
       var FileModalInstanceCtrl = function ($scope, $modalInstance, messageText, title, backButtonText) {
         $scope.message = messageText;
         $scope.title = title;

@@ -1526,6 +1526,7 @@ angular.module('twigs.globalPopups')
       /**
        * Controller for angular bootstrap $modals used for basic Modals
        */
+      /*@ngInject*/
       var ModalInstanceCtrl = function ($scope, $modalInstance, messageText, title, primaryButtonText, secondaryButtonText) {
         $scope.message = messageText;
         $scope.title = title;
@@ -1540,9 +1541,11 @@ angular.module('twigs.globalPopups')
           $modalInstance.dismiss();
         };
       };
+      ModalInstanceCtrl.$inject = ["$scope", "$modalInstance", "messageText", "title", "primaryButtonText", "secondaryButtonText"];
       /**
        * Controller for angular bootstrap $modals used for File Modals
        */
+      /*@ngInject*/
       var FileModalInstanceCtrl = function ($scope, $modalInstance, messageText, title, backButtonText) {
         $scope.message = messageText;
         $scope.title = title;
@@ -1556,6 +1559,7 @@ angular.module('twigs.globalPopups')
           $modalInstance.dismiss();
         };
       };
+      FileModalInstanceCtrl.$inject = ["$scope", "$modalInstance", "messageText", "title", "backButtonText"];
 
       /**
        * Displays a toast template by adding it to the body element in the dom
