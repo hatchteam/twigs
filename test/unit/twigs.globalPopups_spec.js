@@ -23,8 +23,7 @@ describe('Service & Provider: GlobalPopups', function () {
 
   beforeEach(function () {
     // Initialize the service provider by injecting it to a fake module's config block
-    var fakeModule = angular.module('testApp', function () {
-    });
+    var fakeModule = angular.module('testApp', []);
 
     fakeModule.config(function (_GlobalPopupsProvider_) {
       GlobalPopupsProvider = _GlobalPopupsProvider_;
@@ -143,13 +142,13 @@ describe('Service & Provider: GlobalPopups', function () {
   });
 
   describe('GlobalPopups Modal', function () {
-    var $modal, capturedModalOptions;
+    var $uibModal, capturedModalOptions;
 
     /**
-     * mock $modal
+     * mock $uibModal
      */
     beforeEach(function () {
-      $modal = {
+      $uibModal = {
         open: function (modalOptions) {
           capturedModalOptions = modalOptions;
           return {
@@ -159,7 +158,7 @@ describe('Service & Provider: GlobalPopups', function () {
         }
       };
       module(function ($provide) {
-        $provide.value('$modal', $modal);
+        $provide.value('$uibModal', $uibModal);
       });
     });
     /**
@@ -179,12 +178,12 @@ describe('Service & Provider: GlobalPopups', function () {
           keyboard: true
         }
       });
-      spyOn($modal, 'open').and.callThrough();
+      spyOn($uibModal, 'open').and.callThrough();
 
       expect(GlobalPopups.infoDialog).toBeDefined();
       GlobalPopups.infoDialog('my info message');
 
-      expect($modal.open).toHaveBeenCalled();
+      expect($uibModal.open).toHaveBeenCalled();
       expect(capturedModalOptions.templateUrl).toBe('views/globalMsg/infoModal.html');
       expect(capturedModalOptions.backdrop).toBeFalsy();
       expect(capturedModalOptions.keyboard).toBeTruthy();
@@ -199,12 +198,12 @@ describe('Service & Provider: GlobalPopups', function () {
           keyboard: true
         }
       });
-      spyOn($modal, 'open').and.callThrough();
+      spyOn($uibModal, 'open').and.callThrough();
 
       expect(GlobalPopups.fileModal).toBeDefined();
       GlobalPopups.fileModal("http://www.mathworks.com/moler/random.pdf", "This is a title!");
 
-      expect($modal.open).toHaveBeenCalled();
+      expect($uibModal.open).toHaveBeenCalled();
       expect(capturedModalOptions.templateUrl).toBe('views/globalMsg/fileModal.html');
       expect(capturedModalOptions.backdrop).toBeFalsy();
       expect(capturedModalOptions.keyboard).toBeTruthy();

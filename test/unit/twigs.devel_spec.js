@@ -32,8 +32,7 @@ describe('Service Devel', function () {
 
   beforeEach(function () {
     // Initialize the service provider by injecting it to a fake module's config block
-    var fakeModule = angular.module('testApp', function () {
-    });
+    var fakeModule = angular.module('testApp', []);
 
     fakeModule.config(function (_DevelopmentInfoServiceProvider_) {
       DevelopmentInfoServiceProvider = _DevelopmentInfoServiceProvider_;

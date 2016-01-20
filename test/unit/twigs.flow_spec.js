@@ -23,8 +23,7 @@ describe('Service & Provider: Flow', function () {
 
     beforeEach(function () {
         // Initialize the service provider by injecting it to a fake module's config block
-        var fakeModule = angular.module('testApp', function () {
-        });
+        var fakeModule = angular.module('testApp', []);
 
         fakeModule.config(function (_FlowProvider_) {
             FlowProvider = _FlowProvider_;
