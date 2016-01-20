@@ -33,5 +33,5 @@
   "engines": {
     "node": ">=0.10.0"
   },
-  "main": "index.js"
+  "main": "dist/twigs.js"
 }
