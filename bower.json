@@ -1,6 +1,6 @@
 {
   "name": "twigs",
-  "version": "0.3.0",
+  "version": "0.2.3",
   "main": [
     "./dist/twigs.js",
     "./dist/styles/twigs.css"
@@ -10,14 +10,15 @@
     "demo",
     "node_modules",
     "components",
-    "Gruntfile.js",
+    "gulpfile.js",
     "karma.conf.js",
     "package.js",
     "**/.*",
     "**/*.json",
     "**/*.html"
   ],
-  "dependencies": {
+  "dependencies":{},
+  "devDependencies": {
     "jquery": "2.2.0",
     "angular": "1.4.8",
     "bootstrap": "3.3.6",
@@ -26,6 +27,5 @@
     "angular-scenario": "1.4.8",
     "angular-route": "1.4.8",
     "angular-bootstrap": "1.1.0"
-  },
-  "devDependencies": {}
+  }
 }

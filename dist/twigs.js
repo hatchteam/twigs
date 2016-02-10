@@ -20,7 +20,7 @@
 
 /**
  *  define all modules here!
- *  If we don't do this, we get problems when concatenating all files into one (grunt concatenates in alphabetical order)
+ *  If we don't do this, we get problems when concatenating all files into one (gulp concatenates in alphabetical order)
  */
 
 angular.module('twigs.activeRoute', []);
@@ -2684,6 +2684,7 @@ angular.module('twigs.security')
  **/
   .provider('Authorizer', function () {
 
+    Authorizer.$inject = ["$rootScope", "$q", "$injector", "UserObjectSanityChecker"];
     var
 
       /**
@@ -2974,7 +2975,6 @@ angular.module('twigs.security')
         isLoggedIn: isLoggedIn
       };
     }
-    Authorizer.$inject = ["$rootScope", "$q", "$injector", "UserObjectSanityChecker"];
 
   });
 
