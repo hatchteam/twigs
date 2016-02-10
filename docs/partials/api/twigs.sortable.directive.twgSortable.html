@@ -1,0 +1,37 @@
+<h1><code ng:non-bindable="">twgSortable</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">twigs.sortable</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="twigs-sortable-directive-page twigs-sortable-directive-twgsortable-page"><p>In a modern user interface, we expect tables to be sortable.
+The twgSortable directive provides an easy way to define sortable tables. Just specify the attribute&#39;s name
+you want to sort by (in the example: &#39;name&#39; and &#39;number&#39;).</p>
+<p>The directive will set the scope variables <strong>orderPropertyName</strong> and <strong>orderProp</strong> which you can use
+in the usual way in ngRepeat.</p>
+<p>On the first click, the rows are sorted ascending, on a second click to the same column header, the rows are
+sorted descending.</p>
+<p>In Addition, marker css classes are added the column headers, which enables specific styling (e.g. arrows).</p>
+<p>Make sure to add the twg-sortable directive to the table tag. This ensures a separate scope and
+allows you to use multiple sortable tables within your same Controller/ View.</p>
+<pre><code class="lang-html">&lt;table twg-sortableTable&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+    &lt;th twg-sortable=&#39;name&#39;&gt;Name&lt;/th&gt;
+    &lt;th twg-sortable=&#39;number&#39;&gt;Number&lt;/th&gt;
+  &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr ng-repeat=&#39;data in dummyData | orderBy:orderPropertyName:orderProp&#39;&gt;
+      &lt;td&gt;{{data.number}}&lt;/td&gt;
+      &lt;td&gt;{{data.name}}&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+</div></div>
+<h2 id="usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;th, td twg-sortable&gt;
+   ...
+&lt;/th, td&gt;</pre>
+</div>
+</div>

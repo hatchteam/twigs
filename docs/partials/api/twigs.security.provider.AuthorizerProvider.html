@@ -1,0 +1,74 @@
+<h1><code ng:non-bindable="">AuthorizerProvider</code>
+<div><span class="hint">object in module <code ng:non-bindable="">twigs.security</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"></div>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_registerpermissionevaluationfunction">registerPermissionEvaluationFunction(fn)</h3>
+<div class="registerpermissionevaluationfunction"><div class="twigs-security-provider-page twigs-security-provider-authorizerprovider-registerpermissionevaluationfunction-page"><p>Registers the permission evaluator for evaluating permissions.
+Your evaluator must return a evaluation function.
+Authorizer will pass in the user object, and the needed permissions (arguments)</p>
+<pre><code class="lang-javascript">AuthorizerProvider.registerPermissionEvaluationFunction(function (SomeCollaborator) {
+      return function (user, args) {
+         // decide upon users permissions and args.
+         // return true or false
+
+         // SomeCollaborator.foo()
+
+         return true:
+     };
+  });</code></pre>
+</div><h5 id="methods_registerpermissionevaluationfunction_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>fn</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-security-provider-page twigs-security-provider-authorizerprovider-registerpermissionevaluationfunction-page"><p>The evaluator function</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_registeruserloader">registerUserLoader(loader)</h3>
+<div class="registeruserloader"><div class="twigs-security-provider-page twigs-security-provider-authorizerprovider-registeruserloader-page"><p>Registers the loader function to load the user Object. The given loader function must return
+a promise which resolves to the user Object.
+The user object is expected to be of the form:</p>
+<pre><code class="lang-javascript"> {
+  username:&#39;John&#39;,
+  permissions:[]
+ }</code></pre>
+<p>It is valid to resolve to a user object which has additional properties.</p>
+<pre><code class="lang-javascript">AuthorizerProvider.registerUserLoader(function ($q, $resource) {
+      return function () {
+          var deferred = $q.defer();
+          $resource(&#39;/users/current&#39;).get({},
+              function (data) {
+                 return deferred.resolve(data);
+             }, function () {
+                 return deferred.reject();
+              });
+
+         return deferred.promise;
+     };
+  });</code></pre>
+</div><h5 id="methods_registeruserloader_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>loader</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="twigs-security-provider-page twigs-security-provider-authorizerprovider-registeruserloader-page"><p>The user loader function</p>
+</div></td></tr></tbody></table></div>
+</li>
+</ul>
+</div>
+<div class="member property"><h2 id="properties">Properties</h2>
+<ul class="properties"><li><h3 id="properties_permissionevaluator">permissionEvaluator</h3>
+<div class="permissionevaluator"><div class="twigs-security-provider-page twigs-security-provider-authorizerprovider-permissionevaluator-page"><p>The evaluator function (register via .registerPermissionEvaluator()</p>
+</div></div>
+</li>
+<li><h3 id="properties_user">user</h3>
+<div class="user"><div class="twigs-security-provider-page twigs-security-provider-authorizerprovider-user-page"><p>The user object</p>
+</div></div>
+</li>
+<li><h3 id="properties_userloaderfunction">userLoaderFunction</h3>
+<div class="userloaderfunction"><div class="twigs-security-provider-page twigs-security-provider-authorizerprovider-userloaderfunction-page"><p>The userLoader function (register via .registerUserLoaderFunction()</p>
+</div></div>
+</li>
+<li><h3 id="properties_userloadingpromise">userLoadingPromise</h3>
+<div class="userloadingpromise"><div class="twigs-security-provider-page twigs-security-provider-authorizerprovider-userloadingpromise-page"><p>we remember, that we are already loading the user.
+A second call to &quot;Authorizer.getUser()&quot; while the first call ist still waiting for a server-response,
+will receive the same promise;</p>
+</div></div>
+</li>
+</ul>
+</div>
+</div>

@@ -1,0 +1,34 @@
+<h1><code ng:non-bindable="">Authorizer</code>
+<div><span class="hint">object in module <code ng:non-bindable="">twigs.security</code>
+</span>
+</div>
+</h1>
+<div><div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_clearsecuritycontext">clearSecurityContext()</h3>
+<div class="clearsecuritycontext"><div class="twigs-security-service-page twigs-security-service-authorizer-clearsecuritycontext-page"><p>Clears the securityContext. After invocation, no user object is loaded and
+&#39;isLoggedIn()&#39; will resolve to false.</p>
+<p>Will broadcast the event &quot;userCleared&quot; ont he $rootScope.</p>
+</div></div>
+</li>
+<li><h3 id="methods_getuser">getUser()</h3>
+<div class="getuser"><div class="twigs-security-service-page twigs-security-service-authorizer-getuser-page"><p>returns a promise, holding the current user. will load the user if necessary.
+Will broadcast the event &quot;userLoaded&quot; ont he $rootScope as soon as the user was successfully loaded from the backend.</p>
+</div><h5 id="methods_getuser_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="twigs-security-service-page twigs-security-service-authorizer-getuser-page"><p>The User object of the currently logged-in user</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_haspermission">hasPermission(permission)</h3>
+<div class="haspermission"><div class="twigs-security-service-page twigs-security-service-authorizer-haspermission-page"><p>Will call registered evaluator function. Is mostly used in twigs.security directives.</p>
+</div><h5 id="methods_haspermission_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>permission</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="twigs-security-service-page twigs-security-service-authorizer-haspermission-page"><p>Object that specifies the permissions to check. Will be passed on to evaluator function.</p>
+</div></td></tr></tbody></table><h5 id="methods_haspermission_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-promise">promise</a></td><td><div class="twigs-security-service-page twigs-security-service-authorizer-haspermission-page"><p>Resolves to true if current user has needed permission(s)</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_isloggedin">isLoggedIn()</h3>
+<div class="isloggedin"><div class="twigs-security-service-page twigs-security-service-authorizer-isloggedin-page"><p>Checks whether a user was successfully loaded from the backend. If a userLoad is currently pending, this will wait for the promise
+to be resolved or rejected.
+This Will not trigger a userLoad by itself!</p>
+</div><h5 id="methods_isloggedin_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-promise">promise</a></td><td><div class="twigs-security-service-page twigs-security-service-authorizer-isloggedin-page"><p>Resolves to true if a user is loaded.</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+</div>

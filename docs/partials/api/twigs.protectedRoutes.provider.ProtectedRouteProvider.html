@@ -1,0 +1,38 @@
+<h1><code ng:non-bindable="">ProtectedRouteProvider</code>
+<div><span class="hint">object in module <code ng:non-bindable="">twigs.protectedRoutes</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="twigs-protectedroutes-provider-page twigs-protectedroutes-provider-protectedrouteprovider-page"><p>In an application that uses a permission model, we&#39;d like to protect some views from
+unauthorized access.</p>
+<p>ProtectedRoutes allows you to protect a route. (You can use our ProtectedRouteProvider
+in the same way you would use the standard $routeProvider).</p>
+<p>You can specify the property <em>protection</em>. Angular will then
+evaluate the user&#39;s permission on routeChangeStart. If the user has the required permissions, the route and the location changes.
+If not, the route-change is prevented and a <em>$routeChangeError</em> event is thrown, which can be handled by your application to e.g. forward to the main view or to display an
+appropriate message.</p>
+<p>If you don&#39;t want to check for a specific permission, but only check if a user is logged in, set the property <em>authenticated</em> to true.</p>
+<h5 id="description_how-to-configure-protected-routes">How to configure protected routes</h5>
+<pre><code class="lang-javascript">var App = angular.module(&#39;Main&#39;,[&#39;twigs.protectedRoutes&#39;]);
+
+App.config(function (ProtectedRouteProvider) {
+
+ProtectedRouteProvider
+    .when(&#39;/home&#39;, {
+        templateUrl: &#39;views/home.html&#39;,
+        controller: &#39;HomeCtrl&#39;
+    })
+    .when(&#39;/settings&#39;, {
+        templateUrl: &#39;/views/settings.html&#39;,
+        controller: &#39;SettingsCtrl&#39;,
+        protection: {roles:[&#39;ADMIN&#39;]}
+    }),
+    .when(&#39;/profile&#39;, {
+        templateUrl: &#39;/views/settings.html&#39;,
+        controller: &#39;SettingsCtrl&#39;,
+        protection: true
+    });</code></pre>
+<p>Note: ProtectedRoute depends on the twigs.security module. Make sure you registered a user loader function (see <a href="#/api/twigs.security.provider:AuthorizerProvider">AuthorizerProvider</a>)</p>
+</div></div>
+</div>

@@ -1,0 +1,32 @@
+<h1><code ng:non-bindable="">twgProtected</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">twigs.security</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="twigs-security-directive-page twigs-security-directive-twgprotected-page"><p>Protects a html element: either hides it or disables it if currently logged in user does not have
+specified permissions. (Permissions are evaluated via your registered evaluator)</p>
+<p>Specify whether to hide or disable with attributes twg-protected-hide and twg-protected-disable.
+If you do not specify any, element is hidden if permissions are missing.</p>
+<p>If you set twg-protected=&quot;true&quot;, a user must be logged in. no further permission evaluation is done.
+If you set twg-protected=&quot;{....}&quot;, permissions are evaluated via your registered evaluator.</p>
+</div></div>
+<h2 id="usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;ANY twg-protected&gt;
+   ...
+&lt;/ANY&gt;</pre>
+</div>
+<h2 id="example">Example</h2>
+<div class="example"><div class="twigs-security-directive-page twigs-security-directive-twgprotected-page"><p>Hide an element if no user is logged in.</p>
+<pre><code class="lang-html">&lt;div twg-protected=&quot;true&quot;&gt;
+&lt;/div&gt;</code></pre>
+<p>is equivalent to:</p>
+<pre><code class="lang-html">&lt;div twg-protected=&quot;true&quot; twg-protected-hide &gt;&lt;/div&gt;</code></pre>
+<p>Disable element if no user is logged in.</p>
+<pre><code class="lang-html">&lt;input twg-protected=&quot;true&quot; twg-protected-disable /&gt;</code></pre>
+<p>Hide element if permissions are not given</p>
+<pre><code class="lang-html">&lt;div twg-protected=&quot;{roles:[&#39;some&#39;]}&quot; &gt;&lt;/div&gt;
+
+&lt;div twg-protected=&quot;{mustBeAdmin:true}&quot; &gt;&lt;/div&gt;</code></pre>
+</div></div>
+</div>
