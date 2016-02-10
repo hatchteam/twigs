@@ -10,7 +10,7 @@
     "demo",
     "node_modules",
     "components",
-    "Gruntfile.js",
+    "gulpfile.js",
     "karma.conf.js",
     "package.js",
     "**/.*",
