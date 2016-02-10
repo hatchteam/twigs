@@ -20,7 +20,7 @@
 
 /**
  *  define all modules here!
- *  If we don't do this, we get problems when concatenating all files into one (grunt concatenates in alphabetical order)
+ *  If we don't do this, we get problems when concatenating all files into one (gulp concatenates in alphabetical order)
  */
 
 angular.module('twigs.activeRoute', []);
@@ -1478,11 +1478,11 @@ angular.module('twigs.globalPopups')
   .provider('GlobalPopups', function GlobalPopupsProvider() {
     var serviceInstance = {};
 
-    this.$get = ["$rootScope", "$modal", "$interval", "$templateCache", "$http", "$compile", "$document", "$sce", "$q", function ($rootScope, $modal, $interval, $templateCache, $http, $compile, $document, $sce, $q) {
+    this.$get = ["$rootScope", "$uibModal", "$interval", "$templateCache", "$http", "$compile", "$document", "$sce", "$q", function ($rootScope, $uibModal, $interval, $templateCache, $http, $compile, $document, $sce, $q) {
       var toastStack;
 
       /**
-       * Display Modals using angular bootstrap $modal
+       * Display Modals using angular bootstrap $uibModal
        */
       var displayModal = function (modal, messageText, title, primaryButtonText, secondaryButtonText) {
         var modalOptions = modal.options.modalOptions;
@@ -1501,10 +1501,10 @@ angular.module('twigs.globalPopups')
             return secondaryButtonText;
           }
         };
-        return $modal.open(modalOptions);
+        return $uibModal.open(modalOptions);
       };
       /**
-       * Display File Modals using angular bootstrap $modal
+       * Display File Modals using angular bootstrap $uibModal
        * (open url as trusted resource)
        */
       var displayFileModal = function (modal, url, title, backButtonText) {
@@ -1521,41 +1521,45 @@ angular.module('twigs.globalPopups')
             return backButtonText;
           }
         };
-        return $modal.open(modalOptions);
+        return $uibModal.open(modalOptions);
       };
       /**
-       * Controller for angular bootstrap $modals used for basic Modals
+       * Controller for angular bootstrap $uibModals used for basic Modals
        */
-      var ModalInstanceCtrl = function ($scope, $modalInstance, messageText, title, primaryButtonText, secondaryButtonText) {
+      /*@ngInject*/
+      var ModalInstanceCtrl = function ($scope, $uibModalInstance, messageText, title, primaryButtonText, secondaryButtonText) {
         $scope.message = messageText;
         $scope.title = title;
         $scope.primaryButtonText = primaryButtonText;
         $scope.secondaryButtonText = secondaryButtonText;
 
         $scope.ok = function () {
-          $modalInstance.close();
+          $uibModalInstance.close();
         };
 
         $scope.cancel = function () {
-          $modalInstance.dismiss();
+          $uibModalInstance.dismiss();
         };
       };
+      ModalInstanceCtrl.$inject = ["$scope", "$uibModalInstance", "messageText", "title", "primaryButtonText", "secondaryButtonText"];
       /**
-       * Controller for angular bootstrap $modals used for File Modals
+       * Controller for angular bootstrap $uibModals used for File Modals
        */
-      var FileModalInstanceCtrl = function ($scope, $modalInstance, messageText, title, backButtonText) {
+      /*@ngInject*/
+      var FileModalInstanceCtrl = function ($scope, $uibModalInstance, messageText, title, backButtonText) {
         $scope.message = messageText;
         $scope.title = title;
         $scope.backButtonText = backButtonText;
 
         $scope.ok = function () {
-          $modalInstance.close();
+          $uibModalInstance.close();
         };
 
         $scope.cancel = function () {
-          $modalInstance.dismiss();
+          $uibModalInstance.dismiss();
         };
       };
+      FileModalInstanceCtrl.$inject = ["$scope", "$uibModalInstance", "messageText", "title", "backButtonText"];
 
       /**
        * Displays a toast template by adding it to the body element in the dom
@@ -2680,6 +2684,7 @@ angular.module('twigs.security')
  **/
   .provider('Authorizer', function () {
 
+    Authorizer.$inject = ["$rootScope", "$q", "$injector", "UserObjectSanityChecker"];
     var
 
       /**
@@ -2970,7 +2975,6 @@ angular.module('twigs.security')
         isLoggedIn: isLoggedIn
       };
     }
-    Authorizer.$inject = ["$rootScope", "$q", "$injector", "UserObjectSanityChecker"];
 
   });
 
